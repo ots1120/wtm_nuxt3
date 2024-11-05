@@ -1,5 +1,5 @@
 <template>
-  <div>ADMIN storeId : {{ $route.params.storeId }} ticket</div>
+  <div>my bookmarks</div>
 </template>
 
 <script setup lang="ts"></script>

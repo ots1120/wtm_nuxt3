@@ -1,7 +1,7 @@
 <template>
   <div class="flex m-5 flex-col items-center">
     <UserSearchHeader />
-    <SlidingPanel />
+
     <UserBottomNav />
   </div>
 </template>

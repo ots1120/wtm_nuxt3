@@ -12,4 +12,5 @@ export default defineNuxtConfig({
     '~/assets/css/font.css',
     '~/assets/css/styles.css',
   ],
+  components: true,
 });
