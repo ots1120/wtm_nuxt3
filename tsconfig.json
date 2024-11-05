@@ -1,0 +1,4 @@
+{
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "extends": "./.nuxt/tsconfig.json" // zero-config Typescript (내가 굳이 안건드려도 됨)
+}
