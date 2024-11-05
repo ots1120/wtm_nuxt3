@@ -23,9 +23,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useFetch } from '#app';
-import StoreDetailInfo from '~/components/stores/detail/StoreDetailInfo.vue';
-import StoreDetailActionButtons from '~/components/stores/detail/StoreDetailActionButtons.vue';
-import StoreDetailTicket from '~/components/stores/detail/StoreDetailTicket.vue';
+import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
+import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
+import StoreDetailTicket from '~/components/stores/user/detail/StoreDetailTicket.vue';
 
 // 반응형 데이터 정의
 const route = useRoute();

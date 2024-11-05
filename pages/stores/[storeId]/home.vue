@@ -25,9 +25,9 @@
 import { ref, onMounted } from 'vue';
 import { useFetch } from '#app';
 import { useRoute } from 'vue-router';
-import StoreDetailInfo from '~/components/stores/detail/StoreDetailInfo.vue';
-import StoreDetailActionButtons from '~/components/stores/detail/StoreDetailActionButtons.vue';
-import StoreDetailHome from '~/components/stores/detail/StoreDetailHome.vue';
+import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
+import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
+import StoreDetailHome from '~/components/user/stores/detail/StoreDetailHome.vue';
 
 // 라우트에서 storeId 가져오기
 const route = useRoute();

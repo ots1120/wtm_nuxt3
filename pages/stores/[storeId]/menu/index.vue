@@ -151,7 +151,7 @@
         <form action="#" method="post" class="w-full">
           <button
             class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg w-full transition"
-            @click="goToMenuRegPage"
+            @click.prevent="goToMenuRegPage"
           >
             메뉴 제보하기
           </button>
@@ -219,7 +219,7 @@ onMounted(fetchData);
 
 // 메뉴 등록 페이지로 이동하는 함수
 function goToMenuRegPage() {
-  router.push('/newMenu');
+  router.push(`/stores/${storeId}/menu/new`);
 }
 </script>
 
