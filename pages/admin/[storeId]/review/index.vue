@@ -3,7 +3,7 @@
     <div v-if="reviews.length > 0">
       <div
         v-for="(review, index) in reviews"
-        :key="review.id"
+        :key="review.reviewId"
         class="flex border-b-2"
       >
         <!-- 유저 프로필 사진 영역 -->
@@ -99,7 +99,7 @@
             <button
               v-if="!isReplying[index]"
               class="cursor-pointer text-xs text-blue-500"
-              @click="toggleReply(index)"
+              @click="toggleComment(index)"
             >
               답글
             </button>
@@ -107,8 +107,8 @@
               v-if="isReplying[index]"
               :review-data="review"
               :index="index"
-              @submit-reply="submitReply"
-              @cancel-reply="toggleReply"
+              @submit-reply="submitComment"
+              @cancel-reply="toggleComment"
             />
           </div>
         </div>
@@ -134,7 +134,7 @@ interface ReviewComment {
 }
 
 interface Review {
-  id: number;
+  reviewId: number;
   userName: string;
   userProfilePicture?: string;
   reviewContent: string;
@@ -161,6 +161,7 @@ const fetchReviews = async () => {
     const response = await axios.get(
       `http://localhost:8080/api/admin/stores/${storeId}/reviews`,
     );
+    console.log(response);
     reviews.value = response.data.map((review: Review) => {
       return {
         ...review,
@@ -182,15 +183,42 @@ const toggleExpand = (index: number) => {
 };
 
 // 답글 표시/숨기기 토글 함수
-const toggleReply = (index: number) => {
+const toggleComment = (index: number) => {
   isReplying.value[index] = !isReplying.value[index];
 };
 
 // 답글 제출 로직
-const submitReply = (replyContent: string, index: number) => {
-  console.log('답글 제출:', replyContent);
-  toggleReply(index); // 답글 제출 후 상태 초기화
+const submitComment = async (
+  reviewId: number,
+  commentContent: string,
+  index: number,
+) => {
+  try {
+    // const userId = getUserIdFromSession(); //세션이나 인증된 사용자 정보에서 가져와야 함.
+    // const userName = getUserNameFromSession(); //세션이나 인증된 사용자 정보에서 가져와야 함.
+    // const userProfilePicture = getUserProfilePictureFromSession(); //세션이나 인증된 사용자 정보에서 가져와야 함.
+
+    const response = await axios.post(
+      `http://localhost:8080/api/admin/stores/${storeId}/reviews/${reviewId}`,
+      {
+        storeId,
+        userId: 1,
+        reviewId,
+        content: commentContent,
+        userProfilePicture: null,
+      },
+    );
+    toggleComment(index); // 답글 제출 후 상태 초기화
+    console.log('답글 제출 성공:', response.data);
+  } catch (error) {
+    console.error('답글 제출 중 오류 발생:', error);
+  }
 };
+
+// const submitComment = (replyContent: string, index: number) => {
+//   console.log('답글 제출:', replyContent);
+//   toggleComment(index); // 답글 제출 후 상태 초기화
+// };
 </script>
 
 <style scoped>

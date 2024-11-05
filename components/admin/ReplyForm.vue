@@ -26,7 +26,8 @@ import { ref, defineProps, defineEmits } from 'vue';
 // Props 정의
 const props = defineProps<{
   reviewData: {
-    id: number;
+    // id: number;
+    reviewId: number;
     userName: string;
     userProfilePicture?: string;
     reviewContent: string;
@@ -36,9 +37,19 @@ const props = defineProps<{
   index: number;
 }>();
 
+interface emitSubmit {
+  id: number;
+  commentContent: string;
+  index: number;
+}
 // Emits 정의
 const emit = defineEmits<{
-  (event: 'submitComment', reviewId: number, commentContent: string): void;
+  (
+    event: 'submit-reply',
+    id: number,
+    commentContent: string,
+    index: number,
+  ): emitSubmit;
   (event: 'cancel-reply', index: number): void;
 }>();
 
@@ -49,9 +60,14 @@ const commentContent = ref<string>('');
 const handleSubmitComment = () => {
   if (props.reviewData) {
     console.log(props.reviewData);
-    console.log('Replying to review with ID:', props.reviewData.id);
+    console.log('Replying to review with ID:', props.reviewData.reviewId);
     console.log('Reply content:', commentContent.value);
-    emit('submitComment', props.reviewData.id, commentContent.value); // submitComment 이벤트 발생
+    emit(
+      'submit-reply',
+      props.reviewData.reviewId,
+      commentContent.value,
+      props.index,
+    ); // submitComment 이벤트 발생
     commentContent.value = ''; // 답글 제출 후 초기화
   } else {
     console.error('Review data is missing!');
