@@ -5,6 +5,9 @@
     @touchstart="onTouchStart"
     @touchmove="onTouchMove"
     @touchend="onTouchEnd"
+    @mousedown="startDrag"
+    @mousemove="onDrag"
+    @mouseup="endDrag"
   >
     <div class="handle"></div>
     <!-- 마커 리스트 -->
@@ -15,44 +18,74 @@
     </ul>
   </div>
 </template>
-
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
-const markers = ref([
-  { id: 1, name: '마커 1' },
-  { id: 2, name: '마커 2' },
-  // 추가 마커 데이터
-]);
+const translateY = ref(0); // 초기 값은 0으로 설정하고 onMounted에서 실제 높이로 설정
+const targetTranslateY = ref(0);
 
-const translateY = ref(window.innerHeight * 0.4); // 초기 위치
-
-// 터치 이벤트 변수
 let startY = 0;
-let currentY = 0;
 let isDragging = false;
+let animationFrameId = null;
 
-// 터치 시작
-function onTouchStart(event) {
-  startY = event.touches[0].clientY;
+// 마운트 시에만 window.innerHeight 사용
+onMounted(() => {
+  translateY.value = window.innerHeight * 0.5; // 화면의 절반 위치로 설정
+  targetTranslateY.value = translateY.value;
+});
+
+// 마우스 및 터치 이벤트 시작
+function startDrag(event) {
   isDragging = true;
+  startY = event.touches ? event.touches[0].clientY : event.clientY;
+
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', endDrag);
 }
 
-// 터치 이동
-function onTouchMove(event) {
+// 마우스 및 터치 이동 중
+function onDrag(event) {
   if (!isDragging) return;
-  currentY = event.touches[0].clientY;
+
+  const currentY = event.touches ? event.touches[0].clientY : event.clientY;
   const deltaY = currentY - startY;
-  translateY.value = Math.max(0, translateY.value + deltaY);
+
+  targetTranslateY.value = Math.max(0, translateY.value + deltaY);
   startY = currentY;
+
+  if (!animationFrameId) animate();
 }
 
-// 터치 종료
-function onTouchEnd() {
+// 애니메이션 함수
+function animate() {
+  const distance = targetTranslateY.value - translateY.value;
+  translateY.value += distance * 0.2;
+
+  if (Math.abs(distance) > 0.5) {
+    animationFrameId = requestAnimationFrame(animate);
+  } else {
+    translateY.value = targetTranslateY.value;
+    animationFrameId = null;
+  }
+}
+
+// 마우스 및 터치 이벤트 종료
+function endDrag() {
   isDragging = false;
-  // 위치 스냅핑 또는 애니메이션 추가 가능
+
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', endDrag);
+
+  if (targetTranslateY.value < window.innerHeight * 0.25) {
+    targetTranslateY.value = 0;
+  } else {
+    targetTranslateY.value = window.innerHeight * 0.5;
+  }
+
+  if (!animationFrameId) animate();
 }
 </script>
+
 <style scoped>
 .sliding-panel {
   position: fixed;

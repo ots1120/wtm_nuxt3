@@ -1,15 +1,13 @@
 <template>
-  <div class="flex m-5 flex-col items-center">
+  <div class="flex flex-col items-center">
     <UserSearchHeader />
-    <SlidingPanel />
+    <NaverMap />
     <UserBottomNav />
   </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 </script>
 
 <style scoped></style>

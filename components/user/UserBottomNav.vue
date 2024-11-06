@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute bottom-0 flex justify-evenly max-w-lg w-full bg-slate-100 pt-2"
+    class="relative bottom-0 flex justify-evenly max-h-screen max-w-lg w-full bg-slate-100 pt-2"
   >
     <div>
       <NuxtLink to="/">

@@ -1,6 +1,8 @@
 <template>
-  <div class="flex mb-3 flex-col items-center w-full max-w-lg">
-    <NuxtLink to="/" class="justify-start" aria-label="홈으로 이동">
+  <div
+    class="relative z-10 flex flex-col items-center pt-3 px-1 w-full max-w-lg bg-slate-100"
+  >
+    <NuxtLink to="/" aria-label="홈으로 이동">
       <svg
         class="w-16"
         viewBox="0 0 50 15"

@@ -1,12 +1,11 @@
 <!-- components/CustomInput.vue -->
 <template>
   <div
-    class="m-3 inline-flex items-center w-full border-2 border-gray-100 rounded-3xl"
+    class="mt-3 inline-flex items-center w-full border-2 border-gray-200 rounded-2xl"
   >
     <div class="p-4">
       <svg
-        width="32px"
-        height="32px"
+        class="w-8"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -41,11 +40,10 @@
       <button
         v-if="showClear"
         type="button"
-        class="w-4 mr-4"
+        class="w-5 mr-4"
         aria-label="입력 내용 지우기"
         @click="clearInput"
       >
-        <!-- 아이콘 또는 텍스트 -->
         ×
       </button>
     </form>

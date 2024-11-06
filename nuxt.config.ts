@@ -7,10 +7,10 @@ export default defineNuxtConfig({
   tailwindcss: {
     // viewer: { endpoint: '/_tailwind', exportViewer: true },
   },
-  css: [
-    '~/assets/css/reset.css',
-    '~/assets/css/font.css',
-    '~/assets/css/styles.css',
-  ],
-  components: true,
+  css: ['~/assets/css/reset.css', '~/assets/css/font.css'],
+  runtimeConfig: {
+    public: {
+      naverMapClientId: import.meta.env.NAVER_MAP_CLIENT_ID,
+    },
+  },
 });
