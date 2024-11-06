@@ -1,22 +1,32 @@
 <template>
   <div>
     <!-- 상단 이미지와 식당 정보 섹션 -->
-    <StoreDetailInfo v-if="selectedStore" :store="selectedStore" />
+    <StoreDetailInfo
+      v-if="selectedStore"
+      :store="selectedStore"
+      :review-stats="reviewStats"
+    />
 
     <!-- 경로, 저장, 공유 버튼 섹션 -->
     <StoreDetailActionButtons v-if="actionButtons" :actions="actionButtons" />
 
+    <!-- 탭 네비게이션 -->
+    <StoreDetailTabs />
+
     <!-- 공지사항 -->
-    <div v-if="reviewDatas && reviewDatas.length > 0">
-      <StoreDetailReviewList
-        v-for="(reviewData, index) in ReviewDatas.reviews"
+    <div v-if="noticeDatas && noticeDatas.length > 0">
+      <StoreDetailNoticeList
+        v-for="(noticeData, index) in noticeDatas"
         :key="index"
         class="p-4"
-        :reviewer-name="reviewData.user.name"
-        :days-ago="calculateDaysAgo(reviewData.createdAt)"
-        :review-content="reviewData.content"
-        :review-images="reviewData.images.map((img) => img.url)"
-        :rating-stars="reviewData.avgScore"
+        :store-name="noticeData.storeName"
+        :notice-name="noticeData.title"
+        :notice-content="noticeData.content"
+        :days-ago="
+          noticeData.regDate
+            ? calculateDaysAgo(noticeData.regDate)
+            : '등록일 없음'
+        "
       />
     </div>
     <div v-else>
@@ -30,7 +40,8 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useFetch } from '#app';
 import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
-import StoreDetailReviewList from '~/components/user/stores/detail/StoreDetailReviewList.vue';
+import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import StoreDetailNoticeList from '~/components/user/stores/detail/StoreDetailNoticeList.vue';
 
 // 라우트에서 storeId 가져오기
 const route = useRoute();
@@ -38,7 +49,7 @@ const storeId = route.params.storeId;
 
 // 반응형 데이터 정의
 const selectedStore = ref(null);
-const ReviewDatas = ref({});
+const noticeDatas = ref([]);
 const actionButtons = ref(['경로', '저장', '공유']);
 
 // 데이터 가져오기
@@ -54,30 +65,25 @@ onMounted(async () => {
       selectedStore.value = storeData.value;
     }
 
-    // 리뷰 데이터 가져오기
-    const { data: reviewData, error: reviewError } = await useFetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/reviews`,
+    // 공지사항 데이터 가져오기
+    const { data: noticeData, error: noticeError } = await useFetch(
+      `http://localhost:8080/api/v1/stores/${storeId}/notices`,
     );
-    if (reviewError.value) {
-      console.error('Review data fetching error:', reviewError.value);
+    if (noticeError.value) {
+      console.error('Notice data fetching error:', noticeError.value);
     } else {
-      ReviewDatas.value = reviewData.value;
-      console.log('리뷰 데이터:', ReviewDatas.value); // API에서 받아온 리뷰 데이터 확인용
+      noticeDatas.value = noticeData.value;
     }
   } catch (err) {
     console.error('API 요청 중 오류 발생:', err);
   }
 });
 
-// 작성일로부터 경과한 날짜 계산
-function calculateDaysAgo(reviewDate) {
+// 등록일로부터 경과한 날짜 계산
+function calculateDaysAgo(regDate) {
   const now = new Date();
-  const reviewDateTime = new Date(reviewDate);
-  const timeDiff = now - reviewDateTime;
+  const regDateTime = new Date(regDate);
+  const timeDiff = now - regDateTime;
   return Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // 일 단위 계산
 }
 </script>
-
-<style scoped>
-/* 필요한 경우 스타일 추가 */
-</style>

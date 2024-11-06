@@ -1,10 +1,17 @@
 <template>
   <div>
     <!-- 상단 이미지와 식당 정보 섹션 -->
-    <StoreDetailInfo v-if="selectedStore" :store="selectedStore" />
+    <StoreDetailInfo
+      v-if="selectedStore"
+      :store="selectedStore"
+      :review-stats="reviewStats"
+    />
 
     <!-- 경로, 저장, 공유 버튼 섹션 -->
     <StoreDetailActionButtons v-if="actionButtons" :actions="actionButtons" />
+
+    <!-- 탭 네비게이션 -->
+    <StoreDetailTabs />
 
     <!-- 티켓 정보 -->
     <div v-if="ticketInf && ticketInf.name">
@@ -25,7 +32,8 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useFetch } from '#app';
 import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
-import StoreDetailTicket from '~/components/stores/user/detail/StoreDetailTicket.vue';
+import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import StoreDetailTicket from '~/components/user/stores/detail/StoreDetailTicket.vue';
 
 // 반응형 데이터 정의
 const route = useRoute();

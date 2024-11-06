@@ -1,10 +1,17 @@
 <template>
   <div>
     <!-- 상단 이미지와 식당 정보 섹션 -->
-    <StoreDetailInfo v-if="selectedStore" :store="selectedStore" />
+    <StoreDetailInfo
+      v-if="selectedStore"
+      :store="selectedStore"
+      :review-stats="reviewStats"
+    />
 
     <!-- 경로, 저장, 공유 버튼 섹션 -->
     <StoreDetailActionButtons v-if="actionButtons" :actions="actionButtons" />
+
+    <!-- 탭 네비게이션 -->
+    <StoreDetailTabs />
 
     <!-- 식당정보 -->
     <div v-if="selectedStore && storeSns && Ticket">
@@ -28,13 +35,18 @@ import { useRoute } from 'vue-router';
 import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
 import StoreDetailHome from '~/components/user/stores/detail/StoreDetailHome.vue';
+import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
 
 // 라우트에서 storeId 가져오기
 const route = useRoute();
 const storeId = route.params.storeId;
 
 // 반응형 데이터 정의
-const reviewStats = ref({ name: '', overallAverageScore: 0, reviewCount: 0 });
+const reviewStats = ref({
+  storeName: '',
+  reviewCount: 0,
+  averageReviewScore: 0.0,
+});
 const selectedStore = ref(null); // 초기 값 null로 변경
 const storeSns = ref(null); // 초기 값 null로 변경
 const Ticket = ref(null); // 초기 값 null로 변경
@@ -53,9 +65,9 @@ async function fetchData() {
     // 데이터 확인 후 할당
     if (reviewSummaryData.value) {
       reviewStats.value = {
-        name: reviewSummaryData.value.name,
-        overallAverageScore: reviewSummaryData.value.overallAverageScore,
+        storeName: reviewSummaryData.value.storeName,
         reviewCount: reviewSummaryData.value.reviewCount,
+        averageReviewScore: reviewSummaryData.value.averageReviewScore,
       };
     }
     if (storeData.value) {
