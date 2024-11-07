@@ -1,5 +1,5 @@
 <template>
-  <div>Hello user index</div>
+  <div></div>
 </template>
 
 <script setup lang="ts"></script>

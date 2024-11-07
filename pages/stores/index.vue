@@ -1,13 +1,9 @@
 <template>
-  <div class="flex flex-col items-center">
-    <UserSearchHeader />
-    <NaverMap />
-    <UserBottomNav />
-  </div>
+  <NaverMap />
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: false });
+definePageMeta({ layout: 'search' });
 </script>
 
 <style scoped></style>

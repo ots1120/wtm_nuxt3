@@ -1,11 +1,14 @@
 <template>
-  <div class="flex m-5 flex-col items-center w-full max-w-lg">
-    <UserHeader />
+  <div class="flex flex-col m-5 items-center">
+    <UserHeader :title="pageTitle" />
     <NuxtPage />
     <UserBottomNav />
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const route = useRoute();
+const pageTitle = computed(() => route.meta?.title as string);
+</script>
 
 <style scoped></style>

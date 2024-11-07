@@ -159,9 +159,6 @@
     </div>
   </div>
 </template>
-<script>
-export default {
-  name: 'UserBottomNavComponents',
-};
-</script>
-<style></style>
+<script setup lang="ts"></script>
+
+<style scoped></style>
