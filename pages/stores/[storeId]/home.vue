@@ -1,11 +1,12 @@
 <template>
   <div>
-    <!-- 상단 이미지와 식당 정보 섹션 -->
-    <StoreDetailInfo
-      v-if="selectedStore"
-      :store="selectedStore"
-      :review-stats="reviewStats"
+    <!-- 상단 이미지 슬라이더 섹션 -->
+    <StoreDetailImages
+      :images="restaurantImages"
+      :restaurant-name="restaurantName"
     />
+    <!-- 상단 이미지와 식당 정보 섹션 -->
+    <StoreDetailInfo v-if="reviewStats" :review-stats="reviewStats" />
 
     <!-- 경로, 저장, 공유 버튼 섹션 -->
     <StoreDetailActionButtons v-if="actionButtons" :actions="actionButtons" />
@@ -36,6 +37,7 @@ import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
 import StoreDetailHome from '~/components/user/stores/detail/StoreDetailHome.vue';
 import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import StoreDetailImages from '~/components/user/stores/detail/StoreDetailImages.vue';
 
 // 라우트에서 storeId 가져오기
 const route = useRoute();
@@ -61,6 +63,8 @@ async function fetchData() {
     const { data: storeData } = await useFetch(
       `http://localhost:8080/api/v1/stores/${storeId}`,
     );
+
+    console.log(reviewSummaryData.value);
 
     // 데이터 확인 후 할당
     if (reviewSummaryData.value) {

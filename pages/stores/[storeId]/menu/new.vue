@@ -115,7 +115,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRoute, useFetch } from '#app';
+import { useRoute, useRouter } from '#app';
 import TheHeader from '~/components/user/layout/TheHeader.vue';
 
 // 폼 데이터 초기화
@@ -127,8 +127,9 @@ const formData = ref({
 });
 const imagePreview = ref(null); // 이미지 미리보기 저장
 
-// 라우트 정보 가져오기
+// 라우트 및 라우터 정보 가져오기
 const route = useRoute();
+const router = useRouter();
 const storeId = route.params.storeId;
 
 // 파일 업로드 핸들러
@@ -159,34 +160,27 @@ const submitForm = async () => {
   formData.value.etcMenus.forEach((etcMenu, index) => {
     form.append(`etcMenus[${index}]`, etcMenu);
   });
-  Array.from(formData.value.menuImages).forEach((file, index) => {
-    form.append(`menuImages[${index}]`, file);
+  Array.from(formData.value.menuImages).forEach((file) => {
+    form.append('files', file); // files 필드로 추가
   });
 
-  // FormData 내용 확인
-  form.forEach((value, key) => {
-    console.log(key, value);
-  });
+  console.log(form);
 
   try {
-    const { data, error } = await useFetch(
-      `http://localhost:3000/stores/${storeId}/menus`,
+    // $fetch 사용
+    const response = await $fetch(
+      `http://localhost:8080/api/v1/stores/${storeId}/menus`,
       {
         method: 'POST',
         body: form,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
       },
     );
 
-    if (error.value) {
-      console.error('메뉴 등록 중 오류 발생:', error.value);
-    } else {
-      console.log('서버 응답:', data.value);
-    }
-  } catch (err) {
-    console.error('API 요청 중 오류 발생:', err);
+    // 응답 확인
+    console.log('서버 응답:', response);
+    router.push(`/stores/${storeId}/menu`);
+  } catch (error) {
+    console.error('메뉴 등록 중 오류 발생:', error);
   }
 };
 </script>

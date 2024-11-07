@@ -2,15 +2,23 @@
   <div>
     <TheHeader :title="title" />
     <section class="flex justify-center">
-      <form @submit.prevent="submitReview" enctype="multipart/form-data">
+      <form enctype="multipart/form-data" @submit.prevent="submitReview">
         <!-- 리뷰 평가 항목 -->
         <div class="review-category mt-8 mb-8 w-96">
           <h1 class="hidden">리뷰 평가 항목</h1>
           <!-- 각 항목을 StarRating 컴포넌트로 분리 -->
-          <StarRating label="맛" category="taste" v-model="ratings.taste" />
-          <StarRating label="청결도" category="cleanliness" v-model="ratings.cleanliness" />
-          <StarRating label="분위기" category="mood" v-model="ratings.mood" />
-          <StarRating label="친절도" category="kindness" v-model="ratings.kindness" />
+          <StarRating v-model="ratings.taste" label="맛" category="taste" />
+          <StarRating
+            v-model="ratings.cleanliness"
+            label="청결도"
+            category="cleanliness"
+          />
+          <StarRating v-model="ratings.mood" label="분위기" category="mood" />
+          <StarRating
+            v-model="ratings.kindness"
+            label="친절도"
+            category="kindness"
+          />
         </div>
         <!-- 재방문 체크박스 -->
         <RevisitCheckbox v-model="revisit" />

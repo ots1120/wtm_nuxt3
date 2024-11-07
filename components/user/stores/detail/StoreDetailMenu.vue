@@ -6,14 +6,12 @@
     </div>
   </div>
 </template>
-<script>
-export default {
-  props: {
-    menu: {
-      type: Object,
-      required: true,
-    },
+<script setup>
+const { menu = ['김치찌개', '된장찌개', '불고기'] } = defineProps({
+  menu: {
+    type: Array,
+    required: true,
   },
-};
+});
 </script>
 <style></style>

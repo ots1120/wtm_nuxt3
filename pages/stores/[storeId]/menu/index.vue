@@ -14,10 +14,27 @@
     <StoreDetailTabs />
 
     <!-- 메뉴 탭 섹션 -->
-    <div v-if="menuItems && menuItems.length > 0" class="flex-col text-center">
-      <h2 class="">오늘의 메뉴</h2>
-      <div class="m-auto w-1/2 rounded-2xl border-0 bg-slate-200">
-        <p v-for="(menuItem, index) in menu" :key="index">{{ menuItem }}</p>
+    <div
+      v-if="menuItems && menuItems.length > 0"
+      class="w-full max-w-md mx-auto p-4"
+    >
+      <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+        오늘의 메뉴
+      </h2>
+      <div
+        v-if="menuItems && menuItems.length > 0"
+        class="bg-white shadow-lg rounded-2xl p-6"
+      >
+        <ul class="space-y-4">
+          <li
+            v-for="(menuItem, index) in menuItems"
+            :key="index"
+            class="flex items-center bg-slate-100 rounded-lg p-3 transition duration-300 hover:bg-slate-200"
+          >
+            <span class="w-5 h-5 text-slate-500 mr-3">🍴</span>
+            <span class="text-lg text-gray-700">{{ menuItem }}</span>
+          </li>
+        </ul>
       </div>
     </div>
     <div v-else class="flex flex-col items-center justify-center">
@@ -53,7 +70,11 @@ const router = useRouter();
 const storeId = route.params.storeId;
 
 // 반응형 데이터 정의
-const reviewStats = ref({ name: '', overallAverageScore: 0, reviewCount: 0 });
+const reviewStats = ref({
+  name: '인쌩맥주',
+  overallAverageScore: 0,
+  reviewCount: 0,
+});
 const selectedStore = ref({ name: '', description: '', image: '' });
 const menuItems = ref([]);
 const actionButtons = ref(['경로', '저장', '공유']); // 필요에 맞게 설정
@@ -67,6 +88,7 @@ async function fetchData() {
   const { data: storeData, error: storeError } = await useFetch(
     `http://localhost:8080/api/v1/stores/${storeId}`,
   );
+
   const { data: menuData, error: menuError } = await useFetch(
     `http://localhost:8080/api/v1/stores/${storeId}/menus/today`,
   );
@@ -76,19 +98,24 @@ async function fetchData() {
   console.log('Store Data:', storeData.value);
   console.log('Menu Data:', menuData.value);
 
-  if (reviewStatData.value) {
+  // 수정된 부분: reviewStatData -> reviewSummaryData
+  if (reviewSummaryData.value) {
     reviewStats.value = {
-      name: data.value.name,
-      overallAverageScore: data.value.overallAverageScore,
-      reviewCount: data.value.reviewCount,
+      name: reviewSummaryData.value.name,
+      overallAverageScore: reviewSummaryData.value.overallAverageScore,
+      reviewCount: reviewSummaryData.value.reviewCount,
     };
   }
+
   if (storeData.value) {
     selectedStore.value = storeData.value.store;
   }
+
   if (menuData.value) {
     menuItems.value = menuData.value.menus.map((item) => item.name);
   }
+
+  console.log('menuItems:', menuItems.value);
 
   if (storeError.value || menuError.value || reviewSummaryError.value) {
     console.error('데이터 가져오기 오류:', storeError.value || menuError.value);
