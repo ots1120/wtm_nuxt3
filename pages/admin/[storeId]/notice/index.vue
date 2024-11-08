@@ -1,10 +1,10 @@
 <template>
-  <div></div>
+  <div>ADMIN storeId : {{ $route.params.storeId }} notice</div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-  title: 'Main index',
+  layout: 'admin',
 });
 </script>
 

@@ -1,10 +1,11 @@
 <template>
-  <div></div>
+  <div>ADMIN DASHBOARD</div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-  title: 'Main index',
+  layout: 'admin',
+  title: 'DashBoard',
 });
 </script>
 

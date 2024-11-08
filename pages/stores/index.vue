@@ -1,7 +1,9 @@
 <template>
-  <div>store 검색창</div>
+  <NaverMap />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+definePageMeta({ layout: 'search' });
+</script>
 
 <style scoped></style>
