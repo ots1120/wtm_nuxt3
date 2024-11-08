@@ -85,9 +85,10 @@
               <span class="block absolute text-gray-300">★</span>
               <!-- Filled Part -->
               <span
-                class="block absolute top-0 left-0 text-yellow-500 bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-transparent"
+                class="block absolute top-0 left-0 text-yellow-500"
                 :style="{
                   width: getStarFillPercentage(review.reviewScore, n) + '%',
+                  overflow: 'hidden',
                 }"
               >
                 ★
@@ -125,20 +126,50 @@
         <span>{{ review.helpfulCount }}</span>
       </button>
     </div>
+    <!-- 리뷰 쓰기 버튼 -->
+    <div class="fixed bottom-4 w-full flex justify-center">
+      <button
+        class="flex items-center space-x-2 bg-orange-500 text-white px-6 py-3 rounded-full font-semibold"
+        @click="goToReviewPage"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M5 12h14M12 5l7 7-7 7"
+          />
+        </svg>
+        <span>리뷰 쓰기</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useFetch } from '#app';
+import { useRouter, useRoute } from 'vue-router';
 
-const storeId = 1; // Replace with dynamic store ID if needed
+const router = useRouter();
+const route = useRoute();
+
+const storeId = route.params.storeId; // 현재 storeId 가져오기
 
 // Initialize states
 const reviewStats = ref({ overallAverageScore: 0, reviewScaleAverages: [] });
 const reviewCount = ref(0);
 const reviews = ref([]);
 
+const goToReviewPage = () => {
+  router.push(`/stores/${storeId}/reviews/new`);
+};
 // Fetch review count
 const { data: reviewCountData, error: reviewCountError } = useFetch(
   `http://localhost:8080/api/v1/stores/${storeId}/review-count`,
@@ -218,6 +249,8 @@ watch(
 const reviewScaleAverages = computed(
   () => reviewStats.value.reviewScaleAverages || [],
 );
+console.log(reviewScaleAverages);
+console.log(reviewsData);
 
 // Calculate days ago for reviews
 const calculateDaysAgo = (createdAt) => {
@@ -228,12 +261,14 @@ const calculateDaysAgo = (createdAt) => {
 };
 
 // Calculate star fill percentage
-const getStarFillPercentage = (avgScore, starIndex) => {
-  const fullStars = Math.floor(avgScore);
-  const decimal = avgScore % 1;
-  if (starIndex <= fullStars) return 100;
-  else if (starIndex === fullStars + 1) return decimal * 100;
-  return 0;
+const getStarFillPercentage = (reviewScore, starIndex) => {
+  const fullStars = Math.floor(reviewScore); // 정수 부분 (전체 별 개수)
+  const decimal = reviewScore % 1; // 소수 부분 (마지막 별의 채우기 비율)
+
+  if (starIndex <= fullStars)
+    return 100; // 완전 채운 별들
+  else if (starIndex === fullStars + 1) return decimal * 100; // 소수 부분만큼 채운 별
+  return 0; // 채우지 않은 별
 };
 
 // Increment helpful count

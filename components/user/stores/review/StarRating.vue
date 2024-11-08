@@ -5,12 +5,12 @@
       <!-- 각 별점의 input과 label -->
       <input
         v-for="star in 5"
-        :key="star"
-        type="radio"
         :id="`${category}-${star}-stars`"
+        :key="star"
+        v-model="rating"
+        type="radio"
         :name="category"
         :value="star"
-        v-model="rating"
         class="hidden"
       />
       <label
