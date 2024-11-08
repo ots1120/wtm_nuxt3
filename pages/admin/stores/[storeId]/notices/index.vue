@@ -7,22 +7,24 @@
     >
       <div class="mb-2 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <svg
-            class="w-9"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+          <div
+            class="w-16 h-16 rounded-full border overflow-hidden flex items-center justify-center"
           >
-            <g id="SVGRepo_bgCarrier" stroke-width="0" />
-            <g
-              id="SVGRepo_tracerCarrier"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+            <img
+              v-if="isDataLoaded"
+              :src="notice.userProfilePicture"
+              alt="Profile Image"
+              class="w-full h-full object-cover"
+              width="120"
+              height="120"
             />
-            <g id="SVGRepo_iconCarrier">
-              <circle cx="8" cy="8" r="8" fill="#d9d9d9" />
-            </g>
-          </svg>
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-2/3 h-2/3"
+              viewBox="0 0 16 16"
+            />
+          </div>
           <span class="text-xl font-medium">{{ notice.userName }}</span>
           <!-- store 이름을 notice 객체에서 직접 가져오기 -->
         </div>
@@ -53,32 +55,34 @@
       </div>
       <div class="flex justify-end gap-4">
         <button
-          class="text-xs text-red-500"
-          @click="deleteNotice(notice.noticeId)"
-        >
-          삭제
-        </button>
-        <button
           class="text-xs text-blue-500"
           @click="goToEditForm(notice.noticeId)"
         >
           수정
         </button>
+        <button
+          class="text-xs text-red-500"
+          @click="deleteNotice(notice.noticeId)"
+        >
+          삭제
+        </button>
       </div>
     </div>
+    <WriteButton :push-route="`/admin/stores/${storeId}/notices/regist`" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
 import { differenceInDays } from 'date-fns';
+import WriteButton from '~/components/admin/ui/WriteButton.vue';
 
 // 타입 정의
 interface Notice {
   noticeId: number;
   userName: string;
+  userProfilePicture: string;
   content: string;
   title: string;
   noticeRegDate: string;
@@ -89,32 +93,15 @@ interface Notice {
 const notices = ref<Notice[]>([]);
 const isExpanded = ref<boolean[]>([]); // 각 notice의 확장 상태
 
+// 사진 로드 상태
+const isDataLoaded = ref(false);
+
 // 라우터 인스턴스 생성
 const router = useRouter();
 const route = useRoute();
 
 // storeId 가져오기
 const storeId = route.params.storeId;
-
-// 데이터 가져오기 함수
-const fetchNotices = async () => {
-  try {
-    const response = await axios.get(
-      `http://localhost:8080/api/admin/stores/${storeId}/notices`,
-    );
-    notices.value = response.data.map((notice: Notice) => {
-      return {
-        ...notice,
-        dayDifference: formatDateDifference(notice.noticeRegDate),
-      };
-    });
-    console.log(response);
-    // 각 notice에 대해 초기 확장 상태 설정
-    isExpanded.value = new Array(response.data.length).fill(false);
-  } catch (error) {
-    console.error('데이터 가져오기 실패:', error);
-  }
-};
 
 // 등록일자 계산
 const formatDateDifference = (regDate: string) => {
@@ -127,8 +114,31 @@ const formatDateDifference = (regDate: string) => {
   return `${daysDifference}일 전`;
 };
 
-// 컴포넌트가 마운트되면 데이터 로드
-onMounted(fetchNotices);
+// 데이터 가져오기 함수
+const { data, error } = useFetch<Notice[]>(
+  `/api/admin/stores/${storeId}/notices`,
+  {
+    baseURL: 'http://localhost:8080',
+  },
+);
+
+// 데이터가 변경되면 notices와 isExpanded 설정
+watchEffect(() => {
+  if (data.value) {
+    console.log(data.value);
+    const fetchData = data.value as Notice[];
+    notices.value = data.value.map((fetchData) => ({
+      ...fetchData,
+      dayDifference: formatDateDifference(fetchData.noticeRegDate),
+      userProfilePicture: `http://localhost:8080${fetchData.userProfilePicture}`,
+    }));
+    isExpanded.value = new Array(data.value.length).fill(false);
+    isDataLoaded.value = true;
+  }
+  if (error.value) {
+    console.error('데이터 가져오기 실패:', error.value);
+  }
+});
 
 // 더보기/접기 토글 함수
 const toggleExpanded = (index: number) => {
@@ -137,15 +147,16 @@ const toggleExpanded = (index: number) => {
 
 // 수정 페이지로 이동
 const goToEditForm = (noticeId: number) => {
-  router.push(`/admin/${storeId}/notice/edit/${noticeId}`);
+  router.push(`/admin/stores/${storeId}/notices/${noticeId}/edit`);
 };
 
 // 삭제 기능
 const deleteNotice = async (noticeId: number) => {
   try {
-    await axios.delete(
-      `http://localhost:8080/api/admin/stores/${storeId}/notices/${noticeId}`,
-    );
+    await useFetch(`/api/admin/stores/${storeId}/notices/${noticeId}`, {
+      baseURL: 'http://localhost:8080',
+      method: 'DELETE',
+    });
     // 삭제 후 notices 배열 업데이트
     notices.value = notices.value.filter(
       (notice) => notice.noticeId !== noticeId,

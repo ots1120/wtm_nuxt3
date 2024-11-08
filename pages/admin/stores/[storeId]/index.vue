@@ -1,11 +1,18 @@
 <template>
   <div class="m-5 flex flex-col items-center">
-    <div>
-      <img v-if="profilePicture" :src="profilePicture" alt="" />
+    <div
+      class="w-32 h-32 rounded-full border overflow-hidden flex items-center justify-center"
+    >
+      <img
+        v-if="userProfilePicture"
+        :src="userProfilePicture"
+        alt="Profile Picture"
+        class="w-full h-full object-cover"
+      />
       <svg
         v-else
         xmlns="http://www.w3.org/2000/svg"
-        class="h-24"
+        class="w-2/3 h-2/3"
         viewBox="0 0 16 16"
       >
         <path
@@ -14,6 +21,7 @@
         />
       </svg>
     </div>
+
     <div class="mt-3 text-center">
       <p class="font-bold text-xl">{{ storeName || '' }} 사장님</p>
       <p>안녕하세요!</p>
@@ -113,8 +121,9 @@
 
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router';
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, watchEffect } from 'vue';
+import { useFetch } from '#app';
+// import axios from 'axios';
 
 // 라우터 및 라우트 초기화
 const router = useRouter();
@@ -123,41 +132,42 @@ const route = useRoute();
 // storeId 가져오기
 const storeId = route.params.storeId;
 const storeName = ref('');
-const profilePicture = ref('');
+const userProfilePicture = ref('');
 
-// 데이터 가져오기 함수
-const fetchDashboardData = async () => {
-  try {
-    const response = await axios.get(
-      `http://localhost:8080/api/admin/stores/${storeId}`,
-    );
-    const data = response.data;
-    storeName.value = data.storeName;
-    profilePicture.value = data.profilePicture;
-    console.log(data);
-  } catch (error) {
-    console.error('데이터 가져오기 실패:', error);
+// 타입 정의
+interface StoreData {
+  storeName: string;
+  userProfilePicture: string;
+}
+
+// useFetch로 API 호출
+const { data } = useFetch<StoreData>(`/api/admin/stores/${storeId}`, {
+  baseURL: 'http://localhost:8080',
+});
+
+watchEffect(() => {
+  if (data.value) {
+    storeName.value = data.value.storeName;
+    userProfilePicture.value = `http://localhost:8080${data.value.userProfilePicture}`;
+    console.log(data.value);
   }
-};
-
-// 컴포넌트가 마운트되었을 때 데이터 가져오기
-onMounted(fetchDashboardData);
+});
 
 // 페이지 이동 함수
 const goToMenuManagement = () => {
-  router.push(`/admin/${storeId}/menu`);
+  router.push(`/admin/stores/${storeId}/menus`);
 };
 const goToTicketManagement = () => {
-  router.push(`/admin/${storeId}/ticket`);
+  router.push(`/admin/stores/${storeId}/tickets`);
 };
 const goToReviewManagement = () => {
-  router.push(`/admin/${storeId}/review`);
+  router.push(`/admin/stores/${storeId}/reviews`);
 };
 const goToNoticeManagement = () => {
-  router.push(`/admin/${storeId}/notice`);
+  router.push(`/admin/stores/${storeId}/notices`);
 };
 const goToStoreManagement = () => {
-  router.push(`/admin/${storeId}/myStore`);
+  router.push(`/admin/stores/${storeId}/myInfo`);
 };
 </script>
 
