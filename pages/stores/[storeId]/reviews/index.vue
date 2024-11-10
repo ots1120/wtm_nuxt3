@@ -106,6 +106,23 @@
       <!-- Review Content -->
       <p class="mb-4 text-gray-700">{{ review.reviewContent }}</p>
 
+      <!-- Replies Section -->
+      <div v-if="review.reviewComments && review.reviewComments.length">
+        <div
+          v-for="(reply, replyIndex) in review.reviewComments"
+          :key="replyIndex"
+          class="ml-6 p-3 bg-gray-100 rounded-lg mb-2"
+        >
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm font-semibold">{{ reply.adminName }}</span>
+            <span class="text-xs text-gray-400">
+              {{ calculateDaysAgo(reply.commentDate) }}일 전
+            </span>
+          </div>
+          <p class="text-sm text-gray-700">{{ reply.commentContent }}</p>
+        </div>
+      </div>
+
       <!-- Helpful Button -->
       <button
         class="flex items-center space-x-2 border border-gray-300 px-3 py-2 text-gray-500 rounded-full"
@@ -127,7 +144,7 @@
       </button>
     </div>
     <!-- 리뷰 쓰기 버튼 -->
-    <div class="fixed bottom-4 w-full flex justify-center">
+    <div class="fixed bottom-10 w-full flex justify-center z-10">
       <button
         class="flex items-center space-x-2 bg-orange-500 text-white px-6 py-3 rounded-full font-semibold"
         @click="goToReviewPage"

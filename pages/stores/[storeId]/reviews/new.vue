@@ -166,7 +166,7 @@ const submitReview = async () => {
   });
 
   try {
-    const response = await fetch(
+    const response = await $fetch(
       `http://localhost:8080/api/v1/stores/${storeId}/reviews`,
       {
         method: 'POST',
@@ -174,10 +174,10 @@ const submitReview = async () => {
       },
     );
     const data = await response.json();
-    console.log('리뷰가 성공적으로 등록되었습니다.', data);
+    // console.log('리뷰가 성공적으로 등록되었습니다.', data);
     router.push(`/stores/${storeId}/reviews`); // 리뷰 페이지로 이동
   } catch (error) {
-    console.error('리뷰 등록 중 오류 발생:', error);
+    // console.error('리뷰 등록 중 오류 발생:', error);
   }
 };
 </script>
