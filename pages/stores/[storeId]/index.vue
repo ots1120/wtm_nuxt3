@@ -2,6 +2,10 @@
   <div>store {{ $route.params.storeId }} home</div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+definePageMeta({
+  layout: 'stores',
+});
+</script>
 
 <style scoped></style>
