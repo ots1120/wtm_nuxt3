@@ -35,10 +35,18 @@
   </div>
 </template>
 
+<<<<<<< HEAD
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useFetch } from '#app';
 import { useRoute, useRouter } from 'vue-router';
+=======
+<script setup lang="ts">
+definePageMeta({
+  layout: 'admin',
+});
+</script>
+>>>>>>> upstream/dev
 
 // 라우트에서 storeId 가져오기
 const route = useRoute();

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <NaverMap />
     <!-- Bottom Sheet for Store List -->
     <div
       v-if="isSheetOpen"
@@ -176,6 +177,8 @@ const toggleBookmark = async (store, index) => {
 const goToStoreDetail = (storeId) => {
   router.push(`/stores/${storeId}/home`);
 };
+
+definePageMeta({ layout: 'search' });
 </script>
 
 <style scoped>

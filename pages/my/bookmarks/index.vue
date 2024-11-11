@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD:pages/stores/[storeId]/home.vue
   <div>
     <!-- 상단 이미지 슬라이더 섹션 -->
     <StoreDetailImages
@@ -28,6 +29,9 @@
       <p>데이터를 불러오는 중입니다...</p>
     </div>
   </div>
+=======
+  <div>my bookmarks</div>
+>>>>>>> upstream/dev:pages/my/bookmarks/index.vue
 </template>
 
 <script setup>
