@@ -29,7 +29,7 @@ const props = defineProps<{
     // id: number;
     reviewId: number;
     userName: string;
-    userProfilePicture?: string;
+    userProfilePicture?: string | null;
     reviewContent: string;
     reviewScore: number;
     reviewRegDate: string;

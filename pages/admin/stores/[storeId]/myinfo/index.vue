@@ -155,6 +155,14 @@ import { useRoute } from 'vue-router';
 import { ref, watchEffect } from 'vue';
 import { useFetch } from '#app';
 
+onBeforeMount(() => {
+  route.meta.title = '가게정보수정';
+});
+
+definePageMeta({
+  layout: 'admin',
+});
+
 interface Store {
   storeId: number;
   profilePicture: string;

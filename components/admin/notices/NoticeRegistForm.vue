@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8">
+  <div class="">
     <form @submit.prevent="handleSubmit">
       <h2 class="mb-4 text-2xl font-bold">공지 제목</h2>
       <input
