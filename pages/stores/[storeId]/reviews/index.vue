@@ -56,18 +56,45 @@
       :key="index"
       class="border-b border-gray-300 p-4"
     >
-      <!-- Review Images Section -->
-      <div class="mb-4 flex space-x-2 overflow-x-scroll p-1">
+      <!-- Review Images Slider Section -->
+      <div
+        v-if="review.reviewImages && review.reviewImages.length > 0"
+        class="relative overflow-hidden rounded-lg shadow-lg mb-4 w-64 h-64"
+      >
         <div
-          v-for="(image, imgIndex) in review.reviewImages"
-          :key="imgIndex"
-          class="h-24 w-24 flex-shrink-0 rounded bg-gray-300"
+          class="flex transition-transform duration-300 ease-in-out"
+          :style="{
+            transform: `translateX(-${currentImageIndex[index] * 100}%)`,
+          }"
         >
-          <img
-            :src="image"
-            :alt="'리뷰 사진 ' + (imgIndex + 1)"
-            class="h-full w-full rounded-md object-cover"
-          />
+          <div
+            v-for="(image, imgIndex) in review.reviewImages"
+            :key="imgIndex"
+            class="w-full flex-shrink-0"
+          >
+            <img
+              :src="image.url"
+              :alt="'리뷰 사진 ' + (imgIndex + 1)"
+              class="w-full h-full object-cover rounded-md"
+            />
+          </div>
+        </div>
+        <!-- Navigation Buttons -->
+        <div class="absolute inset-0 flex items-center justify-between p-4">
+          <button
+            class="p-2 rounded-full bg-white bg-opacity-50 text-gray-800 hover:bg-opacity-75 focus:outline-none transition-colors duration-200"
+            @click="prevImage(index)"
+          >
+            <ChevronLeft class="w-6 h-6" />
+            <span class="sr-only">Previous slide</span>
+          </button>
+          <button
+            class="p-2 rounded-full bg-white bg-opacity-50 text-gray-800 hover:bg-opacity-75 focus:outline-none transition-colors duration-200"
+            @click="nextImage(index, review.reviewImages.length)"
+          >
+            <ChevronRight class="w-6 h-6" />
+            <span class="sr-only">Next slide</span>
+          </button>
         </div>
       </div>
 
@@ -143,6 +170,7 @@
         <span>{{ review.helpfulCount }}</span>
       </button>
     </div>
+
     <!-- 리뷰 쓰기 버튼 -->
     <div class="fixed bottom-10 w-full flex justify-center z-10">
       <button
@@ -173,20 +201,37 @@
 import { ref, computed, watch } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
 const router = useRouter();
 const route = useRoute();
 
-const storeId = route.params.storeId; // 현재 storeId 가져오기
-
-// Initialize states
+const storeId = route.params.storeId;
 const reviewStats = ref({ overallAverageScore: 0, reviewScaleAverages: [] });
 const reviewCount = ref(0);
 const reviews = ref([]);
 
+// 슬라이더를 위한 이미지 인덱스 배열
+const currentImageIndex = ref([]); // 각 리뷰의 이미지 슬라이드 인덱스 초기화
+
 const goToReviewPage = () => {
   router.push(`/stores/${storeId}/reviews/new`);
 };
+
+// 슬라이드 내비게이션 함수들
+const nextImage = (reviewIndex, imageLength) => {
+  currentImageIndex.value[reviewIndex] =
+    (currentImageIndex.value[reviewIndex] + 1) % imageLength;
+};
+
+const prevImage = (reviewIndex) => {
+  currentImageIndex.value[reviewIndex] =
+    (currentImageIndex.value[reviewIndex] -
+      1 +
+      reviews.value[reviewIndex].reviewImages.length) %
+    reviews.value[reviewIndex].reviewImages.length;
+};
+
 // Fetch review count
 const { data: reviewCountData, error: reviewCountError } = useFetch(
   `http://localhost:8080/api/v1/stores/${storeId}/review-count`,
@@ -210,36 +255,14 @@ watch(
   (newValue) => {
     if (newValue) {
       reviewStats.value.overallAverageScore = newValue.overallAverageScore;
-      reviewStats.value.reviewScaleAverages = [
-        {
-          scaleName: '음식 맛',
-          averageScore:
-            newValue.reviewScaleAverages.find(
-              (scale) => scale.scaleName === 'Taste',
-            )?.averageScore || 0,
-        },
-        {
-          scaleName: '분위기',
-          averageScore:
-            newValue.reviewScaleAverages.find(
-              (scale) => scale.scaleName === 'Mood',
-            )?.averageScore || 0,
-        },
-        {
-          scaleName: '친절도',
-          averageScore:
-            newValue.reviewScaleAverages.find(
-              (scale) => scale.scaleName === 'Kindness',
-            )?.averageScore || 0,
-        },
-        {
-          scaleName: '청결상태',
-          averageScore:
-            newValue.reviewScaleAverages.find(
-              (scale) => scale.scaleName === 'Cleanliness',
-            )?.averageScore || 0,
-        },
-      ];
+
+      // 리뷰 통계 데이터를 정확히 매핑하기 위해 구조를 수정
+      reviewStats.value.reviewScaleAverages = newValue.reviewScaleAverages.map(
+        (scale) => ({
+          scaleName: scale.scaleName, // 서버에서 제공한 scaleName 사용
+          averageScore: scale.averageScore, // 서버에서 제공한 averageScore 사용
+        }),
+      );
     }
   },
   { immediate: true },
@@ -255,8 +278,14 @@ watch(
     if (newValue) {
       reviews.value = newValue.map((review) => ({
         ...review,
+        reviewImages: review.reviewImageUrls.map((img) => ({
+          url: `http://localhost:8080${img}`,
+        })),
         helpfulCount: review.helpfulCount || 0, // Default value
       }));
+
+      // 각 리뷰에 대한 슬라이드 인덱스 초기화
+      currentImageIndex.value = reviews.value.map(() => 0);
     }
   },
   { immediate: true },
@@ -266,6 +295,7 @@ watch(
 const reviewScaleAverages = computed(
   () => reviewStats.value.reviewScaleAverages || [],
 );
+
 console.log(reviewScaleAverages);
 console.log(reviewsData);
 
@@ -279,13 +309,12 @@ const calculateDaysAgo = (createdAt) => {
 
 // Calculate star fill percentage
 const getStarFillPercentage = (reviewScore, starIndex) => {
-  const fullStars = Math.floor(reviewScore); // 정수 부분 (전체 별 개수)
-  const decimal = reviewScore % 1; // 소수 부분 (마지막 별의 채우기 비율)
+  const fullStars = Math.floor(reviewScore);
+  const decimal = reviewScore % 1;
 
-  if (starIndex <= fullStars)
-    return 100; // 완전 채운 별들
-  else if (starIndex === fullStars + 1) return decimal * 100; // 소수 부분만큼 채운 별
-  return 0; // 채우지 않은 별
+  if (starIndex <= fullStars) return 100;
+  else if (starIndex === fullStars + 1) return decimal * 100;
+  return 0;
 };
 
 // Increment helpful count

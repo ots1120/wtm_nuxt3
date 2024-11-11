@@ -139,8 +139,10 @@ watchEffect(() => {
   if (storeData.value) {
     stores.value = storeData.value.map((store) => ({
       ...store,
-      profilePicture: `http://localhost:8080${store.profilePicture}`,
+      profilePicture: `http://localhost:8080${store.img}`,
     }));
+    console.log(storeData.value);
+    console.log(storeData.value.profilePicture);
   }
 });
 

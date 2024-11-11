@@ -30,6 +30,7 @@
     "vue-tsc": "^2.1.10"
   },
   "dependencies": {
+    "lucide-vue-next": "^0.456.0",
     "nuxt-app": "file:",
     "vue3-bottom-sheet": "^0.1.12"
   }

@@ -65,6 +65,7 @@
           <input
             type="file"
             class="w-full border rounded-md p-2"
+            multiple
             @change="onFileChange"
           />
         </div>
@@ -115,7 +116,7 @@ const hoverRatings = ref({
   kindness: 0,
 });
 const revisit = ref(false);
-const imageFile = ref(null);
+const imageFiles = ref([]); // 여러 파일을 저장할 배열로 변경
 const reviewText = ref('');
 const ratingLabels = {
   taste: '맛',
@@ -125,10 +126,10 @@ const ratingLabels = {
 };
 
 const ratingIds = {
-  taste: 1, // 예: taste 항목의 ID는 1
-  cleanliness: 2, // 예: cleanliness 항목의 ID는 2
-  mood: 3, // 예: mood 항목의 ID는 3
-  kindness: 4, // 예: kindness 항목의 ID는 4
+  taste: 1,
+  cleanliness: 2,
+  mood: 3,
+  kindness: 4,
 };
 
 // 별점 호버 설정 및 초기화
@@ -141,7 +142,7 @@ const clearHover = (key) => {
 
 // 사진 파일 변경 처리
 const onFileChange = (event) => {
-  imageFile.value = event.target.files[0];
+  imageFiles.value = Array.from(event.target.files); // 여러 파일을 배열로 저장
 };
 
 // 리뷰 제출 함수
@@ -157,12 +158,9 @@ const submitReview = async () => {
   }));
   formData.append('reviewScoresDtos', JSON.stringify(scores));
 
-  // 파일 추가
-  if (imageFile.value) {
-    formData.append('files', imageFile.value);
-  }
-  formData.forEach((value, key) => {
-    console.log(`${key}: ${value}`);
+  // 여러 파일을 FormData에 추가
+  imageFiles.value.forEach((file) => {
+    formData.append('files', file); // 여러 파일을 'files'라는 동일한 키로 추가
   });
 
   try {
@@ -173,11 +171,11 @@ const submitReview = async () => {
         body: formData,
       },
     );
-    const data = await response.json();
-    // console.log('리뷰가 성공적으로 등록되었습니다.', data);
-    router.push(`/stores/${storeId}/reviews`); // 리뷰 페이지로 이동
+    // 여기서 response를 직접 사용합니다.
+    console.log('리뷰가 성공적으로 등록되었습니다.', response);
+    router.push(`/stores/${storeId}/reviews`);
   } catch (error) {
-    // console.error('리뷰 등록 중 오류 발생:', error);
+    console.error('리뷰 등록 중 오류 발생:', error);
   }
 };
 </script>
