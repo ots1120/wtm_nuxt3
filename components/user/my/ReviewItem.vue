@@ -2,15 +2,41 @@
   <li>
     <div class="mt-5 mr-11 ml-11 mb-3 block border-b-2 border-b-slate-300">
       <a href="#">
-        <!-- <div class="mb-4">
+        <div class="mb-4">
           <figure class="mb-4 mt-2">
             <img
-              :src="`/assets/${review.imgUrl}`"
-              :alt="review.storeId"
-              class="w-full h-auto object-cover rounded-md"
-            />
+              v-if="props.review.reviewImgUrl"
+              :src="props.review.reviewImgUrl"
+              alt="프로필 사진"
+              class="w-20 h-20 object-cover rounded-full"
+            /> 
+            <!-- 프로필 사진이 없는 경우 SVG 아이콘을 보여줌 -->
+            <svg
+              v-else
+              width="20px"
+              height="20px"
+              viewBox="0 0 64 64"
+              xmlns="http://www.w3.org/2000/svg"
+              stroke-width="3"
+              stroke="#000000"
+              fill="none"
+              class="block stroke-white rounded-full"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0" />
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <g id="SVGRepo_iconCarrier">
+                <circle cx="32" cy="18.14" r="11.14" />
+                <path
+                  d="M54.55,56.85A22.55,22.55,0,0,0,32,34.3h0A22.55,22.55,0,0,0,9.45,56.85Z"
+                />
+              </g>
+            </svg>
           </figure>
-        </div> -->
+        </div>
         <div class="ml-2">
           <div class="justify-between flex w-full">
             <span class="font-bold text-2xl">{{ props.review.storeName }}</span>
@@ -95,6 +121,7 @@ interface Review{
   averageScore: number,
   content: String,
   reviewId: number,
+  reviewImgUrl: string,
 }
 const props = defineProps<{review: Review}>();
 

@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref } from 'vue';
 import BookmarkList from '~/components/user/my/BookmarkList.vue';
 import BookmarkModal from '~/components/user/modal/BookmarkModal.vue';
 
@@ -40,6 +40,7 @@ interface Bookmark {
   reviewAverage: number;
   ticketPrice: number;
   isBookmarked: Boolean;
+  storeImgUrl: string;
 }
 
 // bookmarks를 ref로 정의
@@ -106,9 +107,18 @@ const { data, error } = useFetch<Bookmark[]>(
   `http://localhost:8080/api/v1/user/my/bookmarks?userId=${userId}`, {}
 );
 
-watchEffect(() => {
-  if (data.value) {
-    bookmarks.value = data.value;
-  }
+if (data.value) {
+  bookmarks.value = data.value.map(bookmark => ({
+    ...bookmark,
+    storeImgUrl: `http://localhost:8080${bookmark.storeImgUrl}`
+  }));
+} else if (error.value) {
+  console.error('유저 정보를 불러오는 데 실패했습니다', error.value);
+}
+
+const route = useRoute();
+onBeforeMount(() => {
+  route.meta.title = '내 북마크';
 });
+
 </script>

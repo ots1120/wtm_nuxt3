@@ -3,7 +3,6 @@
     <div class="max-w-lg mx-auto bg-white shadow-sm">
       <!-- Main Content -->
       <section class="pb-20">
-        <h1 class="sr-only">내 정보</h1>
         <UserInfo v-if="user" :name="user.name" :email="user.email" :profilePicture="user.profilePicture"  />
 
         <ul class="divide-y divide-gray-200">
@@ -19,7 +18,16 @@
           <li>
             <a
               class="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors duration-200 group cursor-pointer"
-              @click.prevent="navigateTo('/my/history')"
+              @click.prevent="navigateTo('/my/tickets')"
+            >
+              <span class="text-gray-900 group-hover:text-gray-600">내 식권 관리</span>
+              <span>&gt;</span>
+            </a>
+          </li>
+          <li>
+            <a
+              class="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors duration-200 group cursor-pointer"
+              @click.prevent="navigateTo('/my/tickets/history')"
             >
               <span class="text-gray-900 group-hover:text-gray-600">식권 구매 · 사용내역</span>
               <span>&gt;</span>
@@ -63,6 +71,13 @@ interface User {
 const router = useRouter();
 const userId = 1;
 
+const user = ref<User>({
+  email: '',
+  name: '',
+  profilePicture: '',
+});
+
+
 // useFetch에서 User 타입을 지정
 const { data, error } = useFetch<User>(`http://localhost:8080/api/v1/user/my?userId=${userId}`, {
   // headers: {
@@ -70,19 +85,25 @@ const { data, error } = useFetch<User>(`http://localhost:8080/api/v1/user/my?use
   // },
 });
 
-const user = ref<User | null>(null);
-
-watchEffect(()=>{
-  if(data.value){
-    user.value = data.value;
-    user.value.profilePicture = `http://localhost:8080${data.value.profilePicture}`;
-  }
-})
+if (data.value) {
+  user.value = {
+    email: data.value.email,
+    name: data.value.name,
+    profilePicture: `http://localhost:8080${data.value.profilePicture}`
+  };
+} else if (error.value) {
+  console.error('유저 정보를 불러오는 데 실패했습니다', error.value);
+}
 
 
 const navigateTo = (path: string) => {
   router.push(path);
 };
+
+const route = useRoute();
+onBeforeMount(() => {
+  route.meta.title = '내 정보';
+});
 </script>
 
 <style scoped></style>

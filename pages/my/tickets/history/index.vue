@@ -1,23 +1,25 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-lg mx-auto bg-white shadow-sm">
-      <div v-if="myHistory.length > 0">
-        <TicketSummary
-          :purchasePrice="defaultTicketData.purchasePrice"
-          :usedPrice="defaultTicketData.usedPrice"
-          :remainingCount="defaultTicketData.remainingCount"
-          :selectedMonth.sync="selectedMonth"
-          :selectedYear.sync="selectedYear"
-          @dateChanged="fetchUserTicketHistory"
-        />
-        <TicketHistoryList
-          class="p-4"
-          v-for="(history, index) in myHistory"
-          :key="index"
-          :history="history"
-        />
+    <div class="w-full px-4">
+      <div class="max-w-lg mx-auto">
+        <div v-if="myHistory.length > 0">
+          <TicketSummary
+            :purchasePrice="defaultTicketData.purchasePrice"
+            :usedPrice="defaultTicketData.usedPrice"
+            :remainingCount="defaultTicketData.remainingCount"
+            :selectedMonth="selectedMonth"
+            :selectedYear="selectedYear"
+            @dateChanged="fetchUserTicketHistory"
+          />
+          <TicketHistoryList
+            v-for="(history, index) in myHistory"
+            :key="index"
+            :history="history"
+            class="mt-4"
+          />
+        </div>
+        <p v-else class="text-center mt-4 p-4">티켓 구입 및 사용 내역이 없습니다.</p>
       </div>
-      <p v-else class="text-center mt-4">티켓 구입 및 사용 내역이 없습니다.</p>
     </div>
   </div>
 </template>
@@ -65,6 +67,8 @@ const myHistory = ref<TicketHistory[]>([]);
 const selectedMonth = ref<number>(new Date().getMonth() + 1); // 현재 월로 초기화
 const selectedYear = ref<number>(new Date().getFullYear()); // 현재 연도로 초기화
 
+console.log(selectedMonth, selectedYear);
+
 const fetchUserTicketHistory = async (): Promise<void> => {
   const userId = '1';
 
@@ -105,6 +109,11 @@ const defaultTicketData = computed(() => ({
 
 watchEffect(() => {
   fetchUserTicketHistory();
+});
+
+const route = useRoute();
+onBeforeMount(() => {
+  route.meta.title = '전체 사용ㆍ구매 내역';
 });
 </script>
 

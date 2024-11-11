@@ -1,26 +1,24 @@
-<template lang="">
-  <div>
-    <section class="rounded-lg bg-white p-4 shadow-md">
-      <div>
-        <div class="mb-2 text-sm text-gray-500">{{ props.history.formattedRegDate }}</div>
-        <div class="flex items-center p-2">
-          <div class="flex items-center space-x-2">
-            <img
-              src="@/assets/icons/fork_knife.svg"
-              alt="icon"
-              class="h-4 w-4"
-            />
-          </div>
-          <div class="ml-2">
-            <div class="text-lg font-semibold text-gray-700">
-              {{ props.history.price }}원
-            </div>
-            <div class="text-sm text-gray-500">{{ props.history.storeName }}</div>
-          </div>
-          <div class="ml-auto text-sm text-gray-400">{{ props.history.formattedTime }}</div>
+<template>
+  <div class="w-full bg-white shadow-sm rounded-lg">
+    <div class="p-4">
+      <div class="mb-2 text-sm text-gray-500">{{ props.history.formattedRegDate }}</div>
+      <div class="flex items-center">
+        <div class="flex items-center space-x-2">
+          <img
+            src="@/assets/icons/fork_knife.svg"
+            alt="icon"
+            class="h-4 w-4"
+          />
         </div>
+        <div class="ml-2 flex-grow">
+          <div class="text-lg font-semibold text-gray-700">
+            {{ props.history.price }}원
+          </div>
+          <div class="text-sm text-gray-500">{{ props.history.storeName }}</div>
+        </div>
+        <div class="text-sm text-gray-400">{{ props.history.formattedTime }}</div>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 

@@ -107,6 +107,11 @@ const closeModal = () => {
 const goToMyTicketHistoryPage = () => {
   router.push('/my/tickets/history');
 };
+
+const route = useRoute();
+onBeforeMount(() => {
+  route.meta.title = '내 식권';
+});
 </script>
 
 <style scoped></style>

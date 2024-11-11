@@ -1,29 +1,21 @@
 <template>
-  <div class="space-y-4">
-    <div class="flex items-center gap-4 px-4">
-      <button @click="goBack" class="p-2">
-        <span class="material-icons">arrow_back</span>
-      </button>
-      <h1 class="text-lg font-medium">구매 · 사용내역</h1>
-    </div>
-
-    <div class="flex bg-white px-4 py-6 shadow-sm justify-between">
+  <div class="w-full bg-white shadow-sm">
+    <div class="flex px-4 py-6 justify-between">
       <div class="relative">
         <button
           @click="toggleDatePicker"
-          class="flex items-center justify-start w-fit px-3 py-2 text-left border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="flex items-center justify-start px-3 py-2 text-left border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <span class="material-icons mr-2"></span>
           {{ formattedDate }}
         </button>
         <div v-if="showDatePicker" class="absolute z-10 mt-1 bg-white shadow-lg rounded-md p-4">
           <div class="flex justify-between items-center mb-4">
             <button @click="changeYear(-1)" class="p-1">
-              <span class="material-icons"></span>
+              <span class="material-icons">chevron_left</span>
             </button>
             <span class="font-bold">{{ selectedYear }}년</span>
             <button @click="changeYear(1)" class="p-1">
-              <span class="material-icons"></span>
+              <span class="material-icons">chevron_right</span>
             </button>
           </div>
           <div class="grid grid-cols-3 gap-2">
@@ -40,7 +32,7 @@
         </div>
       </div>
       
-      <div class="mt-4 space-y-2 w-40 text-right">
+      <div class="space-y-2 w-40 text-right">
         <div class="flex justify-between">
           <span class="text-gray-600">구매</span>
           <span>{{ props.purchasePrice }} 원</span>
@@ -57,7 +49,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 
@@ -95,10 +86,6 @@ const selectMonth = (month: number) => {
   selectedMonth.value = month;
   showDatePicker.value = false;
   emit('dateChanged', { month: selectedMonth.value, year: selectedYear.value });
-};
-
-const goBack = () => {
-  window.history.back();
 };
 
 // watch to emit changes to parent

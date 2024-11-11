@@ -6,7 +6,7 @@
         v-for="(ticket, index) in tickets"
         :key="index"
         :ticket="ticket"
-        @toggle-bookmark="openModal(ticket.storeId)"
+        @toggle-bookmark="handleBookmarkToggle(ticket)"
       />
     </div>
     <!-- Bookmark Modal -->
@@ -44,6 +44,44 @@ const tickets = ref<Ticket[]>([]);
 const visible = ref(false);
 const selectedStoreId = ref<number | null>(null);
 
+// 북마크 토글 처리
+const handleBookmarkToggle = async (ticket: Ticket) => {
+  if (ticket.isBookmarked) {
+    // 이미 북마크된 경우 모달 열기
+    openModal(ticket.storeId);
+  } else {
+    // 북마크되지 않은 경우 바로 추가
+    await addBookmark(ticket.storeId);
+  }
+};
+// 북마크 추가
+const addBookmark = async (storeId: number) => {
+  try {
+    const userId = 1; // 실제로는 적절한 userId를 사용해야 합니다
+    const { data, error } = await useFetch(
+      `http://localhost:8080/api/v1/user/my/bookmarks?storeId=${storeId}&userId=${userId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ storeId, userId }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (error.value) {
+      throw new Error('Failed to add the bookmark');
+    }
+
+    console.log('북마크가 추가되었습니다.');
+
+    // 최신 북마크 데이터를 다시 가져오기
+    await fetchUpdatedTickets();
+  } catch (error) {
+    console.error('북마크 추가에 실패했습니다:', error);
+  }
+};
+
 // 모달 열기
 const openModal = (storeId: number) => {
   selectedStoreId.value = storeId;
@@ -78,7 +116,7 @@ const confirmDelete = async (storeId: number) => {
 
      // 최신 북마크 데이터를 다시 가져오기
      const { data: updatedData, error: fetchError } = await useFetch<Ticket[]>(
-      `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}}`, {}
+      `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`, {}
     );
 
     if (fetchError.value) {
@@ -96,6 +134,21 @@ const confirmDelete = async (storeId: number) => {
   }
 };
 
+// 티켓 데이터 업데이트 함수
+const fetchUpdatedTickets = async () => {
+  const { data: updatedData, error: fetchError } = await useFetch<Ticket[]>(
+    `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`, {}
+  );
+
+  if (fetchError.value) {
+    throw new Error('Failed to fetch updated tickets');
+  }
+
+  if (updatedData.value) {
+    tickets.value = updatedData.value;
+  }
+};
+
 const { data, error} = useFetch<Ticket[]>(
   `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`, {
 
@@ -107,8 +160,8 @@ watchEffect(() => {
   }
 });
 
-const toggleBookmark = (index:number) => {
-  // 해당 가게의 북마크 상태를 토글합니다.
-  tickets.value[index].isBookmarked = !tickets.value[index].isBookmarked;
-};
+const route = useRoute();
+onBeforeMount(() => {
+  route.meta.title = '내 식권';
+});
 </script>

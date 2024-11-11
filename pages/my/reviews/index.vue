@@ -28,11 +28,12 @@ import ReviewDeleteModal from '~/components/user/modal/ReviewDeleteModal.vue';
 import ReviewItem from '~/components/user/my/ReviewItem.vue';
 
 interface Review{
-  storeName: String,
-  createdTime: String,
+  storeName: string,
+  createdTime: string,
   averageScore: number,// math처리는 원시형 타입만 지원
-  content: String,
+  content: string,
   reviewId: number,
+  reviewImgUrl: string,
 }
 const reviews = ref<Review[]>([]);
 const userId = 1;
@@ -59,11 +60,15 @@ const { data,error } = useFetch<Review[]>(
 
 });
 
-watchEffect(() => {
-  if (data.value){
-    reviews.value = data.value;
-  }
-});
+if (data.value) {
+  reviews.value = data.value.map(review => ({
+    ...review,
+    reviewImgUrl: `http://localhost:8080${review.reviewImgUrl}`
+  }));
+} else if (error.value) {
+  console.error('유저 정보를 불러오는 데 실패했습니다', error.value);
+}
+
 
 const deleteCard = async (reviewId: number) => {
   try {
@@ -102,6 +107,11 @@ const deleteCard = async (reviewId: number) => {
     closeModal();
   }
 };
+
+const route = useRoute();
+onBeforeMount(() => {
+  route.meta.title = '내 리뷰';
+});
 </script>
 
 <style scoped></style>

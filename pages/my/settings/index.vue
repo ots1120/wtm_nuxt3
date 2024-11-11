@@ -180,6 +180,12 @@ const onSubmitForm = async (): Promise<void> => {
     console.error('프로필 업데이트에 실패했습니다:', error);
   }
 };
+
+const route = useRoute();
+onBeforeMount(() => {
+  route.meta.title = '내 정보 수정';
+});
+
 </script>
 
 

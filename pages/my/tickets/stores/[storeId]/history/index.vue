@@ -107,6 +107,11 @@ const defaultTicketData = computed(() => ({
 watchEffect(() => {
   fetchUserTicketHistory();
 });
+
+const route = useRoute();
+onBeforeMount(() => {
+  route.meta.title = '식당 티켓 구매ㆍ사용 내역';
+});
 </script>
 
 <style scoped></style>

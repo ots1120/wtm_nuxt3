@@ -1,6 +1,40 @@
 <template>
   <div class="flex items-center space-x-3 py-4 border-b">
-    <div class="bg-gray-200 w-16 h-16 rounded-lg flex-shrink-0"></div>
+    <div class="mb-4">
+          <figure class="mb-4 mt-2">
+            <img
+              v-if="props.bookmark.storeImgUrl"
+              :src="props.bookmark.storeImgUrl"
+              alt="프로필 사진"
+              class="w-20 h-20 object-cover rounded-full"
+            /> 
+            <!-- 프로필 사진이 없는 경우 SVG 아이콘을 보여줌 -->
+            <svg
+              v-else
+              width="20px"
+              height="20px"
+              viewBox="0 0 64 64"
+              xmlns="http://www.w3.org/2000/svg"
+              stroke-width="3"
+              stroke="#000000"
+              fill="none"
+              class="block stroke-white rounded-full"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0" />
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <g id="SVGRepo_iconCarrier">
+                <circle cx="32" cy="18.14" r="11.14" />
+                <path
+                  d="M54.55,56.85A22.55,22.55,0,0,0,32,34.3h0A22.55,22.55,0,0,0,9.45,56.85Z"
+                />
+              </g>
+            </svg>
+          </figure>
+        </div>
     <div class="flex-1 min-w-0">
       <div class="flex items-center space-x-1">
         <h2 class="text-base font-medium truncate">
@@ -36,6 +70,7 @@ interface Bookmark {
   reviewAverage: number;
   ticketPrice: number;
   isBookmarked: Boolean;
+  storeImgUrl: string;
 }
 
 const props = defineProps<{ bookmark: Bookmark }>();
