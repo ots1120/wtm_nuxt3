@@ -4,7 +4,7 @@
       <!-- Main Content -->
       <section class="pb-20">
         <h1 class="sr-only">내 정보</h1>
-        <UserInfo v-if="user" :name="user.name" :email="user.email" />
+        <UserInfo v-if="user" :name="user.name" :email="user.email" :profilePicture="user.profilePicture"  />
 
         <ul class="divide-y divide-gray-200">
           <li>
@@ -57,6 +57,7 @@ import UserInfo from '@/components/user/my/UserInfo.vue';
 interface User {
   name: string;
   email: string;
+  profilePicture: string;
 }
 
 const router = useRouter();
@@ -74,6 +75,7 @@ const user = ref<User | null>(null);
 watchEffect(()=>{
   if(data.value){
     user.value = data.value;
+    user.value.profilePicture = `http://localhost:8080${data.value.profilePicture}`;
   }
 })
 
