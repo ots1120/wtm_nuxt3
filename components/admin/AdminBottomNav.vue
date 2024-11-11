@@ -3,7 +3,7 @@
     class="relative bottom-0 flex justify-evenly max-h-screen max-w-lg w-full bg-slate-100 pt-2"
   >
     <div>
-      <NuxtLink :to="`/admin/${storeId}`">
+      <NuxtLink :to="`/admin/stores/${storeId}`">
         <span class="block rounded-2xl border-2 border-solid bg-white p-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -22,7 +22,7 @@
       </NuxtLink>
     </div>
     <div>
-      <NuxtLink :to="`/admin/${storeId}/menu`">
+      <NuxtLink :to="`/admin/${storeId}/menus`">
         <span class="block rounded-2xl border-2 border-solid bg-white p-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +39,7 @@
       </NuxtLink>
     </div>
     <div>
-      <NuxtLink :to="`/admin/${storeId}/myInfo`">
+      <NuxtLink :to="`/admin/stores/${storeId}/myInfo`">
         <span class="block rounded-2xl border-2 border-solid bg-white p-2">
           <svg
             class="w-10"

@@ -1,7 +1,7 @@
 <template>
   <div class="flex m-5 flex-col items-center">
     <AdminHeader :title="pageTitle" />
-    <NuxtPage />
+    <NuxtPage class="w-full" />
     <AdminBottomNav />
   </div>
 </template>
