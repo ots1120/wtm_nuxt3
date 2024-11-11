@@ -18,7 +18,7 @@
           <div v-else>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-24"
+              class="h-14"
               viewBox="0 0 16 16"
             >
               <path
@@ -52,6 +52,46 @@
                 "
               />
             </svg>
+          </div>
+          <!-- 별점 표시 아래, 리뷰 내용 표시 -->
+          <div>
+            <!-- 리뷰 내용 -->
+            <div class="mt-2">
+              <p v-if="!isExpanded[reviewIndex]" class="truncate">
+                {{ review.reviewContent }}
+              </p>
+              <p v-else class="whitespace-pre-wrap">
+                {{ review.reviewContent }}
+              </p>
+              <!-- 더보기/접기 버튼 -->
+              <button
+                v-if="review.reviewContent.length > 100"
+                class="text-xs text-blue-500"
+                @click="toggleExpand(reviewIndex)"
+              >
+                {{ isExpanded[reviewIndex] ? '접기' : '더보기' }}
+              </button>
+            </div>
+
+            <!-- 리뷰 이미지 항목 -->
+            <div
+              v-if="review.reviewImgs && review.reviewImgs.length > 0"
+              class="mt-3 flex gap-2"
+            >
+              <div
+                v-for="(img, imgIndex) in review.reviewImgs"
+                :key="imgIndex"
+                class="w-24 h-24 border rounded-md overflow-hidden"
+              >
+                <a :href="img" target="_blank">
+                  <img
+                    :src="img"
+                    alt="Review Image"
+                    class="w-full h-full object-cover"
+                  />
+                </a>
+              </div>
+            </div>
           </div>
           <!-- 리뷰 댓글 -->
           <div v-if="review.reviewComments.length > 0">
@@ -158,6 +198,14 @@ import { useFetch } from '#app';
 import { differenceInDays } from 'date-fns';
 import ReplyForm from '~/components/admin/reviews/ReplyForm.vue';
 
+onBeforeMount(() => {
+  route.meta.title = '리뷰관리';
+});
+
+definePageMeta({
+  layout: 'admin',
+});
+
 interface ReviewComment {
   commentId: number;
   commentContent: string;
@@ -168,9 +216,10 @@ interface ReviewComment {
 interface Review {
   reviewId: number;
   userName: string;
-  userProfilePicture: string;
-  adminProfilePicture: string;
+  userProfilePicture: string | null;
+  adminProfilePicture: string | null;
   reviewContent: string;
+  reviewImgs: string[];
   reviewScore: number;
   reviewRegDate: string;
   reviewComments: ReviewComment[];
@@ -225,9 +274,15 @@ watchEffect(() => {
     reviews.value = data.value.map((review) => ({
       ...review,
       dayDifference: formatDateDifference(review.reviewRegDate),
-      userProfilePicture: `http://localhost:8080${review.userProfilePicture}`,
-      adminProfilePicture: `http://localhost:8080${review.adminProfilePicture}`,
+      userProfilePicture: review.userProfilePicture
+        ? `http://localhost:8080${review.userProfilePicture}`
+        : null,
+      adminProfilePicture: review.adminProfilePicture
+        ? `http://localhost:8080${review.adminProfilePicture}`
+        : null,
+      reviewImgs: review.reviewImgs.map((img) => `http://localhost:8080${img}`), // 배열의 각 경로에 도메인을 추가
     }));
+    console.log(data.value);
     isExpanded.value = new Array(reviews.value.length).fill(false);
     isReplying.value = new Array(reviews.value.length).fill(false);
   }

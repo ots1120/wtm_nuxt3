@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="">
     <AdminNoticesNoticeRegistForm
       :initial-data="notice"
       :is-edit-mode="isEditMode"

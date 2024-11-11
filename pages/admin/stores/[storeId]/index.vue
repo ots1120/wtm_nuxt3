@@ -123,7 +123,14 @@
 import { useRouter, useRoute } from 'vue-router';
 import { ref, watchEffect } from 'vue';
 import { useFetch } from '#app';
-// import axios from 'axios';
+
+onBeforeMount(() => {
+  route.meta.title = '대시보드';
+});
+
+definePageMeta({
+  layout: 'admin',
+});
 
 // 라우터 및 라우트 초기화
 const router = useRouter();

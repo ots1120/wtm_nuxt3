@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col w-full">
     <div
       v-for="(notice, noticeIndex) in notices"
       :key="notice.noticeId"
@@ -78,6 +78,14 @@ import { useRouter, useRoute } from 'vue-router';
 import { differenceInDays } from 'date-fns';
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
 
+onBeforeMount(() => {
+  route.meta.title = '공지사항';
+});
+
+definePageMeta({
+  layout: 'admin',
+});
+
 // 타입 정의
 interface Notice {
   noticeId: number;
@@ -126,7 +134,6 @@ const { data, error } = useFetch<Notice[]>(
 watchEffect(() => {
   if (data.value) {
     console.log(data.value);
-    const fetchData = data.value as Notice[];
     notices.value = data.value.map((fetchData) => ({
       ...fetchData,
       dayDifference: formatDateDifference(fetchData.noticeRegDate),
