@@ -1,18 +1,6 @@
+<!-- pages/storeDetailPage.vue -->
 <template>
   <div>
-    <!-- 상단 이미지와 식당 정보 섹션 -->
-    <StoreDetailInfo
-      v-if="selectedStore"
-      :store="selectedStore"
-      :review-stats="reviewStats"
-    />
-
-    <!-- 경로, 저장, 공유 버튼 섹션 -->
-    <StoreDetailActionButtons v-if="actionButtons" :actions="actionButtons" />
-
-    <!-- 탭 네비게이션 -->
-    <StoreDetailTabs />
-
     <!-- 티켓 정보 -->
     <div v-if="ticketInf && ticketInf.name">
       <StoreDetailTicket
@@ -28,45 +16,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute, useFetch } from '#app';
-import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
-import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
-import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import { ref, inject } from 'vue';
 import StoreDetailTicket from '~/components/user/stores/detail/StoreDetailTicket.vue';
 
-// 반응형 데이터 정의
-const route = useRoute();
-const storeId = route.params.storeId;
+// 레이아웃에서 제공된 storeId를 inject로 받아옵니다.
+const storeId = inject('storeId');
 
-const selectedStore = ref(null);
+// 티켓 데이터를 위한 상태 정의
 const ticketInf = ref(null);
-const actionButtons = ref(['경로', '저장', '공유']);
 
-// 데이터 가져오기
-onMounted(async () => {
-  // 가게 정보 가져오기
-  const { data: storeData, error: storeError } = await useFetch(
-    `http://localhost:8080/api/v1/stores/${storeId}`,
-  );
-  if (storeError.value) {
-    console.error('Store data fetching error:', storeError.value);
-  } else {
-    selectedStore.value = storeData.value;
-  }
+// 티켓 데이터 가져오기
+const { data: ticketData, error: ticketError } = await useFetch(
+  `http://localhost:8080/api/v1/stores/${storeId}/tickets`
+);
 
-  // 티켓 데이터 가져오기
-  const { data: ticketData, error: ticketError } = await useFetch(
-    `http://localhost:8080/api/v1/stores/${storeId}/tickets`,
-  );
-  if (ticketError.value) {
-    console.error('Ticket data fetching error:', ticketError.value);
-  } else {
-    ticketInf.value = ticketData.value;
-  }
+if (ticketError.value) {
+  console.error('Ticket data fetching error:', ticketError.value);
+} else {
+  ticketInf.value = ticketData.value;
+}
+
+// storeId와 API 응답을 확인하는 로그 추가
+console.log('storeId:', storeId);
+console.log('ticketData:', ticketData.value);
+
+// 레이아웃 설정
+definePageMeta({
+  layout: 'storedetail'
 });
 </script>
 
 <style scoped>
-/* 스타일 추가 */
+/* 페이지 개별 스타일 */
 </style>

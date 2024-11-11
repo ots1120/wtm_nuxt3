@@ -1,18 +1,6 @@
+<!-- pages/storeDetailPage.vue -->
 <template>
   <div>
-    <!-- 상단 이미지와 식당 정보 섹션 -->
-    <StoreDetailInfo
-      v-if="selectedStore"
-      :store="selectedStore"
-      :review-stats="reviewStats"
-    />
-
-    <!-- 경로, 저장, 공유 버튼 섹션 -->
-    <StoreDetailActionButtons v-if="actionButtons" :actions="actionButtons" />
-
-    <!-- 탭 네비게이션 -->
-    <StoreDetailTabs />
-
     <!-- 메뉴 탭 섹션 -->
     <div
       v-if="menuItems && menuItems.length > 0"
@@ -21,10 +9,7 @@
       <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
         오늘의 메뉴
       </h2>
-      <div
-        v-if="menuItems && menuItems.length > 0"
-        class="bg-white shadow-lg rounded-2xl p-6"
-      >
+      <div class="bg-white shadow-lg rounded-2xl p-6">
         <ul class="space-y-4">
           <li
             v-for="(menuItem, index) in menuItems"
@@ -57,82 +42,49 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useFetch } from '#app';
-import { useRoute, useRouter } from 'vue-router';
-import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
-import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
-import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import { ref, inject, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import StoreDetailTicket from '~/components/user/stores/detail/StoreDetailTicket.vue';
 
-// 라우트에서 storeId 가져오기
-const route = useRoute();
-const router = useRouter();
-const storeId = route.params.storeId;
+// 레이아웃에서 제공된 데이터를 inject로 받아옵니다.
+const storeId = inject('storeId');
 
-// 반응형 데이터 정의
-const reviewStats = ref({
-  name: '인쌩맥주',
-  overallAverageScore: 0,
-  reviewCount: 0,
-});
-const selectedStore = ref({ name: '', description: '', image: '' });
+// 메뉴 데이터를 위한 상태 정의
 const menuItems = ref([]);
-const actionButtons = ref(['경로', '저장', '공유']); // 필요에 맞게 설정
 
-// 데이터 가져오기 함수
-async function fetchData() {
-  const { data: reviewSummaryData, error: reviewSummaryError } = await useFetch(
-    `http://localhost:8080/api/v1/stores/${storeId}/review-Summary`,
-  );
-
-  const { data: storeData, error: storeError } = await useFetch(
-    `http://localhost:8080/api/v1/stores/${storeId}`,
-  );
-
+// 메뉴 데이터 가져오기 함수
+async function fetchMenuData() {
   const { data: menuData, error: menuError } = await useFetch(
-    `http://localhost:8080/api/v1/stores/${storeId}/menus/today`,
+    `http://localhost:8080/api/v1/stores/${storeId}/menus/today`
   );
 
-  // 데이터 콘솔 출력
-  console.log('Review Summary Data:', reviewSummaryData.value);
-  console.log('Store Data:', storeData.value);
-  console.log('Menu Data:', menuData.value);
-
-  // 수정된 부분: reviewStatData -> reviewSummaryData
-  if (reviewSummaryData.value) {
-    reviewStats.value = {
-      name: reviewSummaryData.value.name,
-      overallAverageScore: reviewSummaryData.value.overallAverageScore,
-      reviewCount: reviewSummaryData.value.reviewCount,
-    };
-  }
-
-  if (storeData.value) {
-    selectedStore.value = storeData.value.store;
-  }
-
-  if (menuData.value) {
+  if (menuError.value) {
+    console.error('Menu data fetching error:', menuError.value);
+  } else if (menuData.value && menuData.value.menus) {
     menuItems.value = menuData.value.menus.map((item) => item.name);
-  }
-
-  console.log('menuItems:', menuItems.value);
-
-  if (storeError.value || menuError.value || reviewSummaryError.value) {
-    console.error('데이터 가져오기 오류:', storeError.value || menuError.value);
+  } else {
+    console.warn('Menu data is empty or has unexpected format:', menuData.value);
+    menuItems.value = []; // 빈 배열로 초기화하여 안전하게 처리
   }
 }
 
-// 컴포넌트가 마운트될 때 데이터 가져오기
-onMounted(fetchData);
-
 // 메뉴 등록 페이지로 이동하는 함수
+const router = useRouter();
 function goToMenuRegPage() {
   router.push(`/stores/${storeId}/menu/new`);
 }
+
+// 컴포넌트가 마운트될 때 메뉴 데이터 가져오기
+onMounted(fetchMenuData);
+
+// 레이아웃 설정
+definePageMeta({
+  layout: 'storedetail'
+});
 </script>
 
 <style scoped>
-/* 스타일 추가 */
+/* 페이지 개별 스타일 */
 h2 {
   font-size: 24px;
   font-weight: bold;

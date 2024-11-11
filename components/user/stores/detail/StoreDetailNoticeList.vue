@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center border-b border-gray-300">
+  <div class="border-b border-gray-300">
     <li class="max-w-md list-none p-2">
       <!-- 이미지와 가게 이름 -->
       <div class="flex items-center mb-2">
@@ -12,12 +12,12 @@
       </div>
 
       <!-- 작성일 (일전) -->
-      <div class="mb-4 flex justify-between text-sm text-gray-500">
+      <div class="mb-4 flex justify-start text-sm text-gray-500">
         <span class="block">{{ daysAgo }}일 전</span>
       </div>
 
       <!-- 공지사항 -->
-      <div class="mb-4">
+      <div class="mb-4 text-left">
         <h3 class="mb-1 text-lg font-bold">{{ noticeName }}</h3>
         <p class="text-gray-700">{{ noticeContent }}</p>
       </div>
@@ -26,23 +26,32 @@
 </template>
 
 <script setup>
-const {
-  // storeId,
-  storeName = '인생맥주',
-  daysAgo = 1,
-  noticeName = '임시휴무',
-  noticeContent = '여름휴가로 15일~17일(목~토) 입시 휴업입니다. 감사합니다!',
-  storeImage = '/placeholder.svg?height=40&width=40',
-} = defineProps({
-  storeId: String,
-  storeName: String,
-  daysAgo: Number,
-  noticeName: String,
-  noticeContent: String,
-  storeImage: String,
+import { defineProps } from 'vue';
+
+const props = defineProps({
+  storeName: {
+    type: String,
+    default: '가게 이름 없음',
+  },
+  daysAgo: {
+    type: Number,
+    default: 0,
+  },
+  noticeName: {
+    type: String,
+    default: '공지사항 제목 없음',
+  },
+  noticeContent: {
+    type: String,
+    default: '공지사항 내용 없음',
+  },
+  storeImage: {
+    type: String,
+    default: '/placeholder.svg?height=40&width=40',
+  },
 });
 </script>
 
 <style scoped>
-/* Tailwind CSS만 사용하므로 별도의 CSS 스타일은 없습니다 */
+/* Tailwind CSS를 사용하여 스타일 적용 */
 </style>

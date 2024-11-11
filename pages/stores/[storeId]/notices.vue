@@ -1,19 +1,6 @@
 <template>
   <div>
-    <!-- 상단 이미지와 식당 정보 섹션 -->
-    <StoreDetailInfo
-      v-if="selectedStore"
-      :store="selectedStore"
-      :review-stats="reviewStats"
-    />
-
-    <!-- 경로, 저장, 공유 버튼 섹션 -->
-    <StoreDetailActionButtons v-if="actionButtons" :actions="actionButtons" />
-
-    <!-- 탭 네비게이션 -->
-    <StoreDetailTabs />
-
-    <!-- 공지사항 -->
+    <!-- 공지사항 리스트 -->
     <div v-if="noticeDatas && noticeDatas.length > 0">
       <StoreDetailNoticeList
         v-for="(noticeData, index) in noticeDatas"
@@ -22,6 +9,7 @@
         :store-name="noticeData.storeName"
         :notice-name="noticeData.title"
         :notice-content="noticeData.content"
+        :store-image="noticeData.profilePicture"
         :days-ago="
           noticeData.regDate
             ? calculateDaysAgo(noticeData.regDate)
@@ -36,48 +24,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute, useFetch } from '#app';
-import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
-import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
-import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import { ref, inject, watchEffect } from 'vue';
 import StoreDetailNoticeList from '~/components/user/stores/detail/StoreDetailNoticeList.vue';
+import { useFetch } from '#app';
 
-// 라우트에서 storeId 가져오기
-const route = useRoute();
-const storeId = route.params.storeId;
+// 레이아웃에서 제공된 데이터를 inject로 받아옵니다.
+const storeId = inject('storeId');
 
-// 반응형 데이터 정의
-const selectedStore = ref(null);
+// 공지사항 데이터를 위한 상태 정의
 const noticeDatas = ref([]);
-const actionButtons = ref(['경로', '저장', '공유']);
 
-// 데이터 가져오기
-onMounted(async () => {
-  try {
-    // 가게 정보 가져오기
-    const { data: storeData, error: storeError } = await useFetch(
-      `http://localhost:8080/api/v1/stores/${storeId}`,
-    );
-    if (storeError.value) {
-      console.error('Store data fetching error:', storeError.value);
-    } else {
-      selectedStore.value = storeData.value;
-    }
+// 공지사항 데이터 가져오기
+const { data: noticeData, error: noticeError } = useFetch(
+  () => `http://localhost:8080/api/v1/stores/${storeId}/notices`,
+  { immediate: true }
+);
 
-    // 공지사항 데이터 가져오기
-    const { data: noticeData, error: noticeError } = await useFetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/notices`,
-    );
-    if (noticeError.value) {
-      console.error('Notice data fetching error:', noticeError.value);
-    } else {
-      noticeDatas.value = noticeData.value;
-    }
-  } catch (err) {
-    console.error('API 요청 중 오류 발생:', err);
+// 데이터를 감시하여 storeImage URL을 설정
+watchEffect(() => {
+  if (noticeData.value) {
+    noticeDatas.value = noticeData.value.map((notice) => ({
+      ...notice,
+      profilePicture: notice.profilePicture
+        ? `http://localhost:8080${notice.profilePicture}`
+        : null,
+    }));
+    console.log('공지사항 데이터:', noticeDatas.value);
   }
 });
+
+if (noticeError.value) {
+  console.error('Notice data fetching error:', noticeError.value);
+}
 
 // 등록일로부터 경과한 날짜 계산
 function calculateDaysAgo(regDate) {
@@ -86,4 +64,13 @@ function calculateDaysAgo(regDate) {
   const timeDiff = now - regDateTime;
   return Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // 일 단위 계산
 }
+
+// 레이아웃 설정
+definePageMeta({
+  layout: 'storedetail'
+});
 </script>
+
+<style scoped>
+/* 페이지 개별 스타일 */
+</style>
