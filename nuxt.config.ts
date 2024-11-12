@@ -11,6 +11,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       naverMapClientId: import.meta.env.NAVER_MAP_CLIENT_ID,
+      apiBase: 'http://localhost:8080', // 실제 서버 주소로 추후 변경
     },
   },
 });
