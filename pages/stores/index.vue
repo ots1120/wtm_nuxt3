@@ -1,5 +1,10 @@
 <template>
   <div>
+    <SearchBar
+      v-model="searchText"
+      placeholder="식당 이름을 입력해주세요"
+      @search="fetchStores"
+    />
     <NaverMap />
     <!-- Bottom Sheet for Store List -->
     <div
@@ -23,8 +28,15 @@
         class="overflow-y-auto"
         :style="{ maxHeight: 'calc(100vh - 100px)' }"
       >
+        <!-- 검색 결과가 없을 때 메시지 표시 -->
+        <div v-if="stores.length === 0" class="m-4 text-center text-gray-500">
+          검색 결과가 없습니다.
+        </div>
+
+        <!-- 검색 결과가 있을 때 가게 목록 표시 -->
         <div
           v-for="(store, index) in stores"
+          v-else
           :key="index"
           class="m-3 flex items-start space-x-4 border-b pb-4"
           @click="goToStoreDetail(store.storeId)"
@@ -83,11 +95,11 @@
 </template>
 
 <script setup>
-import { ref, watchEffect } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useFetch } from '#app';
 
 const stores = ref([]);
+const searchText = ref(''); // 검색어 상태 추가
 const isSheetOpen = ref(true);
 const sheetHeight = ref('40%');
 const router = useRouter();
@@ -132,41 +144,42 @@ const toggleSheet = () => {
 };
 
 // Fetch store data
-const { data: storeData, error } = useFetch(
-  'http://localhost:8080/api/v1/stores',
-);
+const fetchStores = async () => {
+  try {
+    const query = searchText.value ? `?query=${searchText.value}` : '';
+    const response = await fetch(`http://localhost:8080/api/v1/stores${query}`);
 
-watchEffect(() => {
-  if (storeData.value) {
-    stores.value = storeData.value.map((store) => ({
+    if (!response.ok) {
+      throw new Error('Failed to fetch stores');
+    }
+
+    const storeData = await response.json();
+    stores.value = storeData.map((store) => ({
       ...store,
       profilePicture: `http://localhost:8080${store.img}`,
     }));
-    console.log(storeData.value);
-    console.log(storeData.value.profilePicture);
+  } catch (error) {
+    console.error('Failed to fetch stores:', error);
+    stores.value = []; // 오류가 발생한 경우 빈 배열로 설정
   }
-});
+};
 
-if (error.value) {
-  console.error('Failed to fetch stores:', error.value);
-}
+// Load all stores by default when component mounts
+onMounted(fetchStores);
 
 // Toggle bookmark state
 const toggleBookmark = async (store, index) => {
   try {
     const url = `http://localhost:8080/api/v1/stores/${store.storeId}/bookmark`;
     const method = store.isBookmarked ? 'DELETE' : 'POST';
-    const { error: bookmarkError } = await useFetch(url, { method });
 
-    if (bookmarkError.value) {
-      throw new Error(bookmarkError.value);
-    }
+    await fetch(url, { method });
 
     stores.value[index].isBookmarked = !store.isBookmarked;
     console.log(
       store.isBookmarked
-        ? '북마크가 삭제되었습니다.'
-        : '북마크가 추가되었습니다.',
+        ? '북마크가 추가되었습니다.'
+        : '북마크가 삭제되었습니다.',
     );
   } catch (error) {
     console.error('북마크 요청 중 오류가 발생했습니다:', error);

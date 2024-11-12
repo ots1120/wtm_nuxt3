@@ -21,17 +21,19 @@ const selectedStore = ref(null);
 // 페이지에 필요한 추가 데이터 가져오기
 async function fetchAdditionalData() {
   if (!storeId) {
-    console.error("storeId가 유효하지 않습니다.");
+    console.error('storeId가 유효하지 않습니다.');
     return;
   }
 
   try {
-    const response = await fetch(`http://localhost:8080/api/v1/stores/${storeId}`);
+    const response = await fetch(
+      `http://localhost:8080/api/v1/stores/${storeId}`,
+    );
     if (!response.ok) {
       throw new Error(`서버 오류: ${response.status}`);
     }
     const data = await response.json();
-    console.log("Fetched Data:", data);  // 데이터 구조 확인용 로그
+    console.log('Fetched Data:', data); // 데이터 구조 확인용 로그
 
     // 모든 데이터를 selectedStore에 담기
     selectedStore.value = {
@@ -46,13 +48,13 @@ async function fetchAdditionalData() {
 
 // 컴포넌트가 마운트될 때 추가 데이터 가져오기
 onMounted(() => {
-  console.log("storeId:", storeId);  // storeId가 올바르게 전달되었는지 확인
+  console.log('storeId:', storeId); // storeId가 올바르게 전달되었는지 확인
   fetchAdditionalData();
 });
 
 // 레이아웃 설정
 definePageMeta({
-  layout: 'storedetail'
+  layout: 'storedetail',
 });
 </script>
 

@@ -27,7 +27,7 @@ const ticketInf = ref(null);
 
 // 티켓 데이터 가져오기
 const { data: ticketData, error: ticketError } = await useFetch(
-  `http://localhost:8080/api/v1/stores/${storeId}/tickets`
+  `http://localhost:8080/api/v1/stores/${storeId}/tickets`,
 );
 
 if (ticketError.value) {
@@ -42,7 +42,7 @@ console.log('ticketData:', ticketData.value);
 
 // 레이아웃 설정
 definePageMeta({
-  layout: 'storedetail'
+  layout: 'storedetail',
 });
 </script>
 

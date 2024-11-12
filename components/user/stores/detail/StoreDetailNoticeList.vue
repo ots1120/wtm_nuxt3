@@ -13,7 +13,7 @@
 
       <!-- 작성일 (일전) -->
       <div class="mb-4 flex justify-start text-sm text-gray-500">
-        <span class="block">{{ daysAgo }}일 전</span>
+        <span class="block">{{ daysAgo }}</span>
       </div>
 
       <!-- 공지사항 -->
@@ -34,8 +34,8 @@ const props = defineProps({
     default: '가게 이름 없음',
   },
   daysAgo: {
-    type: Number,
-    default: 0,
+    type: String,
+    default: '등록일 없음',
   },
   noticeName: {
     type: String,

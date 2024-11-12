@@ -10,64 +10,96 @@
         :notice-name="noticeData.title"
         :notice-content="noticeData.content"
         :store-image="noticeData.profilePicture"
-        :days-ago="
-          noticeData.regDate
-            ? calculateDaysAgo(noticeData.regDate)
-            : '등록일 없음'
-        "
+        :days-ago="noticeData.timeAgo ? noticeData.timeAgo : '등록일 없음'"
       />
     </div>
     <div v-else>
       <p>공지사항이 없습니다.</p>
     </div>
+
+    <!-- 로딩 중 표시 -->
+    <div v-if="loading" class="text-center p-4">Loading more notices...</div>
+    <!-- 더 이상 공지사항이 없을 때 표시 -->
+    <div v-else-if="!hasNext" class="text-center p-4">
+      모든 공지사항을 불러왔습니다.
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, inject, watchEffect } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 import StoreDetailNoticeList from '~/components/user/stores/detail/StoreDetailNoticeList.vue';
-import { useFetch } from '#app';
+import useInfiniteScroll from '~/composables/useInfiniteScroll';
 
 // 레이아웃에서 제공된 데이터를 inject로 받아옵니다.
 const storeId = inject('storeId');
+console.log('Store ID:', storeId); // storeId 값이 올바른지 확인
 
 // 공지사항 데이터를 위한 상태 정의
 const noticeDatas = ref([]);
+const page = ref(0); // 페이지 번호
+const size = 10; // 한 번에 가져올 항목 수
+const hasNext = ref(true); // 다음 페이지가 있는지 여부
+const loading = ref(false); // 로딩 상태 관리
 
-// 공지사항 데이터 가져오기
-const { data: noticeData, error: noticeError } = useFetch(
-  () => `http://localhost:8080/api/v1/stores/${storeId}/notices`,
-  { immediate: true }
-);
+// 공지사항 데이터 가져오기 함수
+const fetchNotices = async () => {
+  console.log('fetchNotices 호출됨');
+  console.log('loading 상태:', loading.value);
+  console.log('hasNext 상태:', hasNext.value);
 
-// 데이터를 감시하여 storeImage URL을 설정
-watchEffect(() => {
-  if (noticeData.value) {
-    noticeDatas.value = noticeData.value.map((notice) => ({
-      ...notice,
-      profilePicture: notice.profilePicture
-        ? `http://localhost:8080${notice.profilePicture}`
-        : null,
-    }));
-    console.log('공지사항 데이터:', noticeDatas.value);
+  if (loading.value || !hasNext.value) {
+    console.log('fetchNotices 조건에 의해 중단됨');
+    return;
+  } // 로딩 중이거나 다음 페이지가 없을 때 중단
+
+  loading.value = true;
+  console.log('loading 상태:', loading.value);
+
+  try {
+    const data = await $fetch(
+      `http://localhost:8080/api/v1/stores/${storeId}/notices`,
+      {
+        params: { page: page.value, size },
+      },
+    );
+
+    if (data && data.content) {
+      console.log('Fetched data:', data.content); // 데이터를 확인
+      // 서버에서 응답한 데이터가 있으면 notices 배열에 추가
+      noticeDatas.value.push(
+        ...data.content.map((notice) => ({
+          ...notice,
+          profilePicture: notice.profilePicture
+            ? `http://localhost:8080${notice.profilePicture}`
+            : null,
+        })),
+      );
+
+      hasNext.value = data.content.length === size; // 응답 크기로 hasNext 결정
+      page.value++; // 다음 페이지로 증가
+    } else {
+      hasNext.value = false;
+    }
+  } catch (err) {
+    console.error('Failed to fetch notices:', err);
+    hasNext.value = false;
+  } finally {
+    loading.value = false;
   }
+};
+
+// 페이지가 로드될 때 첫 번째 호출을 위해 onMounted 추가
+onMounted(() => {
+  fetchNotices(); // 페이지가 로드될 때 초기 데이터를 가져오기 위해 호출
 });
 
-if (noticeError.value) {
-  console.error('Notice data fetching error:', noticeError.value);
-}
-
-// 등록일로부터 경과한 날짜 계산
-function calculateDaysAgo(regDate) {
-  const now = new Date();
-  const regDateTime = new Date(regDate);
-  const timeDiff = now - regDateTime;
-  return Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // 일 단위 계산
-}
+// 무한 스크롤을 위한 커스텀 훅 사용
+useInfiniteScroll(fetchNotices);
 
 // 레이아웃 설정
 definePageMeta({
-  layout: 'storedetail'
+  layout: 'storedetail',
 });
 </script>
 

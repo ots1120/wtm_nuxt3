@@ -62,12 +62,41 @@
           <p class="text-sm text-gray-500 mb-4">
             식당과 메뉴에 관련된 사진을 업로드해주세요.
           </p>
-          <input
-            type="file"
-            class="w-full border rounded-md p-2"
-            multiple
-            @change="onFileChange"
-          />
+
+          <!-- 미리보기 및 삭제 기능 -->
+          <div class="flex gap-2 mb-4">
+            <div
+              v-for="(file, index) in imageFiles"
+              :key="index"
+              class="relative w-20 h-20"
+            >
+              <img
+                :src="file.preview"
+                alt="이미지 미리보기"
+                class="w-full h-full object-cover rounded-md"
+              />
+              <button
+                type="button"
+                class="absolute top-1 right-1 bg-gray-200 rounded-full p-1"
+                @click="removeImage(index)"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- 이미지 추가 버튼 -->
+            <label
+              class="w-20 h-20 flex items-center justify-center border rounded-md cursor-pointer"
+            >
+              <input
+                type="file"
+                class="hidden"
+                multiple
+                @change="onFileChange"
+              />
+              <span>+</span>
+            </label>
+          </div>
         </div>
 
         <!-- 리뷰 작성 -->
@@ -116,7 +145,7 @@ const hoverRatings = ref({
   kindness: 0,
 });
 const revisit = ref(false);
-const imageFiles = ref([]); // 여러 파일을 저장할 배열로 변경
+const imageFiles = ref([]);
 const reviewText = ref('');
 const ratingLabels = {
   taste: '맛',
@@ -124,7 +153,6 @@ const ratingLabels = {
   mood: '분위기',
   kindness: '친절도',
 };
-
 const ratingIds = {
   taste: 1,
   cleanliness: 2,
@@ -140,9 +168,31 @@ const clearHover = (key) => {
   hoverRatings.value[key] = 0;
 };
 
-// 사진 파일 변경 처리
+// 파일 선택 시 미리보기 추가
 const onFileChange = (event) => {
-  imageFiles.value = Array.from(event.target.files); // 여러 파일을 배열로 저장
+  const files = event.target.files;
+  const maxSize = 5 * 1024 * 1024;
+
+  for (const file of files) {
+    if (file.size > maxSize) {
+      alert(`${file.name} 파일은 5MB를 초과합니다.`);
+      continue;
+    }
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      alert(`${file.name} 파일 형식이 허용되지 않습니다.`);
+      continue;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageFiles.value.push({ file, preview: e.target.result });
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+// 이미지 제거 함수
+const removeImage = (index) => {
+  imageFiles.value.splice(index, 1);
 };
 
 // 리뷰 제출 함수
@@ -151,16 +201,14 @@ const submitReview = async () => {
   formData.append('revisit', revisit.value);
   formData.append('reviewContent', reviewText.value);
 
-  // 리뷰 점수 리스트를 JSON 문자열로 추가 (ID 변환 포함)
   const scores = Object.entries(ratings.value).map(([category, score]) => ({
-    reviewScaleId: ratingIds[category], // 항목 이름을 ID로 변환
+    reviewScaleId: ratingIds[category],
     reviewScore: score,
   }));
   formData.append('reviewScoresDtos', JSON.stringify(scores));
 
-  // 여러 파일을 FormData에 추가
-  imageFiles.value.forEach((file) => {
-    formData.append('files', file); // 여러 파일을 'files'라는 동일한 키로 추가
+  imageFiles.value.forEach(({ file }) => {
+    formData.append('files', file);
   });
 
   try {
@@ -169,11 +217,11 @@ const submitReview = async () => {
       {
         method: 'POST',
         body: formData,
+        headers: { 'Content-Type': 'multipart/form-data' },
       },
     );
-    // 여기서 response를 직접 사용합니다.
     console.log('리뷰가 성공적으로 등록되었습니다.', response);
-    router.push(`/stores/${storeId}/reviews`);
+    await navigateTo(`/stores/${storeId}/reviews`);
   } catch (error) {
     console.error('리뷰 등록 중 오류 발생:', error);
   }

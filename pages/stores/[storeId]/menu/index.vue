@@ -44,7 +44,6 @@
 <script setup>
 import { ref, inject, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import StoreDetailTicket from '~/components/user/stores/detail/StoreDetailTicket.vue';
 
 // 레이아웃에서 제공된 데이터를 inject로 받아옵니다.
 const storeId = inject('storeId');
@@ -55,7 +54,7 @@ const menuItems = ref([]);
 // 메뉴 데이터 가져오기 함수
 async function fetchMenuData() {
   const { data: menuData, error: menuError } = await useFetch(
-    `http://localhost:8080/api/v1/stores/${storeId}/menus/today`
+    `http://localhost:8080/api/v1/stores/${storeId}/menus/today`,
   );
 
   if (menuError.value) {
@@ -63,7 +62,10 @@ async function fetchMenuData() {
   } else if (menuData.value && menuData.value.menus) {
     menuItems.value = menuData.value.menus.map((item) => item.name);
   } else {
-    console.warn('Menu data is empty or has unexpected format:', menuData.value);
+    console.warn(
+      'Menu data is empty or has unexpected format:',
+      menuData.value,
+    );
     menuItems.value = []; // 빈 배열로 초기화하여 안전하게 처리
   }
 }
@@ -79,7 +81,7 @@ onMounted(fetchMenuData);
 
 // 레이아웃 설정
 definePageMeta({
-  layout: 'storedetail'
+  layout: 'storedetail',
 });
 </script>
 

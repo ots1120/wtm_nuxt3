@@ -8,13 +8,15 @@
     <StoreDetailInfo v-if="reviewStats.storeName" :review-stats="reviewStats" />
 
     <!-- 경로, 저장, 공유 버튼 섹션 -->
-    <StoreDetailActionButtons v-if="actionButtons" :actions="actionButtons" />
+    <StoreDetailActionButtons :actions="actionButtons" />
 
     <!-- 탭 네비게이션 -->
     <StoreDetailTabs />
 
     <!-- 페이지마다 다른 콘텐츠를 렌더링 -->
     <NuxtPage />
+
+    <UserBottomNav />
   </div>
 </template>
 
@@ -51,9 +53,11 @@ provide('actionButtons', actionButtons);
 async function fetchData(storeId) {
   try {
     // 리뷰 요약 정보 가져오기
-    const reviewSummaryResponse = await fetch(`http://localhost:8080/api/v1/stores/${storeId}/review-summary`);
+    const reviewSummaryResponse = await fetch(
+      `http://localhost:8080/api/v1/stores/${storeId}/review-summary`,
+    );
     const reviewSummaryData = await reviewSummaryResponse.json();
-    
+
     restaurantName.value = reviewSummaryData.name || '';
     reviewStats.value = {
       storeName: reviewSummaryData.storeName,
@@ -62,12 +66,13 @@ async function fetchData(storeId) {
     };
 
     // 오늘의 이미지 데이터 가져오기
-    const imagesResponse = await fetch(`http://localhost:8080/api/v1/stores/${storeId}/menus/today-images`);
+    const imagesResponse = await fetch(
+      `http://localhost:8080/api/v1/stores/${storeId}/menus/today-images`,
+    );
     const imagesData = await imagesResponse.json();
 
     // 이미지 URL 배열을 images 변수에 설정
     images.value = imagesData.map((img) => `http://localhost:8080${img.img}`);
-
   } catch (error) {
     console.error('데이터 가져오기 중 오류 발생:', error);
   }
