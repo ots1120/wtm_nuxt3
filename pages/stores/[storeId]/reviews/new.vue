@@ -217,13 +217,12 @@ const submitReview = async () => {
       {
         method: 'POST',
         body: formData,
-        headers: { 'Content-Type': 'multipart/form-data' },
       },
     );
     console.log('리뷰가 성공적으로 등록되었습니다.', response);
-    await navigateTo(`/stores/${storeId}/reviews`);
+    await router.push(`/stores/${storeId}/reviews`);
   } catch (error) {
-    console.error('리뷰 등록 중 오류 발생:', error);
+    console.error('리뷰 등록 중 오류 발생:', error.response || error.message);
   }
 };
 </script>

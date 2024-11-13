@@ -1,11 +1,13 @@
 <template>
   <div>
     <div class="p-4">
-      <!-- Overall Rating Section -->
+      <!-- 전체 평점 섹션 -->
       <div class="flex items-center justify-between">
+        <!-- 전체 평균 평점을 표시하는 부분 -->
         <div class="text-center mr-6">
           <p class="text-lg font-bold">전체 평점</p>
           <div class="flex items-center justify-center">
+            <!-- 별 아이콘 -->
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6 text-yellow-500 mr-1"
@@ -16,51 +18,60 @@
                 d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
               />
             </svg>
+            <!-- 전체 평균 평점 표시 -->
             <p class="text-4xl font-extrabold">
               {{ reviewStats.overallAverageScore || '0.0' }}
             </p>
           </div>
         </div>
 
-        <!-- Detailed Scores Section -->
+        <!-- 상세 평점 섹션 (카테고리별 평균 점수) -->
         <div class="flex flex-col space-y-3">
+          <!-- 각 평가 항목의 평균 점수를 표시 -->
           <div
             v-for="(scale, index) in reviewScaleAverages"
             :key="index"
             class="flex items-center space-x-2"
           >
+            <!-- 평가 항목 이름 -->
             <span class="w-20 text-gray-600">{{ scale.scaleName }}</span>
+            <!-- 프로그레스 바 배경 -->
             <div class="w-32 h-3 bg-gray-200 rounded-full">
+              <!-- 프로그레스 바 채워진 부분 -->
               <div
                 :style="{ width: scale.averageScore * 20 + '%' }"
                 class="h-full bg-blue-500 rounded-full"
               ></div>
             </div>
-            <span class="text-gray-600"
-              >{{ scale.averageScore.toFixed(1) }}점</span
-            >
+            <!-- 평균 점수 표시 -->
+            <span class="text-gray-600">
+              {{ scale.averageScore.toFixed(1) }}점
+            </span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Review Count and View All Button -->
+    <!-- 리뷰 개수와 전체보기 버튼 -->
     <div class="flex justify-between border-b border-t p-2">
       <span class="text-sm font-bold">리뷰 {{ reviewCount }}건</span>
       <a href="#" class="text-sm">전체보기</a>
     </div>
 
-    <div>
+    <!-- 정렬 버튼 섹션 -->
+    <div class="flex space-x-2 p-2">
+      <!-- 최신순 정렬 버튼 -->
       <button
         class="text-sm px-2 py-1 rounded"
         :class="{
-          'bg-blue-500 text-white': sortBy === 'newest',
-          'bg-gray-200': sortBy !== 'newest',
+          'bg-blue-500 text-white': sortBy === 'date',
+          'bg-gray-200': sortBy !== 'date',
         }"
-        @click="sortReviews('newest')"
+        @click="sortReviews('date')"
       >
         최신순
       </button>
+      <!-- 평점순 정렬 버튼 -->
       <button
         class="text-sm px-2 py-1 rounded"
         :class="{
@@ -73,144 +84,174 @@
       </button>
     </div>
 
-    <!-- Reviews List Section -->
-    <div
-      v-for="(review, index) in reviews"
-      :key="index"
-      class="border-b border-gray-300 p-4"
-    >
-      <!-- Review Images Slider Section -->
+    <!-- 리뷰 리스트 섹션 -->
+    <div>
       <div
-        v-if="review.reviewImages && review.reviewImages.length > 0"
-        class="relative overflow-hidden rounded-lg shadow-lg mb-4 w-64 h-64"
+        v-for="(review, index) in reviews"
+        :key="index"
+        class="border-b border-gray-300 p-4"
       >
+        <!-- 리뷰 이미지 가로 스크롤 섹션 -->
         <div
-          class="flex transition-transform duration-300 ease-in-out"
-          :style="{
-            transform: `translateX(-${currentImageIndex[index] * 100}%)`,
-          }"
+          v-if="review.reviewImages && review.reviewImages.length > 0"
+          class="relative mb-4"
         >
+          <!-- 이미지 컨테이너 -->
           <div
-            v-for="(image, imgIndex) in review.reviewImages"
-            :key="imgIndex"
-            class="w-full flex-shrink-0"
+            :ref="setImageContainerRef(index)"
+            class="flex overflow-x-auto space-x-2"
+            @scroll="checkScroll(index)"
           >
-            <img
-              :src="image.url"
-              :alt="'리뷰 사진 ' + (imgIndex + 1)"
-              class="w-full h-full object-cover rounded-md"
-            />
+            <div
+              v-for="(image, imgIndex) in review.reviewImages"
+              :key="imgIndex"
+              class="flex-shrink-0 w-40 h-40 rounded-lg overflow-hidden"
+            >
+              <img
+                :src="image.url"
+                :alt="'리뷰 사진 ' + (imgIndex + 1)"
+                class="w-full h-full object-cover"
+              />
+            </div>
           </div>
-        </div>
-        <!-- Navigation Buttons -->
-        <div class="absolute inset-0 flex items-center justify-between p-4">
+
+          <!-- 좌우 스크롤 버튼 -->
+          <!-- 왼쪽 버튼 -->
           <button
-            class="p-2 rounded-full bg-white bg-opacity-50 text-gray-800 hover:bg-opacity-75 focus:outline-none transition-colors duration-200"
-            @click="prevImage(index)"
+            v-if="showLeftButton[index]"
+            class="absolute left-0 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-white bg-opacity-75 text-gray-800 hover:bg-opacity-100 focus:outline-none transition-colors duration-200"
+            @click="scrollLeft(index)"
           >
             <ChevronLeft class="w-6 h-6" />
-            <span class="sr-only">Previous slide</span>
+            <span class="sr-only">Left</span>
           </button>
+          <!-- 오른쪽 버튼 -->
           <button
-            class="p-2 rounded-full bg-white bg-opacity-50 text-gray-800 hover:bg-opacity-75 focus:outline-none transition-colors duration-200"
-            @click="nextImage(index, review.reviewImages.length)"
+            v-if="showRightButton[index]"
+            class="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-white bg-opacity-75 text-gray-800 hover:bg-opacity-100 focus:outline-none transition-colors duration-200"
+            @click="scrollRight(index)"
           >
             <ChevronRight class="w-6 h-6" />
-            <span class="sr-only">Next slide</span>
+            <span class="sr-only">Right</span>
           </button>
         </div>
-      </div>
 
-      <!-- Review Info Section -->
-      <div class="flex justify-between mb-2">
-        <div>
-          <div class="flex space-x-1 mb-2">
-            <span
-              v-for="n in 5"
-              :key="n"
-              class="text-gray-300 relative"
-              style="width: 24px; height: 24px"
-            >
-              <!-- Empty Star -->
-              <span class="block absolute text-gray-300">★</span>
-              <!-- Filled Part -->
+        <!-- 리뷰 정보 섹션 -->
+        <div class="flex justify-between mb-2">
+          <div>
+            <!-- 별점 표시 -->
+            <div class="flex space-x-1 mb-2">
               <span
-                class="block absolute top-0 left-0 text-yellow-500"
-                :style="{
-                  width: getStarFillPercentage(review.reviewScore, n) + '%',
-                  overflow: 'hidden',
-                }"
-                >★</span
+                v-for="n in 5"
+                :key="n"
+                class="text-gray-300 relative"
+                style="width: 24px; height: 24px"
               >
-            </span>
-          </div>
-          <div class="text-sm text-gray-500">
-            <!-- 이미지와 가게 이름 -->
-            <div class="flex items-center mb-2">
-              <img
-                :src="review.userProfilePicture"
-                alt="User Image"
-                class="w-10 h-10 rounded-full mr-2"
-              />
-              <span class="font-medium">{{ review.userName }}</span>
+                <!-- 빈 별 -->
+                <span class="block absolute text-gray-300">★</span>
+                <!-- 채워진 부분 -->
+                <span
+                  class="block absolute top-0 left-0 text-yellow-500"
+                  :style="{
+                    width: getStarFillPercentage(review.reviewScore, n) + '%',
+                    overflow: 'hidden',
+                  }"
+                  >★</span
+                >
+              </span>
             </div>
-            {{ review.relativeDate }}
-            <!-- relativeDate를 직접 표시 -->
+            <!-- 사용자 정보와 작성 날짜 -->
+            <div class="text-sm text-gray-500">
+              <div class="flex items-center mb-2">
+                <!-- 사용자 프로필 이미지 -->
+                <img
+                  :src="review.userProfilePicture"
+                  alt="User Image"
+                  class="w-10 h-10 rounded-full mr-2"
+                />
+                <!-- 사용자 이름 -->
+                <span class="font-medium">{{ review.userName }}</span>
+              </div>
+              <!-- 작성일 -->
+              {{ review.relativeDate }}
+            </div>
+          </div>
+          <!-- 신고 링크 -->
+          <a href="#" class="text-sm">신고</a>
+        </div>
+
+        <!-- 리뷰 내용 -->
+        <p class="mb-4 text-gray-700">{{ review.reviewContent }}</p>
+
+        <!-- 답글 섹션 -->
+        <div v-if="review.reviewComments && review.reviewComments.length">
+          <!-- 각 답글을 표시 -->
+          <div
+            v-for="(reply, replyIndex) in review.reviewComments"
+            :key="replyIndex"
+            class="ml-6 p-3 bg-gray-100 rounded-lg mb-2"
+          >
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center mb-2">
+                <!-- 관리자 프로필 이미지 -->
+                <img
+                  :src="reply.adminProfilePicture"
+                  alt="Admin Image"
+                  class="w-10 h-10 rounded-full mr-2"
+                />
+                <!-- 관리자 이름 -->
+                <span class="font-medium">{{ reply.adminName }}</span>
+              </div>
+              <!-- 답글 작성일 -->
+              <span class="text-xs text-gray-400">
+                {{ reply.relativeDate }}일 전
+              </span>
+            </div>
+            <!-- 답글 내용 -->
+            <p class="text-sm text-gray-700">{{ reply.commentContent }}</p>
           </div>
         </div>
-        <a href="#" class="text-sm">신고</a>
+
+        <!-- 도움돼요 버튼 -->
+        <button
+          class="flex items-center space-x-2 border border-gray-300 px-3 py-2 text-gray-500 rounded-full"
+          @click="incrementHelpfulCount(index)"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M14 9l-6 6m0 0l6 6m-6-6h18" />
+          </svg>
+          <span>도움돼요</span>
+          <span>{{ review.helpfulCount }}</span>
+        </button>
       </div>
 
-      <!-- Review Content -->
-      <p class="mb-4 text-gray-700">{{ review.reviewContent }}</p>
+      <!-- 감시 대상 요소 -->
+      <div ref="infiniteScrollTrigger"></div>
 
-      <!-- Replies Section -->
-      <div v-if="review.reviewComments && review.reviewComments.length">
-        <div
-          v-for="(reply, replyIndex) in review.reviewComments"
-          :key="replyIndex"
-          class="ml-6 p-3 bg-gray-100 rounded-lg mb-2"
-        >
-          <div class="flex items-center justify-between mb-1">
-            <div class="flex items-center mb-2">
-              <img
-                :src="reply.adminProfilePicture"
-                alt="User Image"
-                class="w-10 h-10 rounded-full mr-2"
-              />
-              <span class="font-medium">{{ reply.adminName }}</span>
-            </div>
-            <span class="text-xs text-gray-400"
-              >{{ reply.relativeDate }}일 전</span
-            >
-          </div>
-          <p class="text-sm text-gray-700">{{ reply.commentContent }}</p>
-        </div>
+      <!-- 로딩 중 표시 -->
+      <div v-if="isLoading" class="text-center py-4">
+        리뷰를 불러오는 중입니다...
       </div>
-
-      <!-- Helpful Button -->
-      <button
-        class="flex items-center space-x-2 border border-gray-300 px-3 py-2 text-gray-500 rounded-full"
-        @click="incrementHelpfulCount(index)"
-      >
-        <svg
-          class="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M14 9l-6 6m0 0l6 6m-6-6h18" />
-        </svg>
-        <span>도움돼요</span>
-        <span>{{ review.helpfulCount }}</span>
-      </button>
+      <!-- 더 이상 리뷰가 없을 때 표시 -->
+      <div v-if="!hasNext && reviews.length > 0" class="text-center py-4">
+        모든 리뷰를 불러왔습니다.
+      </div>
+      <!-- 리뷰가 없을 때 표시 -->
+      <div v-if="reviews.length === 0 && !isLoading" class="text-center py-4">
+        리뷰가 없습니다.
+      </div>
     </div>
 
     <!-- 리뷰 쓰기 버튼 -->
-    <div class="fixed bottom-10 w-full flex justify-center z-10">
+    <div class="fixed bottom-32 left-0 w-full flex justify-center z-10">
       <button
         class="flex items-center space-x-2 bg-orange-500 text-white px-6 py-3 rounded-full font-semibold"
         @click="goToReviewPage"
@@ -236,123 +277,187 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
+// 라우터 설정
 const router = useRouter();
 const route = useRoute();
 
+// 라우트 파라미터에서 storeId를 가져옵니다.
 const storeId = route.params.storeId;
-const sortBy = ref('newest'); // 정렬 기준 상태: 최신순('newest') 또는 평점순('rating')
 
-const reviewStats = ref({ overallAverageScore: 0, reviewScaleAverages: [] });
+// 정렬 기준 상태: 최신순('date') 또는 평점순('rating')
+const sortBy = ref('date');
+
+// 리뷰 통계와 개수를 저장하는 상태
+const reviewStats = ref({
+  overallAverageScore: 0,
+  reviewScaleAverages: [],
+});
 const reviewCount = ref(0);
 const reviews = ref([]);
 
-// 슬라이더를 위한 이미지 인덱스 배열
-const currentImageIndex = ref([]); // 각 리뷰의 이미지 슬라이드 인덱스 초기화
+// 이미지 컨테이너 참조와 스크롤 버튼 표시 여부를 관리하는 상태
+const imageContainers = ref([]);
+const showLeftButton = ref([]);
+const showRightButton = ref([]);
 
+// 무한 스크롤을 위한 상태 변수
+const page = ref(0); // 페이지 번호
+const size = ref(10); // 한 번에 가져올 항목 수
+const hasNext = ref(true); // 다음 페이지가 있는지 여부
+const isLoading = ref(false); // 로딩 상태 관리
+
+// Intersection Observer를 위한 ref
+const infiniteScrollTrigger = ref(null);
+
+// 리뷰 작성 페이지로 이동하는 함수
 const goToReviewPage = () => {
   router.push(`/stores/${storeId}/reviews/new`);
 };
 
-// 슬라이드 내비게이션 함수들
-const nextImage = (reviewIndex, imageLength) => {
-  currentImageIndex.value[reviewIndex] =
-    (currentImageIndex.value[reviewIndex] + 1) % imageLength;
-};
-
-const prevImage = (reviewIndex) => {
-  currentImageIndex.value[reviewIndex] =
-    (currentImageIndex.value[reviewIndex] -
-      1 +
-      reviews.value[reviewIndex].reviewImages.length) %
-    reviews.value[reviewIndex].reviewImages.length;
-};
-
-// 리뷰 정렬 함수
+// 정렬 기준을 변경하는 함수
 const sortReviews = (criteria) => {
-  sortBy.value = criteria;
-  if (criteria === 'newest') {
-    reviews.value.sort(
-      (a, b) => new Date(b.reviewRegDate) - new Date(a.reviewRegDate),
-    );
-  } else if (criteria === 'rating') {
-    reviews.value.sort((a, b) => b.reviewScore - a.reviewScore);
+  if (sortBy.value !== criteria) {
+    sortBy.value = criteria;
+    // 정렬 기준이 변경되면 리뷰와 페이지를 초기화하고 다시 데이터를 가져옵니다.
+    reviews.value = [];
+    page.value = 0;
+    hasNext.value = true;
+    fetchReviews();
   }
 };
 
-// Fetch review count
+// 리뷰 개수 가져오기
 const { data: reviewCountData, error: reviewCountError } = useFetch(
   `http://localhost:8080/api/v1/stores/${storeId}/review-count`,
 );
-watch(
-  reviewCountData,
-  (newValue) => {
-    if (newValue) {
-      reviewCount.value = newValue.reviewCount;
-    }
-  },
-  { immediate: true },
-);
+if (reviewCountData.value) {
+  reviewCount.value = reviewCountData.value.reviewCount;
+}
 
-// Fetch review statistics
+// 리뷰 통계 가져오기
 const { data: reviewStatsData, error: reviewStatsError } = useFetch(
   `http://localhost:8080/api/v1/stores/${storeId}/review-stats`,
 );
-watch(
-  reviewStatsData,
-  (newValue) => {
-    if (newValue) {
-      reviewStats.value.overallAverageScore = newValue.overallAverageScore;
-      reviewStats.value.reviewScaleAverages = newValue.reviewScaleAverages.map(
-        (scale) => ({
-          scaleName: scale.scaleName,
-          averageScore: scale.averageScore,
-        }),
-      );
-    }
-  },
-  { immediate: true },
-);
+if (reviewStatsData.value) {
+  reviewStats.value.overallAverageScore =
+    reviewStatsData.value.overallAverageScore;
+  reviewStats.value.reviewScaleAverages =
+    reviewStatsData.value.reviewScaleAverages.map((scale) => ({
+      scaleName: scale.scaleName,
+      averageScore: scale.averageScore,
+    }));
+}
 
-// Fetch reviews
-const { data: reviewsData, error: reviewsError } = useFetch(
-  `http://localhost:8080/api/v1/stores/${storeId}/reviews`,
-);
-watch(
-  reviewsData,
-  (newValue) => {
-    if (newValue) {
-      reviews.value = newValue.map((review) => ({
-        ...review,
-        reviewImages: review.reviewImageUrls.map((img) => ({
-          url: `http://localhost:8080${img}`,
-        })),
-        userProfilePicture: `http://localhost:8080${review.userProfilePicture}`,
-        reviewComments: review.reviewComments.map((comment) => ({
-          ...comment,
-          adminProfilePicture: comment.adminProfilePicture
-            ? `http://localhost:8080${comment.adminProfilePicture}`
-            : null,
-        })),
-        helpfulCount: review.helpfulCount || 0,
-      }));
-      currentImageIndex.value = reviews.value.map(() => 0);
-      sortReviews(sortBy.value); // 데이터를 초기 정렬
-    }
-  },
-  { immediate: true },
-);
-
-// Computed property for review scale averages
+// 계산된 속성 정의
 const reviewScaleAverages = computed(
   () => reviewStats.value.reviewScaleAverages || [],
 );
 
-// Calculate star fill percentage
+// 이미지 URL을 구성하는 헬퍼 함수
+const constructImageUrl = (path) => `http://localhost:8080${path}`;
+
+// 리뷰 데이터 가져오기 함수
+const fetchReviews = async () => {
+  if (isLoading.value || !hasNext.value) return;
+  isLoading.value = true;
+
+  try {
+    const url = `http://localhost:8080/api/v1/stores/${storeId}/reviews?sortOption=${sortBy.value}&page=${page.value}&size=${size.value}`;
+    const response = await $fetch(url);
+
+    if (response && response.content) {
+      const newReviews = response.content.map((review) => ({
+        ...review,
+        // 리뷰 이미지 URL 구성
+        reviewImages: review.reviewImageUrls.map((img) => ({
+          url: constructImageUrl(img),
+        })),
+        // 사용자 프로필 이미지 URL
+        userProfilePicture: constructImageUrl(review.userProfilePicture),
+        // 리뷰 댓글 처리
+        reviewComments: review.reviewComments.map((comment) => ({
+          ...comment,
+          adminProfilePicture: comment.adminProfilePicture
+            ? constructImageUrl(comment.adminProfilePicture)
+            : null,
+        })),
+        // 도움돼요 카운트 초기화
+        helpfulCount: review.helpfulCount || 0,
+      }));
+
+      // 기존 리뷰에 새로 가져온 리뷰 추가
+      reviews.value.push(...newReviews);
+
+      // 이미지 컨테이너 참조 배열 초기화
+      imageContainers.value = reviews.value.map(() => null);
+
+      // 스크롤 버튼 표시 여부 배열 초기화
+      showLeftButton.value = reviews.value.map(() => false);
+      showRightButton.value = reviews.value.map(() => true);
+
+      // 다음 페이지 여부 업데이트
+      hasNext.value = !response.last;
+      if (hasNext.value) {
+        page.value += 1;
+      }
+    } else {
+      hasNext.value = false;
+    }
+  } catch (error) {
+    console.error('리뷰 데이터를 로드하는 중 오류 발생:', error);
+    hasNext.value = false;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// 이미지 컨테이너 ref 설정 함수
+const setImageContainerRef = (index) => (el) => {
+  imageContainers.value[index] = el;
+  // 초기 스크롤 상태 확인
+  checkScroll(index);
+};
+
+// 스크롤 상태를 확인하여 버튼 표시 여부를 결정하는 함수
+const checkScroll = (index) => {
+  const container = imageContainers.value[index];
+  if (container) {
+    showLeftButton.value[index] = container.scrollLeft > 0;
+    showRightButton.value[index] =
+      container.scrollLeft + container.clientWidth < container.scrollWidth;
+  }
+};
+
+// 왼쪽으로 스크롤하는 함수
+const scrollLeft = (index) => {
+  const container = imageContainers.value[index];
+  if (container) {
+    container.scrollBy({
+      left: -200,
+      behavior: 'smooth',
+    });
+    setTimeout(() => checkScroll(index), 300);
+  }
+};
+
+// 오른쪽으로 스크롤하는 함수
+const scrollRight = (index) => {
+  const container = imageContainers.value[index];
+  if (container) {
+    container.scrollBy({
+      left: 200,
+      behavior: 'smooth',
+    });
+    setTimeout(() => checkScroll(index), 300);
+  }
+};
+
+// 별점의 채워진 정도를 계산하는 함수
 const getStarFillPercentage = (reviewScore, starIndex) => {
   const fullStars = Math.floor(reviewScore);
   const decimal = reviewScore % 1;
@@ -362,12 +467,40 @@ const getStarFillPercentage = (reviewScore, starIndex) => {
   return 0;
 };
 
-// Increment helpful count
+// "도움돼요" 버튼 클릭 시 카운트를 증가시키는 함수
 const incrementHelpfulCount = (index) => {
   reviews.value[index].helpfulCount++;
 };
 
-// Log errors if any
+// Intersection Observer 설정
+let observer = null;
+onMounted(() => {
+  fetchReviews(); // 초기 데이터 로드
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        fetchReviews();
+      }
+    },
+    {
+      root: null,
+      threshold: 0.1,
+    },
+  );
+
+  if (infiniteScrollTrigger.value) {
+    observer.observe(infiniteScrollTrigger.value);
+  }
+});
+
+onUnmounted(() => {
+  if (observer && infiniteScrollTrigger.value) {
+    observer.unobserve(infiniteScrollTrigger.value);
+  }
+});
+
+// 데이터 로딩 중 오류 발생 시 콘솔에 에러 출력
 if (reviewCountError.value)
   console.error(
     '리뷰 개수 데이터를 로드하는 중 오류 발생:',
@@ -378,15 +511,9 @@ if (reviewStatsError.value)
     '리뷰 통계 데이터를 로드하는 중 오류 발생:',
     reviewStatsError.value,
   );
-if (reviewsError.value)
-  console.error('리뷰 데이터를 로드하는 중 오류 발생:', reviewsError.value);
 
-// 레이아웃 설정
+// 페이지 레이아웃 설정
 definePageMeta({
   layout: 'storedetail',
 });
 </script>
-
-<style scoped>
-/* Additional styling if needed */
-</style>

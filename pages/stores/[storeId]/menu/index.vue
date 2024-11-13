@@ -1,4 +1,3 @@
-<!-- pages/storeDetailPage.vue -->
 <template>
   <div>
     <!-- 메뉴 탭 섹션 -->
@@ -30,10 +29,10 @@
         <p class="text-gray-500 mb-4">아직 메뉴 정보가 없어요 😢</p>
         <form action="#" method="post" class="w-full">
           <button
-            class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg w-full transition"
+            class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg w-full transition hover:bg-gray-400"
             @click.prevent="goToMenuRegPage"
           >
-            메뉴 제보하기
+            메뉴 등록하기
           </button>
         </form>
       </div>
@@ -41,33 +40,27 @@
   </div>
 </template>
 
-<script setup>
-import { ref, inject, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useFetch } from '#app'; // 필요에 따라 경로를 조정하세요.
 
-// 레이아웃에서 제공된 데이터를 inject로 받아옵니다.
-const storeId = inject('storeId');
+// 메뉴 항목의 인터페이스 정의
+interface MenuItem {
+  name: string;
+}
 
-// 메뉴 데이터를 위한 상태 정의
-const menuItems = ref([]);
+// API 응답 형식 인터페이스 정의
+interface MenuResponse {
+  menus: MenuItem[];
+}
 
-// 메뉴 데이터 가져오기 함수
-async function fetchMenuData() {
-  const { data: menuData, error: menuError } = await useFetch(
-    `http://localhost:8080/api/v1/stores/${storeId}/menus/today`,
-  );
+// 라우트에서 storeId를 가져옵니다.
+const route = useRoute();
+const storeId = route.params.storeId as string;
 
-  if (menuError.value) {
-    console.error('Menu data fetching error:', menuError.value);
-  } else if (menuData.value && menuData.value.menus) {
-    menuItems.value = menuData.value.menus.map((item) => item.name);
-  } else {
-    console.warn(
-      'Menu data is empty or has unexpected format:',
-      menuData.value,
-    );
-    menuItems.value = []; // 빈 배열로 초기화하여 안전하게 처리
-  }
+if (!storeId) {
+  throw new Error('storeId를 가져올 수 없습니다.');
 }
 
 // 메뉴 등록 페이지로 이동하는 함수
@@ -76,8 +69,25 @@ function goToMenuRegPage() {
   router.push(`/stores/${storeId}/menu/new`);
 }
 
-// 컴포넌트가 마운트될 때 메뉴 데이터 가져오기
-onMounted(fetchMenuData);
+// useFetch를 setup 함수의 최상위 레벨에서 사용합니다.
+const { data: menuData, error: menuError } = useFetch<MenuResponse>(
+  `http://localhost:8080/api/v1/stores/${storeId}/menus/today`,
+);
+
+// menuItems를 computed로 정의하여 반응형으로 만듭니다.
+const menuItems = computed(() => {
+  if (menuError.value) {
+    console.error('Menu data fetching error:', menuError.value.message);
+    return [];
+  }
+
+  const menus = menuData.value?.menus || [];
+  if (!menus.length) {
+    console.warn('Menu data is empty:', menuData.value);
+  }
+
+  return menus.length ? menus.map((item) => item.name || '메뉴 이름 없음') : [];
+});
 
 // 레이아웃 설정
 definePageMeta({
@@ -86,20 +96,5 @@ definePageMeta({
 </script>
 
 <style scoped>
-/* 페이지 개별 스타일 */
-h2 {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  padding: 5px 0;
-}
-button {
-  cursor: pointer;
-}
+/* 필요한 경우 추가적인 스타일을 정의할 수 있습니다 */
 </style>

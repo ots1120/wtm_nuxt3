@@ -1,5 +1,6 @@
+<!-- pages/stores/index.vue -->
 <template>
-  <div>
+  <div class="w-full max-w-lg mx-auto">
     <SearchBar
       v-model="searchText"
       placeholder="식당 이름을 입력해주세요"
@@ -9,7 +10,7 @@
     <!-- Bottom Sheet for Store List -->
     <div
       v-if="isSheetOpen"
-      class="fixed bottom-0 left-0 right-0 bg-white rounded-t-lg shadow-lg overflow-hidden transition-transform duration-300"
+      class="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-white rounded-t-lg shadow-lg overflow-hidden transition-transform duration-300 w-full max-w-lg"
       :style="{ height: sheetHeight }"
       @touchstart="startTouch"
       @touchmove="onTouchMove"
@@ -32,11 +33,8 @@
         <div v-if="stores.length === 0" class="m-4 text-center text-gray-500">
           검색 결과가 없습니다.
         </div>
-
-        <!-- 검색 결과가 있을 때 가게 목록 표시 -->
         <div
           v-for="(store, index) in stores"
-          v-else
           :key="index"
           class="m-3 flex items-start space-x-4 border-b pb-4"
           @click="goToStoreDetail(store.storeId)"
@@ -84,7 +82,7 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2-2"
+                d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2"
               />
             </svg>
           </button>
@@ -195,5 +193,5 @@ definePageMeta({ layout: 'search' });
 </script>
 
 <style scoped>
-/* No additional custom CSS needed, all styling is handled by Tailwind CSS */
+/* 추가적인 스타일이 필요하지 않습니다. 모든 스타일은 Tailwind CSS로 처리됩니다. */
 </style>

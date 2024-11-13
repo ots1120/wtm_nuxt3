@@ -1,13 +1,14 @@
 <template>
   <div class="relative w-full aspect-square">
     <img
-      :src="images[currentImageIndex]"
+      :src="currentImage"
       :alt="restaurantName"
       class="w-full h-full object-cover"
     />
 
     <!-- Navigation Arrows -->
     <button
+      v-if="hasImages"
       class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full"
       aria-label="Previous image"
       @click="previousImage"
@@ -28,6 +29,7 @@
       </svg>
     </button>
     <button
+      v-if="hasImages"
       class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full"
       aria-label="Next image"
       @click="nextImage"
@@ -51,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
   images: {
@@ -67,14 +69,27 @@ const props = defineProps({
 
 const currentImageIndex = ref(0);
 
+const defaultImage = '/images/menu-default.jpg';
+
+const hasImages = computed(() => props.images.length > 0);
+
+const currentImage = computed(() => {
+  return hasImages.value ? props.images[currentImageIndex.value] : defaultImage;
+});
+
 const nextImage = () => {
-  currentImageIndex.value = (currentImageIndex.value + 1) % props.images.length;
+  if (hasImages.value) {
+    currentImageIndex.value =
+      (currentImageIndex.value + 1) % props.images.length;
+  }
 };
 
 const previousImage = () => {
-  currentImageIndex.value =
-    currentImageIndex.value === 0
-      ? props.images.length - 1
-      : currentImageIndex.value - 1;
+  if (hasImages.value) {
+    currentImageIndex.value =
+      currentImageIndex.value === 0
+        ? props.images.length - 1
+        : currentImageIndex.value - 1;
+  }
 };
 </script>

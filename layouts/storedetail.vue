@@ -1,6 +1,5 @@
-<!-- layouts/storeDetail.vue -->
 <template>
-  <div>
+  <div class="flex flex-col w-full max-w-lg mx-auto min-h-screen pb-16">
     <!-- 상단 이미지 슬라이더 섹션 -->
     <StoreDetailImages :images="images" :restaurant-name="restaurantName" />
 
@@ -14,8 +13,11 @@
     <StoreDetailTabs />
 
     <!-- 페이지마다 다른 콘텐츠를 렌더링 -->
-    <NuxtPage />
+    <div class="flex-grow">
+      <NuxtPage />
+    </div>
 
+    <!-- UserBottomNav를 맨 아래에 고정 -->
     <UserBottomNav />
   </div>
 </template>
@@ -85,5 +87,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 레이아웃 스타일 추가 */
+/* 추가 스타일이 필요하면 여기에 작성 */
 </style>
