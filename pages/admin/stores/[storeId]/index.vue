@@ -1,5 +1,5 @@
 <template>
-  <div class="m-5 flex flex-col items-center">
+  <div class="flex flex-col items-center">
     <div
       class="w-32 h-32 rounded-full border overflow-hidden flex items-center justify-center"
     >
@@ -26,9 +26,9 @@
       <p class="font-bold text-xl">{{ storeName || '' }} 사장님</p>
       <p>안녕하세요!</p>
     </div>
-    <div class="grid grid-cols-2 gap-10 p-6">
+    <div class="grid grid-cols-2 gap-10 p-2">
       <button
-        class="flex h-36 w-36 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
         @click="goToMenuManagement"
       >
         <svg
@@ -44,7 +44,7 @@
         <span>메뉴 관리</span>
       </button>
       <button
-        class="flex h-36 w-36 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
         @click="goToTicketManagement"
       >
         <svg
@@ -61,7 +61,7 @@
         <span>식권 관리</span>
       </button>
       <button
-        class="flex h-36 w-36 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
         @click="goToReviewManagement"
       >
         <svg
@@ -77,7 +77,7 @@
         <span>리뷰 관리</span>
       </button>
       <button
-        class="flex h-36 w-36 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
         @click="goToNoticeManagement"
       >
         <svg
@@ -100,7 +100,7 @@
         <span>공지 관리</span>
       </button>
       <button
-        class="flex h-36 w-36 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
         @click="goToStoreManagement"
       >
         <svg

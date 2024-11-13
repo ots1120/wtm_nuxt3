@@ -1,6 +1,6 @@
 <template>
-  <div class="container mx-auto p-4">
-    <div class="bg-white shadow-md rounded-lg p-6">
+  <div class="container">
+    <div class="bg-white shadow-md rounded-lg p-2">
       <div class="mb-4">
         <h1 class="text-2xl font-bold text-gray-800">식권 관리</h1>
       </div>
@@ -11,7 +11,7 @@
           >
           <select
             v-model.number="newItemCategory"
-            class="w-full mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
+            class="w-32 mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
           >
             <option disabled hidden value="0">카테고리 선택</option>
             <option value="1">현금</option>
@@ -41,30 +41,41 @@
           />
         </div>
         <button
-          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mt-auto"
           @click="addTicketItem"
         >
           추가
         </button>
       </div>
-      <table class="table-auto w-full border-collapse border border-gray-200">
+      <table class="table-fixed w-full border-collapse border border-gray-200">
         <thead>
           <tr>
-            <th class="border border-gray-200 px-4 py-2 text-left">카테고리</th>
-            <th class="border border-gray-200 px-4 py-2 text-left">이름</th>
-            <th class="border border-gray-200 px-4 py-2 text-left">가격</th>
-            <th class="border border-gray-200 px-4 py-2 text-left">작업</th>
+            <th class="border border-gray-200 px-4 py-2 text-left w-1/4">
+              카테고리
+            </th>
+            <th class="border border-gray-200 px-4 py-2 text-left w-1/4">
+              이름
+            </th>
+            <th class="border border-gray-200 px-4 py-2 text-left w-1/4">
+              가격
+            </th>
+            <th class="border border-gray-200 px-4 py-2 text-left w-1/4">
+              작업
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in ticketItems" :key="item.id">
             <td class="border border-gray-200 px-4 py-2">
               <template v-if="editingId === item.id">
-                <input
-                  v-model="newItemname"
-                  placeholder="메뉴 이름"
-                  class="px-2 py-1 border rounded-md focus:ring focus:ring-blue-200"
-                />
+                <select
+                  v-model.number="newItemCategory"
+                  class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
+                >
+                  <option disabled hidden value="0">카테고리 선택</option>
+                  <option value="1">현금</option>
+                  <option value="2">카드</option>
+                </select>
               </template>
               <template v-else>
                 <span v-if="item.categoryId === 1">현금</span>
@@ -74,9 +85,10 @@
             <td class="border border-gray-200 px-4 py-2">
               <template v-if="editingId === item.id">
                 <input
-                  v-model="newItemCategory"
-                  placeholder="메뉴 카테고리"
-                  class="px-2 py-1 border rounded-md focus:ring focus:ring-blue-200"
+                  v-model="newItemname"
+                  type="text"
+                  placeholder="메뉴 이름"
+                  class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
                 />
               </template>
               <template v-else>
@@ -89,12 +101,12 @@
                   v-model="newItemPrice"
                   type="number"
                   placeholder="가격"
-                  class="px-2 py-1 border rounded-md focus:ring focus:ring-blue-200"
+                  class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
                 />
               </template>
               <template v-else> {{ item.price }}원 </template>
             </td>
-            <td class="border border-gray-200 px-4 py-2">
+            <td class="border border-gray-200 px-4 py-2 whitespace-nowrap">
               <template v-if="editingId === item.id">
                 <button
                   class="px-2 py-1 bg-green-600 text-white rounded-md hover:bg-green-700"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="reviews.length > 0">
+    <div v-if="reviews.length > 0" class="mb-10">
       <div
         v-for="(review, reviewIndex) in reviews"
         :key="review.reviewId"
@@ -12,7 +12,7 @@
             <img
               :src="review.userProfilePicture"
               alt="profile"
-              class="h-14 w-14 rounded-full"
+              class="h-14 w-14 rounded-full object-cover"
             />
           </div>
           <div v-else>
@@ -28,7 +28,7 @@
             </svg>
           </div>
         </div>
-        <div class="w-full flex-col p-3">
+        <div class="w-full flex-col p-3 overflow-hidden">
           <div class="flex justify-between">
             <span v-if="review.userName">{{ review.userName }}</span>
             <span class="text-xs text-gray-400">{{
@@ -54,43 +54,41 @@
             </svg>
           </div>
           <!-- 별점 표시 아래, 리뷰 내용 표시 -->
-          <div>
-            <!-- 리뷰 내용 -->
-            <div class="mt-2">
-              <p v-if="!isExpanded[reviewIndex]" class="truncate">
-                {{ review.reviewContent }}
-              </p>
-              <p v-else class="whitespace-pre-wrap">
-                {{ review.reviewContent }}
-              </p>
-              <!-- 더보기/접기 버튼 -->
-              <button
-                v-if="review.reviewContent.length > 100"
-                class="text-xs text-blue-500"
-                @click="toggleExpand(reviewIndex)"
-              >
-                {{ isExpanded[reviewIndex] ? '접기' : '더보기' }}
-              </button>
-            </div>
-
-            <!-- 리뷰 이미지 항목 -->
-            <div
-              v-if="review.reviewImgs && review.reviewImgs.length > 0"
-              class="mt-3 flex gap-2"
+          <div class="mt-2 overflow-hidden">
+            <p
+              v-if="!isExpanded[reviewIndex]"
+              class="truncate text-ellipsis whitespace-nowrap"
             >
-              <div
-                v-for="(img, imgIndex) in review.reviewImgs"
-                :key="imgIndex"
-                class="w-24 h-24 border rounded-md overflow-hidden"
-              >
-                <a :href="img" target="_blank">
-                  <img
-                    :src="img"
-                    alt="Review Image"
-                    class="w-full h-full object-cover"
-                  />
-                </a>
-              </div>
+              {{ review.reviewContent }}
+            </p>
+            <p v-else class="whitespace-pre-wrap">
+              {{ review.reviewContent }}
+            </p>
+            <button
+              v-if="review.reviewContent.length > 40"
+              class="text-xs text-blue-500"
+              @click="toggleExpand(reviewIndex)"
+            >
+              {{ isExpanded[reviewIndex] ? '접기' : '더보기' }}
+            </button>
+          </div>
+          <!-- 리뷰 이미지 항목 -->
+          <div
+            v-if="review.reviewImgs && review.reviewImgs.length > 0"
+            class="mt-3 flex flex-wrap gap-2"
+          >
+            <div
+              v-for="(img, imgIndex) in review.reviewImgs"
+              :key="imgIndex"
+              class="w-24 h-24 border rounded-md overflow-hidden"
+            >
+              <a :href="img" target="_blank">
+                <img
+                  :src="img"
+                  alt="Review Image"
+                  class="w-full h-full object-cover"
+                />
+              </a>
             </div>
           </div>
           <!-- 리뷰 댓글 -->
@@ -105,7 +103,7 @@
                   <img
                     :src="review.adminProfilePicture"
                     alt="admin profile"
-                    class="h-6 w-6 rounded-full"
+                    class="h-6 w-6 rounded-full object-cover"
                   />
                 </div>
                 <span class="font-semibold">{{ comment.adminName }}</span>
@@ -114,7 +112,7 @@
               <div v-if="isEditing[reviewIndex]?.[commentIndex]">
                 <textarea
                   v-model="editContent[reviewIndex][commentIndex]"
-                  class="w-full h-full mt-2 border rounded-md resize-none focus:border-orange-400 focus:outline-none"
+                  class="w-full h-24 mt-2 border rounded-md resize-none focus:border-orange-400 focus:outline-none"
                   spellcheck="false"
                 ></textarea>
                 <div class="flex justify-end gap-4 mt-2">
@@ -141,7 +139,7 @@
               </div>
               <!-- 기본 상태 -->
               <div v-else>
-                <p>{{ comment.commentContent }}</p>
+                <p class="whitespace-pre-wrap">{{ comment.commentContent }}</p>
                 <div class="flex justify-end gap-4">
                   <button
                     class="text-xs text-blue-500"
@@ -157,7 +155,14 @@
                   </button>
                   <button
                     class="text-xs text-red-500"
-                    @click="deleteComment(review.reviewId, comment.commentId)"
+                    @click="
+                      deleteComment(
+                        review.reviewId,
+                        comment.commentId,
+                        reviewIndex,
+                        commentIndex,
+                      )
+                    "
                   >
                     삭제
                   </button>
@@ -188,13 +193,14 @@
     <div v-else>
       <p class="text-center text-gray-500">리뷰가 없습니다.</p>
     </div>
+    <!-- Sentinel -->
+    <div ref="sentinel" class="h-1"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { ref, watchEffect } from 'vue';
-import { useFetch } from '#app';
 import { differenceInDays } from 'date-fns';
 import ReplyForm from '~/components/admin/reviews/ReplyForm.vue';
 
@@ -210,7 +216,14 @@ interface ReviewComment {
   commentId: number;
   commentContent: string;
   adminName: string;
-  adminProfilePicture: string;
+  adminProfilePicture: string | null;
+}
+
+interface ServerComment {
+  reviewId: number;
+  content: string;
+  username: string;
+  profilePicture: string;
 }
 
 interface Review {
@@ -223,7 +236,24 @@ interface Review {
   reviewScore: number;
   reviewRegDate: string;
   reviewComments: ReviewComment[];
-  dayDifference: string;
+  dayDifference?: string;
+}
+
+interface ReviewPageResponse {
+  reviews: Review[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+}
+
+interface IntersectionObserverEntry {
+  isIntersecting: boolean;
+}
+
+interface IntersectionObserverOptions {
+  root: Element | null;
+  rootMargin: string;
+  threshold: number;
 }
 
 // 라우트 인스턴스 생성
@@ -236,12 +266,20 @@ const isReplying = ref<boolean[]>([]);
 const isEditing = ref<Record<number, Record<number, boolean>>>({});
 const editContent = ref<Record<number, Record<number, string>>>({});
 
+// 페이지 상태 관리
+const currentPage = ref<number>(0);
+const pageSize = ref<number>(5);
+const totalPages = ref<number>(0);
+const isLoading = ref<boolean>(false);
+const sentinel = ref<HTMLElement | null>(null); // 관찰할 엘리먼트
+
+let observer: IntersectionObserver;
+
 // storeId 가져오기
-const storeId = route.params.storeId;
-console.log(storeId);
+const storeId = route.params.storeId as string;
 
 // 등록일자 계산
-const formatDateDifference = (regDate: string) => {
+const formatDateDifference = (regDate: string): string => {
   const date = new Date(regDate);
   if (isNaN(date.getTime())) {
     console.error('유효하지 않은 날짜 형식:', regDate);
@@ -252,70 +290,141 @@ const formatDateDifference = (regDate: string) => {
 };
 
 // 더보기/접기 함수
-const toggleExpand = (index: number) => {
+const toggleExpand = (index: number): void => {
   isExpanded.value[index] = !isExpanded.value[index];
 };
 
 // 답글 표시/숨기기 토글 함수
-const toggleComment = (index: number) => {
+const toggleComment = (index: number): void => {
   isReplying.value[index] = !isReplying.value[index];
 };
 
-// 데이터 가져오기 API
-const { data, refresh, error } = useFetch<Review[]>(
-  `/api/admin/stores/${storeId}/reviews`,
-  {
-    baseURL: 'http://localhost:8080',
-  },
-);
-
-watchEffect(() => {
-  if (data.value) {
-    reviews.value = data.value.map((review) => ({
-      ...review,
-      dayDifference: formatDateDifference(review.reviewRegDate),
-      userProfilePicture: review.userProfilePicture
-        ? `http://localhost:8080${review.userProfilePicture}`
-        : null,
-      adminProfilePicture: review.adminProfilePicture
-        ? `http://localhost:8080${review.adminProfilePicture}`
-        : null,
-      reviewImgs: review.reviewImgs.map((img) => `http://localhost:8080${img}`), // 배열의 각 경로에 도메인을 추가
-    }));
-    console.log(data.value);
-    isExpanded.value = new Array(reviews.value.length).fill(false);
-    isReplying.value = new Array(reviews.value.length).fill(false);
+// 리뷰 데이터 로드 함수
+const loadReviews = async (): Promise<void> => {
+  if (
+    isLoading.value ||
+    (totalPages.value && currentPage.value >= totalPages.value)
+  ) {
+    return;
   }
-  if (error.value) {
-    console.error('데이터 요청 중 예외 발생:', error.value);
+  isLoading.value = true;
+
+  try {
+    const response = await $fetch<ReviewPageResponse>(
+      `/api/admin/stores/${storeId}/reviews`,
+      {
+        baseURL: 'http://localhost:8080',
+        params: {
+          page: currentPage.value,
+          size: pageSize.value,
+        },
+      },
+    );
+
+    if (response && response.reviews) {
+      totalPages.value = response.totalPages;
+      currentPage.value = response.currentPage + 1;
+
+      // 새 데이터 병합
+      const newReviews = response.reviews.map((review) => ({
+        ...review,
+        dayDifference: formatDateDifference(review.reviewRegDate),
+        userProfilePicture: review.userProfilePicture
+          ? `http://localhost:8080${review.userProfilePicture}`
+          : null,
+        adminProfilePicture: review.adminProfilePicture
+          ? `http://localhost:8080${review.adminProfilePicture}`
+          : null,
+        reviewImgs: review.reviewImgs.map(
+          (img) => `http://localhost:8080${img}`,
+        ),
+      }));
+
+      reviews.value = [...reviews.value, ...newReviews];
+      isExpanded.value = [
+        ...isExpanded.value,
+        ...new Array(newReviews.length).fill(false),
+      ];
+      isReplying.value = [
+        ...isReplying.value,
+        ...new Array(newReviews.length).fill(false),
+      ];
+    }
+  } catch (error) {
+    console.error('리뷰 데이터를 가져오는 중 오류 발생:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Intersection Observer 설정
+onMounted(() => {
+  loadReviews(); // 첫 번째 페이지 데이터 로드
+
+  const options: IntersectionObserverOptions = {
+    root: null, // 뷰포트 기준
+    rootMargin: '0px',
+    threshold: 1.0, // sentinel의 100%가 뷰포트에 들어왔을 때 트리거
+  };
+
+  observer = new IntersectionObserver(handleIntersect, options);
+  if (sentinel.value) {
+    observer.observe(sentinel.value);
   }
 });
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+});
+
+const handleIntersect = (entries: IntersectionObserverEntry[]): void => {
+  if (entries[0].isIntersecting && !isLoading.value) {
+    loadReviews(); // 새로운 페이지의 리뷰 데이터를 로드
+  }
+};
 
 // 답글 등록 API
 const submitComment = async (
   reviewId: number,
   commentContent: string,
   index: number,
-) => {
+): Promise<void> => {
   try {
-    //     // const userId = getUserIdFromSession(); //세션이나 인증된 사용자 정보에서 가져와야 함.
-    //     // const userName = getUserNameFromSession(); //세션이나 인증된 사용자 정보에서 가져와야 함.
-    //     // const userProfilePicture = getUserProfilePictureFromSession(); //세션이나 인증된 사용자 정보에서 가져와야 함.
-    await useFetch(`/api/admin/stores/${storeId}/reviews/${reviewId}`, {
-      baseURL: 'http://localhost:8080',
-      method: 'POST',
-      body: {
-        storeId,
-        userId: 1,
-        reviewId,
-        content: commentContent,
-        userProfilePciture: null,
+    const newComment = await $fetch<ServerComment>(
+      `/api/admin/stores/${storeId}/reviews/${reviewId}`,
+      {
+        baseURL: 'http://localhost:8080',
+        method: 'POST',
+        body: {
+          storeId,
+          userId: 1,
+          reviewId,
+          content: commentContent,
+          userProfilePciture: null,
+        },
       },
-    });
+    );
+    // 서버 응답 데이터를 ReviewComment 형식으로 변환
+    const processedComment: ReviewComment = {
+      commentId: newComment.reviewId,
+      commentContent: newComment.content,
+      adminName: newComment.username,
+      adminProfilePicture: newComment.profilePicture
+        ? `http://localhost:8080${newComment.profilePicture}`
+        : null,
+    };
 
-    // 답글 제출 후 리뷰 재갱신
+    // 댓글 배열이 없을 경우 초기화
+    if (!reviews.value[index].reviewComments) {
+      reviews.value[index].reviewComments = [];
+    }
+
+    // 로컬 상태에 댓글 추가
+    reviews.value[index].reviewComments.push(processedComment);
+
     toggleComment(index);
-    await refresh();
   } catch (error) {
     console.error('답글 제출 중 오류 발생: ', error);
   }
@@ -326,7 +435,7 @@ const enableEdit = (
   content: string,
   reviewIndex: number,
   commentIndex: number,
-) => {
+): void => {
   if (!isEditing.value[reviewIndex]) {
     isEditing.value[reviewIndex] = {};
     editContent.value[reviewIndex] = {};
@@ -336,7 +445,7 @@ const enableEdit = (
 };
 
 // 취소 버튼 클릭 시 원복
-const cancelEdit = (reviewIndex: number, commentIndex: number) => {
+const cancelEdit = (reviewIndex: number, commentIndex: number): void => {
   isEditing.value[reviewIndex][commentIndex] = false;
   editContent.value[reviewIndex][commentIndex] = '';
 };
@@ -347,7 +456,7 @@ const submitUpdatedComment = async (
   commentId: number,
   reviewIndex: number,
   commentIndex: number,
-) => {
+): Promise<void> => {
   try {
     const response = await fetch(
       `http://localhost:8080/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
@@ -364,9 +473,11 @@ const submitUpdatedComment = async (
 
     if (response.ok) {
       console.log('댓글 수정 완료');
-      // 데이터 새로고침
+      // 로컬 상태에서 댓글 내용 업데이트
+      reviews.value[reviewIndex].reviewComments[commentIndex].commentContent =
+        editContent.value[reviewIndex][commentIndex];
+
       isEditing.value[reviewIndex][commentIndex] = false;
-      await refresh(); // API로 전체 데이터 새로고침
     } else {
       console.error('댓글 수정 실패:', await response.text());
     }
@@ -376,21 +487,31 @@ const submitUpdatedComment = async (
 };
 
 // 답글 삭제 API
-const deleteComment = async (reviewId: number, commentId: number) => {
+const deleteComment = async (
+  reviewId: number,
+  commentId: number,
+  reviewIndex: number,
+  commentIndex: number,
+): Promise<void> => {
   try {
-    await useFetch(
+    await $fetch(
       `/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
       {
         baseURL: 'http://localhost:8080',
         method: 'DELETE',
       },
     );
-
-    await refresh();
+    // 로컬 상태에서 댓글 삭제
+    reviews.value[reviewIndex].reviewComments.splice(commentIndex, 1);
   } catch (error) {
     console.error('답글 삭제 중 오류 발생: ', error);
   }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.sentinel {
+  height: 1px;
+  background: transparent;
+}
+</style>
