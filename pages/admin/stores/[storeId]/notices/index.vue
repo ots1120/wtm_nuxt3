@@ -1,9 +1,10 @@
 <template>
-  <div class="flex flex-col w-full">
+  <!-- 공지사항 리스트 -->
+  <div>
     <div
       v-for="(notice, noticeIndex) in notices"
       :key="notice.noticeId"
-      class="flex-col p-3"
+      class="flex flex-col mb-10 w-full border-b last:border-b-0"
     >
       <div class="mb-2 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -23,7 +24,10 @@
               xmlns="http://www.w3.org/2000/svg"
               class="w-2/3 h-2/3"
               viewBox="0 0 16 16"
-            />
+            >
+              <!-- Placeholder SVG content -->
+              <circle cx="8" cy="8" r="8" fill="#ccc" />
+            </svg>
           </div>
           <span class="text-xl font-medium">{{ notice.userName }}</span>
           <!-- store 이름을 notice 객체에서 직접 가져오기 -->
@@ -37,11 +41,10 @@
         <span class="font-semibold">{{ notice.title }}</span>
         <p
           class="text-xs"
-          :style="
-            isExpanded[noticeIndex]
-              ? 'height:auto;'
-              : 'height:4.5rem; overflow:hidden;'
-          "
+          :class="{
+            'h-auto': isExpanded[noticeIndex],
+            'h-18 overflow-hidden': !isExpanded[noticeIndex],
+          }"
         >
           {{ notice.content }}
         </p>
@@ -53,7 +56,7 @@
           {{ isExpanded[noticeIndex] ? '접기' : '더보기' }}
         </button>
       </div>
-      <div class="flex justify-end gap-4">
+      <div class="flex justify-end gap-4 mt-2">
         <button
           class="text-xs text-blue-500"
           @click="goToEditForm(notice.noticeId)"
@@ -68,18 +71,36 @@
         </button>
       </div>
     </div>
-    <WriteButton :push-route="`/admin/stores/${storeId}/notices/regist`" />
+
+    <!-- No More Data Indicator -->
+    <div
+      v-if="!hasMore && !isLoading"
+      class="flex justify-center items-center mt-4"
+    >
+      <span class="text-gray-500">더 이상 공지사항이 없습니다.</span>
+    </div>
+
+    <!-- Write Button -->
+    <div class="mt-4">
+      <WriteButton :push-route="`/admin/stores/${storeId}/notices/regist`" />
+    </div>
+    <!-- Sentinel for IntersectionObserver -->
+    <div ref="sentinel" class="h-1"></div>
+    <!-- Loading Indicator -->
+    <div v-if="isLoading" class="flex justify-center items-center mt-4">
+      <span class="text-gray-500">로딩 중...</span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { differenceInDays } from 'date-fns';
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
 
 onBeforeMount(() => {
-  route.meta.title = '공지사항';
+  route.meta.title = '공지관리';
 });
 
 definePageMeta({
@@ -97,19 +118,34 @@ interface Notice {
   dayDifference: string;
 }
 
+interface NoticePageResponse {
+  notices: Notice[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+}
+
 // 상태 정의
 const notices = ref<Notice[]>([]);
 const isExpanded = ref<boolean[]>([]); // 각 notice의 확장 상태
-
-// 사진 로드 상태
 const isDataLoaded = ref(false);
+const isLoading = ref(false);
+const hasMore = ref(true);
 
 // 라우터 인스턴스 생성
 const router = useRouter();
 const route = useRoute();
 
 // storeId 가져오기
-const storeId = route.params.storeId;
+const storeId = route.params.storeId as string;
+
+// Pagination 상태
+const page = ref(0);
+const size = ref(5);
+const totalPages = ref(1);
+
+// Sentinel 참조
+const sentinel = ref<HTMLElement | null>(null);
 
 // 등록일자 계산
 const formatDateDifference = (regDate: string) => {
@@ -123,28 +159,71 @@ const formatDateDifference = (regDate: string) => {
 };
 
 // 데이터 가져오기 함수
-const { data, error } = useFetch<Notice[]>(
-  `/api/admin/stores/${storeId}/notices`,
-  {
-    baseURL: 'http://localhost:8080',
-  },
-);
+const fetchNotices = async () => {
+  if (isLoading.value || !hasMore.value) return;
 
-// 데이터가 변경되면 notices와 isExpanded 설정
-watchEffect(() => {
-  if (data.value) {
-    console.log(data.value);
-    notices.value = data.value.map((fetchData) => ({
-      ...fetchData,
-      dayDifference: formatDateDifference(fetchData.noticeRegDate),
-      userProfilePicture: `http://localhost:8080${fetchData.userProfilePicture}`,
-    }));
-    isExpanded.value = new Array(data.value.length).fill(false);
+  isLoading.value = true;
+  try {
+    const response: NoticePageResponse = await $fetch(
+      `/api/admin/stores/${storeId}/notices`,
+      {
+        baseURL: 'http://localhost:8080',
+        method: 'GET',
+        params: {
+          page: page.value,
+          size: size.value,
+        },
+      },
+    );
+
+    console.log('Fetched data:', response); // 확인용 로그
+
+    if (response.notices && response.notices.length > 0) {
+      const newNotices = response.notices.map((fetchData) => ({
+        ...fetchData,
+        dayDifference: formatDateDifference(fetchData.noticeRegDate),
+        userProfilePicture: `http://localhost:8080${fetchData.userProfilePicture}`,
+      }));
+      notices.value.push(...newNotices);
+      isExpanded.value.push(...new Array(newNotices.length).fill(false));
+      totalPages.value = response.totalPages;
+      hasMore.value = page.value + 1 < totalPages.value;
+      page.value += 1;
+    } else {
+      hasMore.value = false;
+    }
     isDataLoaded.value = true;
+  } catch (error) {
+    console.error('데이터 가져오기 실패:', error);
+  } finally {
+    isLoading.value = false;
   }
-  if (error.value) {
-    console.error('데이터 가져오기 실패:', error.value);
-  }
+};
+
+// IntersectionObserver 설정
+const setupIntersectionObserver = () => {
+  if (!sentinel.value) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting && hasMore.value && !isLoading.value) {
+        fetchNotices();
+      }
+    },
+    {
+      root: null, // 부모 요소의 뷰포트를 root로 설정
+      rootMargin: '0px',
+      threshold: 1.0,
+    },
+  );
+
+  observer.observe(sentinel.value);
+};
+
+// 초기 데이터 로드
+onMounted(async () => {
+  await fetchNotices();
+  setupIntersectionObserver();
 });
 
 // 더보기/접기 토글 함수
@@ -159,8 +238,11 @@ const goToEditForm = (noticeId: number) => {
 
 // 삭제 기능
 const deleteNotice = async (noticeId: number) => {
+  if (!confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
+    return;
+  }
   try {
-    await useFetch(`/api/admin/stores/${storeId}/notices/${noticeId}`, {
+    await $fetch(`/api/admin/stores/${storeId}/notices/${noticeId}`, {
       baseURL: 'http://localhost:8080',
       method: 'DELETE',
     });
@@ -174,4 +256,6 @@ const deleteNotice = async (noticeId: number) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+/* 기존 스타일을 유지하면서 추가적인 스타일이 필요한 경우 여기에 작성 */
+</style>
