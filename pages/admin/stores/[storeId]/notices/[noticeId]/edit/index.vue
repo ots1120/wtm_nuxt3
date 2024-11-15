@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div class="flex-grow mt-14 mb-16 overflow-y-auto w-full max-w-lg mx-auto">
     <AdminNoticesNoticeRegistForm
       :initial-data="notice"
       :is-edit-mode="isEditMode"
@@ -23,6 +23,14 @@ import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AdminNoticesNoticeRegistForm from '~/components/admin/notices/NoticeRegistForm.vue';
 import ConfirmationModal from '~/components/modal/BasicModal.vue';
+
+onBeforeMount(() => {
+  route.meta.title = '공지수정';
+});
+
+definePageMeta({
+  layout: 'admin',
+});
 
 interface NoticeData {
   title: string;
