@@ -225,6 +225,10 @@ const submitReview = async () => {
     console.error('리뷰 등록 중 오류 발생:', error.response || error.message);
   }
 };
+
+onBeforeMount(() => {
+  route.meta.title = '리뷰 작성';
+});
 </script>
 
 <style scoped>

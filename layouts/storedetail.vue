@@ -1,24 +1,58 @@
 <template>
-  <div class="flex flex-col w-full max-w-lg mx-auto min-h-screen pb-16">
-    <!-- 상단 이미지 슬라이더 섹션 -->
+  <div
+    class="flex flex-col w-full max-w-lg mx-auto min-h-screen pb-16 relative bg-gray-50"
+  >
+    <!-- 왼쪽 상단에 고정된 버튼 -->
+    <div class="absolute top-4 left-4 z-20">
+      <button
+        type="button"
+        class="bg-white rounded-full shadow-md p-2 hover:bg-gray-100 focus:outline-none"
+        @click="goBack"
+      >
+        <svg
+          class="w-6 h-6 text-gray-700"
+          viewBox="0 0 1024 1024"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+        >
+          <path d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z" />
+          <path
+            d="M237.248 512 502.656 777.344a32 32 0 1 1-45.312 45.312L169.344 512 457.344 233.344a32 32 0 1 1 45.312 45.312L237.248 512z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- 상단 이미지 섹션 -->
     <StoreDetailImages :images="images" :restaurant-name="restaurantName" />
 
     <!-- 식당 정보 섹션 -->
-    <StoreDetailInfo v-if="reviewStats.storeName" :review-stats="reviewStats" />
+    <div class="px-4 mt-4">
+      <StoreDetailInfo
+        v-if="reviewStats.storeName"
+        :review-stats="reviewStats"
+      />
+    </div>
 
-    <!-- 경로, 저장, 공유 버튼 섹션 -->
-    <StoreDetailActionButtons :actions="actionButtons" />
+    <!-- 경로, 저장, 공유 버튼 -->
+    <div class="flex justify-around px-4 my-4">
+      <StoreDetailActionButtons :actions="actionButtons" />
+    </div>
 
     <!-- 탭 네비게이션 -->
-    <StoreDetailTabs />
+    <div class="sticky top-0 bg-white z-10 border-b border-gray-200">
+      <StoreDetailTabs />
+    </div>
 
-    <!-- 페이지마다 다른 콘텐츠를 렌더링 -->
-    <div class="flex-grow">
+    <!-- 페이지별 콘텐츠 -->
+    <div class="flex-grow px-4 mt-4">
       <NuxtPage />
     </div>
 
-    <!-- UserBottomNav를 맨 아래에 고정 -->
-    <UserBottomNav />
+    <!-- UserBottomNav를 하단에 고정 -->
+    <div class="fixed bottom-0 w-full bg-white border-t border-gray-200">
+      <UserBottomNav />
+    </div>
   </div>
 </template>
 
@@ -29,6 +63,8 @@ import StoreDetailImages from '~/components/user/stores/detail/StoreDetailImages
 import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
 import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+
+const router = useRouter();
 
 // 라우트에서 storeId 가져오기
 const route = useRoute();
@@ -79,6 +115,10 @@ async function fetchData(storeId) {
     console.error('데이터 가져오기 중 오류 발생:', error);
   }
 }
+
+const goBack = () => {
+  router.go(-1);
+};
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {

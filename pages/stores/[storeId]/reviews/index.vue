@@ -204,7 +204,7 @@
               </div>
               <!-- 답글 작성일 -->
               <span class="text-xs text-gray-400">
-                {{ reply.relativeDate }}일 전
+                {{ reply.relativeDate }}
               </span>
             </div>
             <!-- 답글 내용 -->
@@ -214,8 +214,12 @@
 
         <!-- 도움돼요 버튼 -->
         <button
-          class="flex items-center space-x-2 border border-gray-300 px-3 py-2 text-gray-500 rounded-full"
-          @click="incrementHelpfulCount(index)"
+          class="flex items-center space-x-2 border border-gray-300 px-3 py-2 rounded-full"
+          :class="{
+            'bg-blue-500 text-white': review.liked, // liked가 true일 경우 색상 변경
+            'text-gray-500': !review.liked, // liked가 false일 경우 기본 색상
+          }"
+          @click="toggleHelpful(index, review)"
         >
           <svg
             class="h-5 w-5"
@@ -251,9 +255,9 @@
     </div>
 
     <!-- 리뷰 쓰기 버튼 -->
-    <div class="fixed bottom-32 left-0 w-full flex justify-center z-10">
+    <div class="fixed bottom-32 left-1/2 transform -translate-x-1/2 z-10">
       <button
-        class="flex items-center space-x-2 bg-orange-500 text-white px-6 py-3 rounded-full font-semibold"
+        class="flex items-center space-x-2 bg-orange-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg"
         @click="goToReviewPage"
       >
         <svg
@@ -467,9 +471,29 @@ const getStarFillPercentage = (reviewScore, starIndex) => {
   return 0;
 };
 
-// "도움돼요" 버튼 클릭 시 카운트를 증가시키는 함수
-const incrementHelpfulCount = (index) => {
-  reviews.value[index].helpfulCount++;
+// "도움돼요" 버튼 상태를 토글하는 함수
+const toggleHelpful = async (index, review) => {
+  try {
+    if (review.liked) {
+      // liked가 true인 경우 DELETE API 호출
+      await $fetch(
+        `http://localhost:8080/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
+        { method: 'DELETE' },
+      );
+      review.liked = false;
+      review.helpfulCount--; // 도움돼요 카운트 감소
+    } else {
+      // liked가 false인 경우 POST API 호출
+      await $fetch(
+        `http://localhost:8080/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
+        { method: 'POST' },
+      );
+      review.liked = true;
+      review.helpfulCount++; // 도움돼요 카운트 증가
+    }
+  } catch (error) {
+    console.error('도움돼요 상태 변경 중 오류 발생:', error);
+  }
 };
 
 // Intersection Observer 설정

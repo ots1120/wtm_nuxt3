@@ -211,6 +211,9 @@ const submitForm = async () => {
     console.error('메뉴 등록 중 오류 발생:', error);
   }
 };
+onBeforeMount(() => {
+  route.meta.title = '메뉴 등록';
+});
 </script>
 
 <style scoped>

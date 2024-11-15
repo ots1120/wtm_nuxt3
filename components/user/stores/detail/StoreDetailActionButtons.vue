@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-evenly border-b-2 p-1 text-center text-xs">
+  <div class="flex justify-evenly border-b-2 p-1 text-center text-xs w-full">
     <div>
       <button @click="navigateToPath">
         <svg
