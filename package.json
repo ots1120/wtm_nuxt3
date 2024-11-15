@@ -32,13 +32,20 @@
     "vue-tsc": "^2.1.10"
   },
   "dependencies": {
+    "@nuxtjs/device": "^3.2.4",
     "@vuepic/vue-datepicker": "^10.0.0",
     "@vueuse/core": "^11.2.0",
     "axios": "^1.7.7",
+    "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
+    "device-detector-js": "^3.0.3",
+    "dotenv": "^16.4.5",
     "lucide-vue-next": "^0.454.0",
     "nuxt-app": "file:",
+    "qrcode": "^1.5.4",
+    "qrcode.vue": "^3.6.0",
     "v-calendar": "^3.1.2",
+    "vue-device-detector": "^1.1.6",
     "vue-slick-carousel": "^1.0.6"
   }
 }

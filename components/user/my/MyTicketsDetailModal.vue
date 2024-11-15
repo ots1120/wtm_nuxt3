@@ -1,14 +1,13 @@
-<template lang="">
-  <div v-if="selectedStore">
+<template>
+  <div v-if="storeInfo">
     <section class="bg-white p-5 text-center">
-      <h1 class="mb-4 text-lg font-semibold">{{ selectedStore }}</h1>
       <div class="inline-block rounded-lg bg-gray-100 p-4">
-        <img src="#" alt="qr코드사진" class="h-40 w-40" />
+        <!-- QR 코드 생성 (275x275 해상도 설정) -->
+        <qrcode-vue :value="qrCodeUrl" :size="275" />
       </div>
       <div class="mt-4">
-        <span class="block font-semibold">사용 개수</span>
-        <span class="text-sm">{{ quantity }}</span>
-        <!--부모 컴포넌트 quantity 값-->
+        <span class="block font-semibold">{{ typeLabel }}</span>
+        <span class="text-sm">{{ ticketQuantity }}</span>
       </div>
       <button
         @click="$emit('closeModal')"
@@ -19,18 +18,55 @@
     </section>
   </div>
 </template>
-<script>
-export default {
-  props: {
-    quantity: {
-      type: Number,
-      required: true,
-    },
-    selectedStore: {
-      type: String,
-      required: true,
-    },
-  },
-};
+
+<script setup lang="ts">
+import { computed } from 'vue';
+import QrcodeVue from 'qrcode.vue';
+import CryptoJS from 'crypto-js';
+import { useRuntimeConfig } from '#app';
+
+interface storeInfo {
+  storeName: string;
+  storeId: number;
+  ticketId: number;
+  ticketAmount: number;
+  isBookmarked: boolean;
+}
+
+// 부모 컴포넌트로부터 전달받는 props
+const props = defineProps<{
+  storeInfo: storeInfo;
+  ticketQuantity: number;
+  userId: number;
+  type: string;
+}>();
+
+const config = useRuntimeConfig();
+
+// QR 코드 URL을 동적으로 생성
+const qrCodeUrl = computed(() => {
+  const data = {
+    userId: props.userId,
+    storeId: props.storeInfo.storeId,
+    ticketQuantity: props.ticketQuantity,
+    type: props.type
+  }
+  const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), config.public.SECRET_KEY).toString();
+
+  return encryptedData;
+
+});
+
+const typeLabel = computed(() => {
+  return props.type === 'usage' ? '사용 개수' : '충전 개수';
+});
+
 </script>
-<style scoped></style>
+
+<style scoped>
+.inline-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

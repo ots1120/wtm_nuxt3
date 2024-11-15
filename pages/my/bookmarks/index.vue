@@ -113,7 +113,7 @@ if (data.value) {
     storeImgUrl: `http://localhost:8080${bookmark.storeImgUrl}`
   }));
 } else if (error.value) {
-  console.error('유저 정보를 불러오는 데 실패했습니다', error.value);
+  console.error('북마크 정보를 불러오는 데 실패했습니다', error.value);
 }
 
 const route = useRoute();
