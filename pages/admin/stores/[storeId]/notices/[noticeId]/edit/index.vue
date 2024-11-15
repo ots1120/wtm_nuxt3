@@ -21,8 +21,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useRuntimeConfig } from '#app';
 import AdminNoticesNoticeRegistForm from '~/components/admin/notices/NoticeRegistForm.vue';
 import ConfirmationModal from '~/components/modal/BasicModal.vue';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '공지수정';
@@ -57,7 +61,7 @@ const userId = 1; // 등록 userId는 실제 로그인한 사용자의 id를 가
 const loadNoticeData = async (): Promise<void> => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/admin/stores/${storeId}/notices/${noticeId}`,
+      `${baseUrl}/api/admin/stores/${storeId}/notices/${noticeId}`,
     );
 
     if (response.ok) {
@@ -93,7 +97,7 @@ const handleConfirm = async (): Promise<void> => {
 
   try {
     const response = await fetch(
-      `http://localhost:8080/api/admin/stores/${storeId}/notices/${noticeId}`,
+      `${baseUrl}/api/admin/stores/${storeId}/notices/${noticeId}`,
       {
         method: 'PUT',
         headers: {

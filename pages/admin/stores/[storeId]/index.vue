@@ -122,7 +122,10 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router';
 import { ref, watchEffect } from 'vue';
-import { useFetch } from '#app';
+import { useFetch, useRuntimeConfig } from '#app';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '대시보드';
@@ -148,14 +151,17 @@ interface StoreData {
 }
 
 // useFetch로 API 호출
-const { data } = useFetch<StoreData>(`/api/admin/stores/${storeId}`, {
-  baseURL: 'http://localhost:8080',
+const { data, error } = useFetch<StoreData>(`/api/admin/stores/${storeId}`, {
+  baseURL: baseUrl,
 });
 
 watchEffect(() => {
+  if (error.value) {
+    console.error('API 요청 실패:', error.value);
+  }
   if (data.value) {
     storeName.value = data.value.storeName;
-    userProfilePicture.value = `http://localhost:8080${data.value.userProfilePicture}`;
+    userProfilePicture.value = `${baseUrl}${data.value.userProfilePicture}`;
     console.log(data.value);
   }
 });

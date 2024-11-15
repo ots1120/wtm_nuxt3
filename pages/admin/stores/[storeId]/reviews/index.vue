@@ -201,8 +201,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useRuntimeConfig } from '#app';
 import { differenceInDays } from 'date-fns';
 import ReplyForm from '~/components/admin/reviews/ReplyForm.vue';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '리뷰관리';
@@ -313,7 +317,7 @@ const loadReviews = async (): Promise<void> => {
     const response = await $fetch<ReviewPageResponse>(
       `/api/admin/stores/${storeId}/reviews`,
       {
-        baseURL: 'http://localhost:8080',
+        baseURL: baseUrl,
         params: {
           page: currentPage.value,
           size: pageSize.value,
@@ -330,14 +334,12 @@ const loadReviews = async (): Promise<void> => {
         ...review,
         dayDifference: formatDateDifference(review.reviewRegDate),
         userProfilePicture: review.userProfilePicture
-          ? `http://localhost:8080${review.userProfilePicture}`
+          ? `${baseUrl}${review.userProfilePicture}`
           : null,
         adminProfilePicture: review.adminProfilePicture
-          ? `http://localhost:8080${review.adminProfilePicture}`
+          ? `${baseUrl}${review.adminProfilePicture}`
           : null,
-        reviewImgs: review.reviewImgs.map(
-          (img) => `http://localhost:8080${img}`,
-        ),
+        reviewImgs: review.reviewImgs.map((img) => `${baseUrl}${img}`),
       }));
 
       reviews.value = [...reviews.value, ...newReviews];
@@ -395,7 +397,7 @@ const submitComment = async (
     const newComment = await $fetch<ServerComment>(
       `/api/admin/stores/${storeId}/reviews/${reviewId}`,
       {
-        baseURL: 'http://localhost:8080',
+        baseURL: baseUrl,
         method: 'POST',
         body: {
           storeId,
@@ -412,7 +414,7 @@ const submitComment = async (
       commentContent: newComment.content,
       adminName: newComment.username,
       adminProfilePicture: newComment.profilePicture
-        ? `http://localhost:8080${newComment.profilePicture}`
+        ? `${baseUrl}${newComment.profilePicture}`
         : null,
     };
 
@@ -459,7 +461,7 @@ const submitUpdatedComment = async (
 ): Promise<void> => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
+      `${baseUrl}/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
       {
         method: 'PUT',
         headers: {
@@ -497,7 +499,7 @@ const deleteComment = async (
     await $fetch(
       `/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
       {
-        baseURL: 'http://localhost:8080',
+        baseURL: baseUrl,
         method: 'DELETE',
       },
     );

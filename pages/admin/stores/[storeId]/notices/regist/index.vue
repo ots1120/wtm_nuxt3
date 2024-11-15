@@ -5,7 +5,7 @@
       :is-edit-mode="isEditMode"
       @open-modal="handleOpenModal"
     />
-    <ConfirmationModal
+    <ConfirmModal
       v-if="isModalVisible"
       :visible="isModalVisible"
       message-title="공지 등록"
@@ -21,8 +21,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useRuntimeConfig } from '#app';
 import AdminNoticesNoticeRegistForm from '~/components/admin/notices/NoticeRegistForm.vue';
-import ConfirmationModal from '~/components/modal/BasicModal.vue';
+import ConfirmModal from '~/components/modal/BasicModal.vue';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '공지등록';
@@ -67,7 +71,7 @@ const handleConfirm = async (): Promise<void> => {
 
   try {
     const response = await fetch(
-      `http://localhost:8080/api/admin/stores/${storeId}/notices`,
+      `${baseUrl}/api/admin/stores/${storeId}/notices`,
       {
         method: 'POST',
         headers: {

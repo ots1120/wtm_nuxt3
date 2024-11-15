@@ -138,7 +138,7 @@
           />
         </div>
       </div>
-      <div class="mt-20">
+      <div class="mt-10">
         <button
           class="w-full h-12 mt-4 bg-orange-400 text-white p-2 rounded-xl"
           type="submit"
@@ -153,7 +153,10 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { ref, watchEffect } from 'vue';
-import { useFetch } from '#app';
+import { useFetch, useRuntimeConfig } from '#app';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '가게정보수정';
@@ -208,14 +211,14 @@ const isDataLoaded = ref(false);
 
 // 데이터 가져오기
 const { data, error } = useFetch(`/api/admin/stores/${storeId}/info`, {
-  baseURL: 'http://localhost:8080',
+  baseURL: baseUrl,
 });
 watchEffect(() => {
   if (data.value) {
     const fetchData = data.value as Store;
     store.value = {
       ...fetchData,
-      profilePicture: `http://localhost:8080${fetchData.profilePicture}`,
+      profilePicture: `${baseUrl}${fetchData.profilePicture}`,
     };
     isDataLoaded.value = true;
   }
@@ -263,7 +266,7 @@ const openModal = async () => {
     }
 
     const response = await fetch(
-      `http://localhost:8080/api/admin/stores/${storeId}/info`,
+      `${baseUrl}/api/admin/stores/${storeId}/info`,
       {
         method: 'PUT',
         body: formData,
