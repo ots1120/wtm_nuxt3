@@ -114,7 +114,7 @@ import SocialLoginIconGoogle from '~/components/icons/SocialLoginIconGoogle.vue'
 import SocialLoginIconNaver from '~/components/icons/SocialLoginIconNaver.vue';
 import SocialLoginIconKakao from '~/components/icons/SocialLoginIconKakao.vue';
 
-const config = useRuntimeConfig;
+const config = useRuntimeConfig();
 const baseApiUrl = config.public.baseApiUrl;
 
 definePageMeta({
