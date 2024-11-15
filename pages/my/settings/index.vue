@@ -182,6 +182,8 @@ const onSubmitForm = async (): Promise<void> => {
 };
 
 const route = useRoute();
+// const wrongId = route.state.id;
+
 onBeforeMount(() => {
   route.meta.title = '내 정보 수정';
 });

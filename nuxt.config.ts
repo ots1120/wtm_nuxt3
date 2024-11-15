@@ -11,6 +11,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       naverMapClientId: import.meta.env.NAVER_MAP_CLIENT_ID,
+      SECRET_KEY: process.env.NUXT_SECRET_KEY,
     },
   },
+  devServer:{
+    host:'0.0.0.0',
+    port: 3000
+  }
 });

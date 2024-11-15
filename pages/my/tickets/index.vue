@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect  } from 'vue';
+import { ref  } from 'vue';
 import MyTicketList from '~/components/user/my/MyTicketList.vue';
 import BookmarkModal from '~/components/user/modal/BookmarkModal.vue';
 
@@ -34,8 +34,9 @@ interface Ticket{
   storeClosetime: String,
   ticketPrice: Number,
   isBookmarked: Boolean,
-  ticketAmount: number
-
+  ticketAmount: number,
+  storeImgUrl: string,
+  
 }
 
 const tickets = ref<Ticket[]>([]);
@@ -124,9 +125,13 @@ const confirmDelete = async (storeId: number) => {
     }
 
     if (updatedData.value) {
-      tickets.value = updatedData.value;
+      tickets.value = updatedData.value.map(ticket => ({
+      ...ticket,
+      storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`
+    }));
+    } else if (error.value) {
+      console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
     }
-    
   } catch (error) {
     console.error('북마크 삭제 후 티켓 업데이트에 실패했습니다:', error);
   } finally {
@@ -145,8 +150,13 @@ const fetchUpdatedTickets = async () => {
   }
 
   if (updatedData.value) {
-    tickets.value = updatedData.value;
-  }
+    tickets.value = updatedData.value.map(ticket => ({
+    ...ticket,
+    storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`
+  }));
+  } else if (error.value) {
+    console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
+  } 
 };
 
 const { data, error} = useFetch<Ticket[]>(
@@ -154,11 +164,14 @@ const { data, error} = useFetch<Ticket[]>(
 
 });
 
-watchEffect(() => {
-  if (data.value) {
-    tickets.value = data.value;
-  }
-});
+if (data.value) {
+  tickets.value = data.value.map(ticket => ({
+    ...ticket,
+    storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`
+  }));
+} else if (error.value) {
+  console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
+}
 
 const route = useRoute();
 onBeforeMount(() => {
