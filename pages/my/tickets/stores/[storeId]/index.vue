@@ -73,7 +73,6 @@
 </template>
 
 <script setup lang="ts">
-// import { getCurrentInstance } from 'vue'
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import MyTicketsDetailModal from '~/components/user/my/MyTicketsDetailModal.vue';
@@ -132,7 +131,6 @@ const increaseQuantity = () => {
 };
 
 const openModal = (type: string) => {
-  // if(isMobile.value){
   // if(isMobile.value){
     modalType.value=type;
     isModalVisible.value = true;
