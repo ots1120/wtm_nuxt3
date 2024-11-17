@@ -131,6 +131,7 @@ import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
 const storeId = route.params.storeId;
+const ticketHistoryUsageId = route.params.ticketHistoryUsageId; // 수정 필요
 
 const ratings = ref({
   taste: 0,
@@ -213,7 +214,7 @@ const submitReview = async () => {
 
   try {
     const response = await $fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/reviews`,
+      `http://localhost:8080/api/v1/stores/${storeId}/ticketHistoryUsage/${ticketHistoryUsageId}/reviews`,
       {
         method: 'POST',
         body: formData,

@@ -12,7 +12,11 @@
           d="M12 2C8.13401 2 5 5.13401 5 9C5 13.902 11 21 12 22C13 21 19 13.902 19 9C19 5.13401 15.866 2 12 2ZM12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9C14 10.1046 13.1046 11 12 11Z"
         />
       </svg>
-      <span>{{ props.store.address || '주소 정보 없음' }}</span>
+      <span
+        >{{ props.store.address.address || '주소 정보 없음' }}
+        {{ props.store.address.detailAddress }}
+        {{ props.store.address.extraAddress }}</span
+      >
     </div>
 
     <!-- SNS 링크 -->

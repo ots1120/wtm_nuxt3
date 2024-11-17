@@ -42,8 +42,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "device-detector-js": "^3.0.3",
-    "nuxt-app": "file:",
-    "qrcode.vue": "^3.6.0"
+    "qrcode.vue": "^3.6.0",
 
     "v-calendar": "^3.1.2",
     "vue-slick-carousel": "^1.0.6"

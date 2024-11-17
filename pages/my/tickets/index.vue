@@ -2,9 +2,9 @@
   <div>
     <div>
       <MyTicketList
-        class="p-4"
         v-for="(ticket, index) in tickets"
         :key="index"
+        class="p-4"
         :ticket="ticket"
         @toggle-bookmark="handleBookmarkToggle(ticket)"
       />
@@ -13,7 +13,7 @@
     <BookmarkModal
       v-if="visible"
       :visible="visible"
-      :storeId="selectedStoreId"
+      :store-id="selectedStoreId"
       @cancel="closeModal"
       @confirm="confirmDelete"
     />
@@ -21,22 +21,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref  } from 'vue';
+import { ref } from 'vue';
 import MyTicketList from '~/components/user/my/MyTicketList.vue';
 import BookmarkModal from '~/components/user/modal/BookmarkModal.vue';
 
-interface Ticket{
-  ticketId: Number,
-  storeId: number,
-  storeName: String,
-  reviewAverage: Number,
-  storeOpentime: String,
-  storeClosetime: String,
-  ticketPrice: Number,
-  isBookmarked: Boolean,
-  ticketAmount: number,
-  storeImgUrl: string,
-  
+interface Ticket {
+  ticketId: number;
+  storeId: number;
+  storeName: string;
+  reviewAverage: number;
+  storeOpentime: string;
+  storeClosetime: string;
+  ticketPrice: number;
+  isBookmarked: boolean;
+  ticketAmount: number;
+  storeImgUrl: string;
 }
 
 const tickets = ref<Ticket[]>([]);
@@ -67,7 +66,7 @@ const addBookmark = async (storeId: number) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     if (error.value) {
@@ -103,10 +102,10 @@ const confirmDelete = async (storeId: number) => {
     // 백엔드에 DELETE 요청을 보내 북마크를 삭제
     const userId = 1; // 실제로는 적절한 userId를 사용해야 합니다
     const { data, error } = await useFetch(
-      `http://localhost:8080/api/v1/user/my/bookmarks?storeId=${storeId}&userId=${userId}`, 
+      `http://localhost:8080/api/v1/user/my/bookmarks?storeId=${storeId}&userId=${userId}`,
       {
         method: 'DELETE',
-      }
+      },
     );
 
     if (error.value) {
@@ -115,9 +114,10 @@ const confirmDelete = async (storeId: number) => {
 
     console.log('북마크가 삭제되었습니다.');
 
-     // 최신 북마크 데이터를 다시 가져오기
-     const { data: updatedData, error: fetchError } = await useFetch<Ticket[]>(
-      `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`, {}
+    // 최신 북마크 데이터를 다시 가져오기
+    const { data: updatedData, error: fetchError } = await useFetch<Ticket[]>(
+      `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`,
+      {},
     );
 
     if (fetchError.value) {
@@ -125,10 +125,10 @@ const confirmDelete = async (storeId: number) => {
     }
 
     if (updatedData.value) {
-      tickets.value = updatedData.value.map(ticket => ({
-      ...ticket,
-      storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`
-    }));
+      tickets.value = updatedData.value.map((ticket) => ({
+        ...ticket,
+        storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`,
+      }));
     } else if (error.value) {
       console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
     }
@@ -142,7 +142,8 @@ const confirmDelete = async (storeId: number) => {
 // 티켓 데이터 업데이트 함수
 const fetchUpdatedTickets = async () => {
   const { data: updatedData, error: fetchError } = await useFetch<Ticket[]>(
-    `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`, {}
+    `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`,
+    {},
   );
 
   if (fetchError.value) {
@@ -150,24 +151,24 @@ const fetchUpdatedTickets = async () => {
   }
 
   if (updatedData.value) {
-    tickets.value = updatedData.value.map(ticket => ({
-    ...ticket,
-    storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`
-  }));
+    tickets.value = updatedData.value.map((ticket) => ({
+      ...ticket,
+      storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`,
+    }));
   } else if (error.value) {
     console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
-  } 
+  }
 };
 
-const { data, error} = useFetch<Ticket[]>(
-  `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`, {
-
-});
+const { data, error } = useFetch<Ticket[]>(
+  `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`,
+  {},
+);
 
 if (data.value) {
-  tickets.value = data.value.map(ticket => ({
+  tickets.value = data.value.map((ticket) => ({
     ...ticket,
-    storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`
+    storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`,
   }));
 } else if (error.value) {
   console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
