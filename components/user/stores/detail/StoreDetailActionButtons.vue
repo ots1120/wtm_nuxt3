@@ -90,8 +90,36 @@
 </template>
 
 <script setup lang="ts">
-function navigateToPath() {
-  console.log('경로 버튼 클릭');
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+
+async function navigateToPath() {
+  const storeId = route.params.storeId;
+
+  try {
+    // 사용자 위치 가져오기
+    const position = await getCurrentPosition();
+    const { latitude, longitude } = position.coords;
+
+    // 백엔드 API 호출
+    const response = await fetch(
+      `http://localhost:8080/api/v1/stores/${storeId}/directions?userLatitude=${latitude}&userLongitude=${longitude}`,
+    );
+
+    if (!response.ok) {
+      throw new Error('경로 정보를 가져오는 데 실패했습니다.');
+    }
+
+    const naverMapsUrl = await response.text();
+
+    // 네이버 지도 URL로 이동
+    window.open(naverMapsUrl, '_blank');
+  } catch (error) {
+    console.error('경로 API 호출 중 오류 발생:', error);
+    alert('경로를 가져오는 데 문제가 발생했습니다.');
+  }
 }
 
 function saveAction() {
@@ -100,6 +128,16 @@ function saveAction() {
 
 function shareAction() {
   console.log('공유 버튼 클릭');
+}
+
+function getCurrentPosition(): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('사용자의 브라우저에서 위치 정보를 지원하지 않습니다.'));
+    } else {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    }
+  });
 }
 </script>
 
