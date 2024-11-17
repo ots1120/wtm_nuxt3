@@ -15,7 +15,6 @@
         />
       </svg>
     </NuxtLink>
-    <SearchBar v-model="searchText" placeholder="식당 이름을 입력해주세요" />
   </div>
 </template>
 

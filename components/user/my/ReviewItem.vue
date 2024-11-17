@@ -9,7 +9,7 @@
               :src="props.review.reviewImgUrl"
               alt="프로필 사진"
               class="w-20 h-20 object-cover rounded-full"
-            /> 
+            />
             <!-- 프로필 사진이 없는 경우 SVG 아이콘을 보여줌 -->
             <svg
               v-else
@@ -41,7 +41,8 @@
           <div class="justify-between flex w-full">
             <span class="font-bold text-2xl">{{ props.review.storeName }}</span>
             <span class="font-light text-gray-300">
-            {{props.review.createdTime}}</span>
+              {{ props.review.createdTime }}</span
+            >
           </div>
           <div class="flex items-center mt-4">
             <div class="flex">
@@ -83,7 +84,10 @@
                   class="absolute inset-0 text-yellow-400 fill-current overflow-hidden"
                   :style="{
                     width:
-                      (props.review.averageScore - Math.floor(props.review.averageScore)) * 100 + '%',
+                      (props.review.averageScore -
+                        Math.floor(props.review.averageScore)) *
+                        100 +
+                      '%',
                   }"
                 >
                   <svg
@@ -105,25 +109,22 @@
         </div>
       </a>
       <div class="block text-right mt-1 mb-6">
-        <button @click="toggleModal" class="text-sky-400">
-          삭제
-        </button>
+        <button class="text-sky-400" @click="toggleModal">삭제</button>
       </div>
     </div>
   </li>
 </template>
 
 <script setup lang="ts">
-
-interface Review{
-  storeName: String,
-  createdTime: String,
-  averageScore: number,
-  content: String,
-  reviewId: number,
-  reviewImgUrl: string,
+interface Review {
+  storeName: string;
+  createdTime: string;
+  averageScore: number;
+  content: string;
+  reviewId: number;
+  reviewImgUrl: string;
 }
-const props = defineProps<{review: Review}>();
+const props = defineProps<{ review: Review }>();
 
 // 이벤트 정의
 const emit = defineEmits<{
@@ -134,7 +135,6 @@ const emit = defineEmits<{
 const toggleModal = () => {
   emit('toggle-modal', props.review.reviewId); // 부모 컴포넌트로 storeId 전달
 };
-
 </script>
 
 <style scoped></style>

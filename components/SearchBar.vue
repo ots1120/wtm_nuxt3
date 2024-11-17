@@ -27,7 +27,8 @@
         </g>
       </svg>
     </div>
-    <form class="inline-flex w-full" role="search">
+    <!-- submit 이벤트에 .prevent를 추가하여 기본 새로고침 동작을 방지하고 검색 실행 -->
+    <form class="inline-flex w-full" role="search" @submit.prevent="onSearch">
       <input
         v-model="inputValue"
         type="search"
@@ -37,6 +38,7 @@
         autocomplete="off"
         @input="onInput"
       />
+
       <button
         v-if="showClear"
         type="button"
@@ -57,19 +59,16 @@ interface Props {
   modelValue?: string;
   placeholder?: string;
 }
-// withDefaults를 사용하여 기본값 설정
+
 const props = withDefaults(defineProps<Props>(), {
   modelValue: '',
   placeholder: '',
 });
 
-// Emits 정의
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'search']);
 
-// 로컬 상태
 const inputValue = ref(props.modelValue);
 
-// 부모로부터 받은 modelValue가 변경되면 로컬 상태 업데이트
 watch(
   () => props.modelValue,
   (newValue) => {
@@ -77,40 +76,32 @@ watch(
   },
 );
 
-// 입력 값이 변경될 때 부모 컴포넌트에 이벤트 전달
 function onInput() {
   emit('update:modelValue', inputValue.value);
 }
 
-// 입력 값이 있을 때만 클리어 버튼 표시
 const showClear = computed(() => inputValue.value.length > 0);
 
-// 입력 값 지우기
 function clearInput() {
   inputValue.value = '';
   emit('update:modelValue', '');
 }
+
+function onSearch() {
+  emit('search'); // 검색 버튼 클릭 또는 Enter 시 search 이벤트를 발생
+}
 </script>
 
 <style scoped>
-/* 모든 브라우저에서 기본 클리어 버튼 숨기기 */
-
-/* 크롬, 사파리, 엣지 (WebKit 기반 브라우저) */
 input[type='search']::-webkit-search-cancel-button {
   display: none;
 }
-
-/* 파이어폭스 */
 input[type='search']::-moz-search-cancel-button {
   display: none;
 }
-
-/* 인터넷 익스플로러 및 구형 엣지 */
 input[type='search']::-ms-clear {
   display: none;
 }
-
-/* 일반적인 텍스트 입력 필드의 클리어 버튼 숨기기 */
 input::-ms-clear {
   display: none;
 }
