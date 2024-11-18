@@ -304,6 +304,9 @@ const reviewStats = ref({
 const reviewCount = ref(0);
 const reviews = ref([]);
 
+// 데이터 로딩 상태
+const isReviewStatsLoading = ref(true);
+
 // 이미지 컨테이너 참조와 스크롤 버튼 표시 여부를 관리하는 상태
 const imageContainers = ref([]);
 const showLeftButton = ref([]);
@@ -347,15 +350,20 @@ if (reviewCountData.value) {
 const { data: reviewStatsData, error: reviewStatsError } = useFetch(
   `http://localhost:8080/api/v1/stores/${storeId}/review-stats`,
 );
-if (reviewStatsData.value) {
-  reviewStats.value.overallAverageScore =
-    reviewStatsData.value.overallAverageScore;
-  reviewStats.value.reviewScaleAverages =
-    reviewStatsData.value.reviewScaleAverages.map((scale) => ({
-      scaleName: scale.scaleName,
-      averageScore: scale.averageScore,
-    }));
-}
+
+// 리뷰 통계 데이터가 변경될 때마다 상태 업데이트
+watch(reviewStatsData, (newData) => {
+  if (newData) {
+    reviewStats.value.overallAverageScore = newData.overallAverageScore;
+    reviewStats.value.reviewScaleAverages = newData.reviewScaleAverages.map(
+      (scale) => ({
+        scaleName: scale.scaleName,
+        averageScore: scale.averageScore,
+      }),
+    );
+    isReviewStatsLoading.value = false;
+  }
+});
 
 // 계산된 속성 정의
 const reviewScaleAverages = computed(

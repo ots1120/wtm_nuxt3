@@ -45,7 +45,8 @@
     </div>
 
     <!-- 페이지별 콘텐츠 -->
-    <div class="flex-grow px-4 mt-4">
+    <div class="flex-grow overflow-y-auto px-4 mt-4 pb-16">
+      <!-- 추가된 pb-16으로 하단 네비게이션 가림 현상 방지 -->
       <NuxtPage />
     </div>
 
@@ -66,11 +67,9 @@ import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue
 
 const router = useRouter();
 
-// 라우트에서 storeId 가져오기
 const route = useRoute();
 const storeId = route.params.storeId ? String(route.params.storeId) : '';
 
-// 데이터 정의
 const images = ref([]);
 const restaurantName = ref('');
 const reviewStats = ref({
@@ -80,17 +79,14 @@ const reviewStats = ref({
 });
 const actionButtons = ref(['경로', '저장', '공유']);
 
-// provide로 데이터 공유
 provide('storeId', storeId);
 provide('images', images);
 provide('restaurantName', restaurantName);
 provide('reviewStats', reviewStats);
 provide('actionButtons', actionButtons);
 
-// 데이터 가져오기 함수
 async function fetchData(storeId) {
   try {
-    // 리뷰 요약 정보 가져오기
     const reviewSummaryResponse = await fetch(
       `http://localhost:8080/api/v1/stores/${storeId}/review-summary`,
     );
@@ -103,13 +99,11 @@ async function fetchData(storeId) {
       averageReviewScore: reviewSummaryData.averageReviewScore,
     };
 
-    // 오늘의 이미지 데이터 가져오기
     const imagesResponse = await fetch(
       `http://localhost:8080/api/v1/stores/${storeId}/menus/today-images`,
     );
     const imagesData = await imagesResponse.json();
 
-    // 이미지 URL 배열을 images 변수에 설정
     images.value = imagesData.map((img) => `http://localhost:8080${img.img}`);
   } catch (error) {
     console.error('데이터 가져오기 중 오류 발생:', error);
@@ -120,9 +114,8 @@ const goBack = () => {
   router.go(-1);
 };
 
-// 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
-  fetchData(storeId); // storeId를 인자로 전달
+  fetchData(storeId);
 });
 </script>
 
