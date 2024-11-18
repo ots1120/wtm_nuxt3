@@ -368,6 +368,6 @@ const closeSuccessModal = () => {
   moveToSignIn();
 };
 const moveToSignIn = async () => {
-  await navigateTo('/user/signIn');
+  await navigateTo('/signIn');
 };
 </script>
