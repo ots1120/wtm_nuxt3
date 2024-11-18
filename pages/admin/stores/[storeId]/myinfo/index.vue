@@ -210,7 +210,7 @@ const removeSnsAddress = (index: number) => {
 const isDataLoaded = ref(false);
 
 // 데이터 가져오기
-const { data, error } = useFetch(`/api/admin/stores/${storeId}/info`, {
+const { data, error } = useFetch(`/api/v1/admin/stores/${storeId}/info`, {
   baseURL: baseUrl,
 });
 watchEffect(() => {
@@ -266,7 +266,7 @@ const openModal = async () => {
     }
 
     const response = await fetch(
-      `${baseUrl}/api/admin/stores/${storeId}/info`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/info`,
       {
         method: 'PUT',
         body: formData,

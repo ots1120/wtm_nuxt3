@@ -71,7 +71,7 @@ const handleConfirm = async (): Promise<void> => {
 
   try {
     const response = await fetch(
-      `${baseUrl}/api/admin/stores/${storeId}/notices`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/notices`,
       {
         method: 'POST',
         headers: {

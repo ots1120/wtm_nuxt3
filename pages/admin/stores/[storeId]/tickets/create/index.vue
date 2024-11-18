@@ -181,7 +181,7 @@ const storeId = 1;
 const fetchTickets = async () => {
   try {
     const response = await fetch(
-      `${baseUrl}/api/admin/stores/${storeId}/tickets`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/tickets`,
     );
     if (!response.ok) {
       throw new Error('Failed to fetch tickets');
@@ -207,7 +207,7 @@ const addTicketItem = async () => {
   ) {
     try {
       const response = await fetch(
-        `${baseUrl}/api/admin/stores/${storeId}/tickets`,
+        `${baseUrl}/api/v1/admin/stores/${storeId}/tickets`,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -279,7 +279,7 @@ const saveEdit = async (id: number) => {
   ) {
     try {
       const response = await fetch(
-        `${baseUrl}/api/admin/stores/${storeId}/tickets/${id}`,
+        `${baseUrl}/api/v1/admin/stores/${storeId}/tickets/${id}`,
         {
           method: 'PUT',
           body: JSON.stringify({
@@ -354,7 +354,7 @@ const deleteTicketItem = async (id: number) => {
   if (confirm('정말로 삭제하시겠습니까?')) {
     try {
       const response = await fetch(
-        `${baseUrl}/api/admin/stores/${storeId}/tickets/${id}`,
+        `${baseUrl}/api/v1/admin/stores/${storeId}/tickets/${id}`,
         {
           method: 'DELETE',
         },

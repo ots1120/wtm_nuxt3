@@ -61,7 +61,7 @@ const userId = 1; // 등록 userId는 실제 로그인한 사용자의 id를 가
 const loadNoticeData = async (): Promise<void> => {
   try {
     const response = await fetch(
-      `${baseUrl}/api/admin/stores/${storeId}/notices/${noticeId}`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/notices/${noticeId}`,
     );
 
     if (response.ok) {
@@ -97,7 +97,7 @@ const handleConfirm = async (): Promise<void> => {
 
   try {
     const response = await fetch(
-      `${baseUrl}/api/admin/stores/${storeId}/notices/${noticeId}`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/notices/${noticeId}`,
       {
         method: 'PUT',
         headers: {

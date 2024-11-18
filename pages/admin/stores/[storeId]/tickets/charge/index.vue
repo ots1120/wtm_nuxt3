@@ -123,7 +123,7 @@ const storeId = 1;
 const fetchTickets = async () => {
   try {
     const response = await fetch(
-      `${baseUrl}/api/admin/stores/${storeId}/tickets`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/tickets`,
     );
     if (!response.ok) {
       throw new Error('Failed to fetch tickets');

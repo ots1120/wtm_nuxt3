@@ -169,7 +169,7 @@ const fetchNotices = async () => {
   isLoading.value = true;
   try {
     const response: NoticePageResponse = await $fetch(
-      `/api/admin/stores/${storeId}/notices`,
+      `/api/v1/admin/stores/${storeId}/notices`,
       {
         baseURL: baseUrl,
         method: 'GET',
@@ -246,7 +246,7 @@ const deleteNotice = async (noticeId: number) => {
     return;
   }
   try {
-    await $fetch(`/api/admin/stores/${storeId}/notices/${noticeId}`, {
+    await $fetch(`/api/v1/admin/stores/${storeId}/notices/${noticeId}`, {
       baseURL: baseUrl,
       method: 'DELETE',
     });

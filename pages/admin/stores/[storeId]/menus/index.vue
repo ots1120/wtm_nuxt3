@@ -403,7 +403,7 @@ const removeMenu = (index: number, menuId?: number) => {
 
 const deleteMenu = async (menuId: number) => {
   const { error } = await useFetch(
-    `api/admin/stores/${storeId}/menus/${menuId}`,
+    `api/v1/admin/stores/${storeId}/menus/${menuId}`,
     {
       baseURL: baseUrl,
       method: 'DELETE',
@@ -432,7 +432,7 @@ const saveMenus = async () => {
         userId: menu.userId,
       }));
 
-      await $fetch(`api/admin/stores/${storeId}/menus`, {
+      await $fetch(`api/v1/admin/stores/${storeId}/menus`, {
         baseURL: baseUrl,
         method: 'POST',
         headers: {
@@ -462,7 +462,7 @@ const saveMenus = async () => {
 
       console.log('Sending PUT request with body:', body);
 
-      await $fetch(`api/admin/stores/${storeId}/menus/${menu.id}`, {
+      await $fetch(`api/v1/admin/stores/${storeId}/menus/${menu.id}`, {
         method: 'PUT',
         baseURL: baseUrl,
         headers: {
@@ -497,7 +497,7 @@ const saveImages = async () => {
         formData.append('imgs', file);
       });
 
-      const response = await $fetch(`api/admin/stores/${storeId}/menuImgs`, {
+      const response = await $fetch(`api/v1/admin/stores/${storeId}/menuImgs`, {
         baseURL: baseUrl,
         method: 'POST',
         body: formData,
@@ -537,7 +537,7 @@ const deleteImage = async (imageImgId: number | undefined, index: number) => {
   if (imageImgId) {
     console.log('imageId is defined, making API call');
     try {
-      await $fetch(`api/admin/stores/${storeId}/menuImgs/${imageImgId}`, {
+      await $fetch(`api/v1/admin/stores/${storeId}/menuImgs/${imageImgId}`, {
         baseURL: baseUrl,
         method: 'DELETE',
       });
@@ -581,7 +581,7 @@ const nextImage = () => {
 const fetchMenus = async () => {
   try {
     const menuData = await $fetch<MenuResponse[]>(
-      `api/admin/stores/${storeId}/menus`,
+      `api/v1/admin/stores/${storeId}/menus`,
       {
         baseURL: baseUrl,
         params: { date: selectedDate.value.toISOString().split('T')[0] },
@@ -604,7 +604,7 @@ const fetchMenus = async () => {
 const fetchImages = async () => {
   try {
     const imageData = await $fetch<MenuImgDto[]>(
-      `/api/admin/stores/${storeId}/menuImgs`,
+      `/api/v1/admin/stores/${storeId}/menuImgs`,
       {
         baseURL: baseUrl,
         params: { date: selectedDate.value.toISOString().split('T')[0] },

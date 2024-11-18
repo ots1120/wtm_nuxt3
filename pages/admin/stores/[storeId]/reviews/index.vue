@@ -315,7 +315,7 @@ const loadReviews = async (): Promise<void> => {
 
   try {
     const response = await $fetch<ReviewPageResponse>(
-      `/api/admin/stores/${storeId}/reviews`,
+      `/api/v1/admin/stores/${storeId}/reviews`,
       {
         baseURL: baseUrl,
         params: {
@@ -395,7 +395,7 @@ const submitComment = async (
 ): Promise<void> => {
   try {
     const newComment = await $fetch<ServerComment>(
-      `/api/admin/stores/${storeId}/reviews/${reviewId}`,
+      `/api/v1/admin/stores/${storeId}/reviews/${reviewId}`,
       {
         baseURL: baseUrl,
         method: 'POST',
@@ -461,7 +461,7 @@ const submitUpdatedComment = async (
 ): Promise<void> => {
   try {
     const response = await fetch(
-      `${baseUrl}/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
       {
         method: 'PUT',
         headers: {
@@ -497,7 +497,7 @@ const deleteComment = async (
 ): Promise<void> => {
   try {
     await $fetch(
-      `/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
+      `/api/v1/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
       {
         baseURL: baseUrl,
         method: 'DELETE',
