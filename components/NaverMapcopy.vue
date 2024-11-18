@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div
     id="map"
     ref="mapElement"
@@ -6,7 +6,7 @@
   ></div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useHead, useRuntimeConfig } from '#imports';
 
@@ -14,7 +14,7 @@ import { useHead, useRuntimeConfig } from '#imports';
 const config = useRuntimeConfig();
 const clientId = config.public.naverMapClientId;
 
-const mapElement = ref(null);
+const mapElement = ref<HTMLElement | null>(null);
 
 useHead({
   script: [
@@ -28,7 +28,7 @@ useHead({
 
 onMounted(() => {
   // 사용자 위치를 가져와 지도 중심 설정
-  const initMap = (latitude, longitude) => {
+  const initMap = (latitude: number, longitude: number) => {
     if (!mapElement.value) return;
 
     const center = new naver.maps.LatLng(latitude, longitude);
@@ -82,4 +82,4 @@ onMounted(() => {
 
 <style scoped>
 /* 지도 스타일 추가 가능 */
-</style>
+</style> -->
