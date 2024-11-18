@@ -386,7 +386,7 @@ const currentUserId = ref<number>(1);
 const addMenu = () => {
   dailyMenus.value.push({
     name: '',
-    categoryId: '',
+    categoryId: 0,
     userId: currentUserId.value, // 추가: 사용자 ID 설정
   });
 };
@@ -417,6 +417,14 @@ const deleteMenu = async (menuId: number) => {
 };
 
 const saveMenus = async () => {
+  // 모든 메뉴가 유효한지 검증
+  for (const menu of dailyMenus.value) {
+    if (!menu.name || !menu.categoryId) {
+      alert('모든 메뉴 항목에 이름과 카테고리를 입력해주세요.');
+      return;
+    }
+  }
+
   const mealDate = selectedDate.value.toISOString().split('T')[0];
 
   // 신규 메뉴와 기존 메뉴 분리
@@ -438,10 +446,10 @@ const saveMenus = async () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+        body: {
           mealDate,
           menuDtos,
-        }),
+        },
       });
 
       console.log('신규 메뉴 등록 성공');

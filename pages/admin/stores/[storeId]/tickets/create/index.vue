@@ -125,7 +125,7 @@
               </button>
               <button
                 class="px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 ml-2"
-                @click="deleteTicketItem(item.id)"
+                @click="openDeleteModal(item.id)"
               >
                 삭제
               </button>
@@ -134,6 +134,17 @@
         </tr>
       </tbody>
     </table>
+
+    <CustomModal
+      v-if="isModalVisible"
+      :visible="isModalVisible"
+      message-title="삭제 확인"
+      message-body="정말로 삭제하시겠습니까?"
+      cancel-message="취소"
+      confirm-message="삭제"
+      @cancel="closeDeleteModal"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
@@ -141,6 +152,7 @@
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useRuntimeConfig } from '#app';
 import { useRoute } from 'vue-router';
+import CustomModal from '@/components/modal/BasicModal.vue';
 
 // 라우트와 메타 설정
 const route = useRoute();
@@ -174,6 +186,10 @@ const editingId = ref<number | null>(null);
 const editItemName = ref<string>('');
 const editItemCategory = ref<number>(0);
 const editItemPrice = ref<number | null>(null);
+
+// 상태 변수 추가
+const isModalVisible = ref(false);
+const selectedItemId = ref<number | null>(null);
 
 const storeId = 1;
 
@@ -349,27 +365,43 @@ const saveEdit = async (id: number) => {
   }
 };
 
-// 티켓 삭제 함수
-const deleteTicketItem = async (id: number) => {
-  if (confirm('정말로 삭제하시겠습니까?')) {
+// 삭제 요청 함수
+const confirmDelete = async () => {
+  if (selectedItemId.value !== null) {
     try {
       const response = await fetch(
-        `${baseUrl}/api/v1/admin/stores/${storeId}/tickets/${id}`,
+        `${baseUrl}/api/v1/admin/stores/${storeId}/tickets/${selectedItemId.value}`,
         {
           method: 'DELETE',
         },
       );
       if (!response.ok) throw new Error('Failed to delete ticket');
-      ticketItems.value = ticketItems.value.filter((item) => item.id !== id);
-      console.log(`Deleted ticket with id: ${id}`);
+      ticketItems.value = ticketItems.value.filter(
+        (item) => item.id !== selectedItemId.value,
+      );
+      console.log(`Deleted ticket with id: ${selectedItemId.value}`);
     } catch (error) {
       if (error instanceof Error) {
         console.error('Error deleting ticket:', error.message);
       } else {
         console.error('Unknown error deleting ticket:', error);
       }
+    } finally {
+      closeDeleteModal(); // 모달 닫기
     }
   }
+};
+
+// 삭제 모달 열기
+const openDeleteModal = (id: number) => {
+  selectedItemId.value = id;
+  isModalVisible.value = true;
+};
+
+// 삭제 모달 닫기
+const closeDeleteModal = () => {
+  selectedItemId.value = null;
+  isModalVisible.value = false;
 };
 
 // 초기 데이터 로드

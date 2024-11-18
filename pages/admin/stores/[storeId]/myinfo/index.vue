@@ -246,6 +246,11 @@ const handleImageUpload = (event: Event) => {
 // 폼 데이터 제출
 const openModal = async () => {
   try {
+    const formatTime = (time: string) => {
+      // 초 단위를 제거하고 HH:mm 형식으로 변환
+      const [hours, minutes] = time.split(':');
+      return `${hours}:${minutes}`;
+    };
     const formData = new FormData();
     formData.append(
       'dto',
@@ -254,8 +259,8 @@ const openModal = async () => {
         storeAddress: store.value.storeAddress,
         snsAddress: store.value.snsAddress,
         phone: store.value.phone,
-        openTime: store.value.openTime,
-        closeTime: store.value.closeTime,
+        openTime: formatTime(store.value.openTime),
+        closeTime: formatTime(store.value.closeTime),
       }),
     );
     const profileImgInput = document.getElementById(

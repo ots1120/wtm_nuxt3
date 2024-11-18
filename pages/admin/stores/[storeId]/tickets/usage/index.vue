@@ -206,7 +206,7 @@ const handleQRCodeDecode = async (decodedText: string) => {
 
   // API 요청 보내기
   try {
-    const response = await fetch(`${baseUrl}/api/admin/ticket/usage`, {
+    const response = await fetch(`${baseUrl}/api/v1/admin/ticket/usage`, {
       method: 'POST',
       body: JSON.stringify(requestData),
       headers: {
