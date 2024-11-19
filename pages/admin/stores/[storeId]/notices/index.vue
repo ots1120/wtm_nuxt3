@@ -95,9 +95,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRuntimeConfig } from '#app';
 import { useRouter, useRoute } from 'vue-router';
 import { differenceInDays } from 'date-fns';
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '공지관리';
@@ -165,9 +169,9 @@ const fetchNotices = async () => {
   isLoading.value = true;
   try {
     const response: NoticePageResponse = await $fetch(
-      `/api/admin/stores/${storeId}/notices`,
+      `/api/v1/admin/stores/${storeId}/notices`,
       {
-        baseURL: 'http://localhost:8080',
+        baseURL: baseUrl,
         method: 'GET',
         params: {
           page: page.value,
@@ -182,7 +186,7 @@ const fetchNotices = async () => {
       const newNotices = response.notices.map((fetchData) => ({
         ...fetchData,
         dayDifference: formatDateDifference(fetchData.noticeRegDate),
-        userProfilePicture: `http://localhost:8080${fetchData.userProfilePicture}`,
+        userProfilePicture: `${baseUrl}${fetchData.userProfilePicture}`,
       }));
       notices.value.push(...newNotices);
       isExpanded.value.push(...new Array(newNotices.length).fill(false));
@@ -242,8 +246,8 @@ const deleteNotice = async (noticeId: number) => {
     return;
   }
   try {
-    await $fetch(`/api/admin/stores/${storeId}/notices/${noticeId}`, {
-      baseURL: 'http://localhost:8080',
+    await $fetch(`/api/v1/admin/stores/${storeId}/notices/${noticeId}`, {
+      baseURL: baseUrl,
       method: 'DELETE',
     });
     // 삭제 후 notices 배열 업데이트

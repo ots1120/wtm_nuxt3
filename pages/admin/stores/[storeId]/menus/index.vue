@@ -55,7 +55,7 @@
                 <!-- 삭제 버튼 -->
                 <button
                   class="delete-button absolute top-2 right-2 bg-red-600 bg-opacity-75 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                  @click.stop="deleteImage(image.id, index)"
+                  @click.stop="openDeleteModal(image.id, index)"
                 >
                   &times;
                 </button>
@@ -186,7 +186,7 @@
               <button
                 type="button"
                 class="text-red-600 hover:text-red-800 text-sm"
-                @click="removeMenu(index, item.id)"
+                @click="openMenuDeleteModal(item.id, index)"
               >
                 삭제
               </button>
@@ -206,19 +206,54 @@
       <button
         type="button"
         class="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        @click="saveAllData"
+        @click="openSaveModal"
       >
         저장
       </button>
     </div>
+    <ConfirmModal
+      v-if="isImgModalVisible"
+      :visible="isImgModalVisible"
+      message-title="이미지 삭제"
+      message-body="정말 이 이미지를 삭제하시겠습니까?"
+      cancel-message="취소"
+      confirm-message="삭제"
+      @confirm="confirmDeleteImage"
+      @cancel="cancelDeleteImage"
+    />
+    <ConfirmModal
+      v-if="isMenuModalVisible"
+      :visible="isMenuModalVisible"
+      message-title="메뉴 삭제"
+      message-body="정말 이 메뉴를 삭제하시겠습니까?"
+      cancel-message="취소"
+      confirm-message="삭제"
+      @confirm="confirmDeleteMenu"
+      @cancel="cancelDeleteMenu"
+    />
+
+    <ConfirmModal
+      v-if="isSaveModalVisible"
+      :visible="isSaveModalVisible"
+      message-title="저장 확인"
+      message-body="정말로 모든 변경 사항을 저장하시겠습니까?"
+      cancel-message="취소"
+      confirm-message="저장"
+      @confirm="confirmSaveModal"
+      @cancel="cancelSaveModal"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onBeforeMount } from 'vue';
+import { useRoute, useRuntimeConfig } from '#app';
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { useRoute } from '#app';
+import ConfirmModal from '~/components/modal/BasicModal.vue';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '메뉴관리';
@@ -261,6 +296,85 @@ const dailyMenus = ref<MenuItem[]>([]);
 const route = useRoute();
 const storeId = route.params.storeId as string;
 
+// 이미지 삭제 모달 변수
+const isImgModalVisible = ref(false);
+const targetImageIndex = ref<number | null>(null);
+const targetImageId = ref<number | undefined>(undefined);
+// 메뉴 삭제 모달 변수
+const isMenuModalVisible = ref(false);
+const targetMenuIndex = ref<number | null>(null);
+const targetMenuId = ref<number | undefined>(undefined);
+// 메뉴 저장 모달 변수
+const isSaveModalVisible = ref(false);
+
+// 이미지 삭제 모달 함수
+const openDeleteModal = (imageId: number | undefined, index: number) => {
+  targetImageId.value = imageId;
+  targetImageIndex.value = index;
+  isImgModalVisible.value = true;
+};
+
+// 이미지 삭제 모달 확인 함수
+const confirmDeleteImage = async () => {
+  if (targetImageIndex.value !== null) {
+    await deleteImage(targetImageId.value, targetImageIndex.value);
+    isImgModalVisible.value = false; // 모달 닫기
+    targetImageIndex.value = null; // 대상 초기화
+    targetImageId.value = undefined; // 대상 초기화
+  }
+};
+
+// 이미지 삭제 모달 취소 처리 함수
+const cancelDeleteImage = () => {
+  isImgModalVisible.value = false; // 모달 닫기
+  targetImageIndex.value = null; // 대상 초기화
+  targetImageId.value = undefined; // 대상 초기화
+};
+
+// 메뉴 삭제 모달 함수
+const openMenuDeleteModal = (menuId: number | undefined, index: number) => {
+  targetMenuId.value = menuId;
+  targetMenuIndex.value = index;
+  isMenuModalVisible.value = true;
+};
+
+// 메뉴 삭제 모달 확인 함수
+const confirmDeleteMenu = async () => {
+  if (targetMenuIndex.value !== null) {
+    // 메뉴 삭제 함수 호출
+    await removeMenu(targetMenuIndex.value, targetMenuId.value);
+    // 로컬 상태에서 메뉴 제거
+    dailyMenus.value.splice(targetMenuIndex.value, 1);
+    // 상태 초기화 및 모달 닫기
+    targetMenuIndex.value = null;
+    targetMenuId.value = undefined;
+    isMenuModalVisible.value = false;
+  }
+};
+
+// 메뉴 삭제 모달 취소 함수
+const cancelDeleteMenu = () => {
+  isMenuModalVisible.value = false;
+  targetMenuIndex.value = null;
+  targetMenuId.value = undefined;
+};
+
+// 저장 모달 열기
+const openSaveModal = () => {
+  isSaveModalVisible.value = true;
+};
+
+// 저장 모달 확인 함수
+const confirmSaveModal = async () => {
+  isSaveModalVisible.value = false; // 모달 닫기
+  await saveAllData(); // 실제 저장 함수 호출
+};
+
+// 저장 모달 취소 함수
+const cancelSaveModal = () => {
+  isSaveModalVisible.value = false; // 모달 닫기
+};
+
 // 이미지 슬라이더 상태
 const allImages = ref<ImageItem[]>([]);
 const currentImageIndex = ref(0);
@@ -272,7 +386,7 @@ const currentUserId = ref<number>(1);
 const addMenu = () => {
   dailyMenus.value.push({
     name: '',
-    categoryId: '',
+    categoryId: 0,
     userId: currentUserId.value, // 추가: 사용자 ID 설정
   });
 };
@@ -289,8 +403,9 @@ const removeMenu = (index: number, menuId?: number) => {
 
 const deleteMenu = async (menuId: number) => {
   const { error } = await useFetch(
-    `http://localhost:8080/api/admin/stores/${storeId}/menus/${menuId}`,
+    `api/v1/admin/stores/${storeId}/menus/${menuId}`,
     {
+      baseURL: baseUrl,
       method: 'DELETE',
     },
   );
@@ -302,6 +417,14 @@ const deleteMenu = async (menuId: number) => {
 };
 
 const saveMenus = async () => {
+  // 모든 메뉴가 유효한지 검증
+  for (const menu of dailyMenus.value) {
+    if (!menu.name || !menu.categoryId) {
+      alert('모든 메뉴 항목에 이름과 카테고리를 입력해주세요.');
+      return;
+    }
+  }
+
   const mealDate = selectedDate.value.toISOString().split('T')[0];
 
   // 신규 메뉴와 기존 메뉴 분리
@@ -317,15 +440,16 @@ const saveMenus = async () => {
         userId: menu.userId,
       }));
 
-      await $fetch(`http://localhost:8080/api/admin/stores/${storeId}/menus`, {
+      await $fetch(`api/v1/admin/stores/${storeId}/menus`, {
+        baseURL: baseUrl,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+        body: {
           mealDate,
           menuDtos,
-        }),
+        },
       });
 
       console.log('신규 메뉴 등록 성공');
@@ -346,16 +470,14 @@ const saveMenus = async () => {
 
       console.log('Sending PUT request with body:', body);
 
-      await $fetch(
-        `http://localhost:8080/api/admin/stores/${storeId}/menus/${menu.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
+      await $fetch(`api/v1/admin/stores/${storeId}/menus/${menu.id}`, {
+        method: 'PUT',
+        baseURL: baseUrl,
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify(body),
+      });
 
       console.log(`메뉴 수정 성공: ${menu.name}`);
     }
@@ -383,13 +505,11 @@ const saveImages = async () => {
         formData.append('imgs', file);
       });
 
-      const response = await $fetch(
-        `http://localhost:8080/api/admin/stores/${storeId}/menuImgs`,
-        {
-          method: 'POST',
-          body: formData,
-        },
-      );
+      const response = await $fetch(`api/v1/admin/stores/${storeId}/menuImgs`, {
+        baseURL: baseUrl,
+        method: 'POST',
+        body: formData,
+      });
 
       console.log('이미지 업로드 성공:', response);
     }
@@ -425,12 +545,10 @@ const deleteImage = async (imageImgId: number | undefined, index: number) => {
   if (imageImgId) {
     console.log('imageId is defined, making API call');
     try {
-      await $fetch(
-        `http://localhost:8080/api/admin/stores/${storeId}/menuImgs/${imageImgId}`,
-        {
-          method: 'DELETE',
-        },
-      );
+      await $fetch(`api/v1/admin/stores/${storeId}/menuImgs/${imageImgId}`, {
+        baseURL: baseUrl,
+        method: 'DELETE',
+      });
       console.log('이미지 삭제 성공');
 
       // 이미지 배열에서 제거
@@ -471,8 +589,9 @@ const nextImage = () => {
 const fetchMenus = async () => {
   try {
     const menuData = await $fetch<MenuResponse[]>(
-      `http://localhost:8080/api/admin/stores/${storeId}/menus`,
+      `api/v1/admin/stores/${storeId}/menus`,
       {
+        baseURL: baseUrl,
         params: { date: selectedDate.value.toISOString().split('T')[0] },
       },
     );
@@ -493,15 +612,16 @@ const fetchMenus = async () => {
 const fetchImages = async () => {
   try {
     const imageData = await $fetch<MenuImgDto[]>(
-      `http://localhost:8080/api/admin/stores/${storeId}/menuImgs`,
+      `/api/v1/admin/stores/${storeId}/menuImgs`,
       {
+        baseURL: baseUrl,
         params: { date: selectedDate.value.toISOString().split('T')[0] },
       },
     );
 
     allImages.value = imageData.map((img) => ({
       id: img.id,
-      url: `http://localhost:8080${img.url}`,
+      url: `${baseUrl}${img.url}`,
     }));
     currentImageIndex.value = 0; // 슬라이더 인덱스 초기화
   } catch (error) {
