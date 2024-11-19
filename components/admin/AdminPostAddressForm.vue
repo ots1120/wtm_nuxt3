@@ -81,15 +81,19 @@ const emitAddressData = () => {
 };
 
 // 특정 값이 변경되면 emitAddressData 호출
-watch([postcode, address, detailAddress, extraAddress], emitAddressData);
+watch([postcode, address, detailAddress, extraAddress], () => {emitAddressData});
 
-useHead({
-  script: [
-    {
-      src: '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js',
-      async: true,
-    },
-  ],
+
+// 클라이언트에서만 실행되는 코드
+onMounted(() => {
+  // Daum 우편번호 API 스크립트 로드
+  if (typeof window !== 'undefined' && !window.daum) {
+    const script = document.createElement('script');
+    script.src =
+      '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.async = true;
+    document.head.appendChild(script);
+  }
 });
 
 const closeDaumPostcode = () => {

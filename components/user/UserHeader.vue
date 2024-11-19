@@ -1,5 +1,7 @@
 <template>
-  <header class="inline-flex w-full pb-2 max-w-lg border-b-2 justify-between">
+  <header
+    class="inline-flex w-full p-3 max-w-lg border-b-2 justify-between bg-slate-50"
+  >
     <div class="flex flex-col items-center">
       <button type="button" @click="goBack">
         <svg
