@@ -1,6 +1,22 @@
 <template>
-  <div>
-    <h1>Welcome to the homepage</h1>
-    <AppAlert> This is an auto-imported component </AppAlert>
-  </div>
+  <div></div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({
+  title: 'Main index',
+  // middleware: (route) => {
+  //   if (!) {
+  //     return abortNavigation(
+  //       createError({
+  //         status: 404,
+  //         statusMessage: 'Course not found',
+  //         fatal: true,
+  //       }),
+  //     );
+  //   }
+  // },
+});
+</script>
+
+<style scoped></style>

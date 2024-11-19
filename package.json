@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxi build",
-    "dev": "nuxi dev",
+    "dev": "nuxt dev --host",
     "generate": "nuxi generate",
     "preview": "nuxi preview",
     "postinstall": "nuxi prepare",
@@ -15,6 +15,7 @@
   "devDependencies": {
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
     "@nuxtjs/tailwindcss": "^6.12.2",
+    "@types/navermaps": "^3.7.8",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "eslint": "^8.57.1",
@@ -30,6 +31,19 @@
     "vue-tsc": "^2.1.10"
   },
   "dependencies": {
-    "nuxt-app": "file:"
+    "@nuxtjs/device": "^3.2.4",
+    "@pinia/nuxt": "^0.7.0",
+    "@vuepic/vue-datepicker": "^10.0.0",
+    "@vueuse/core": "^11.2.0",
+    "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
+    "device-detector-js": "^3.0.3",
+    "html5-qrcode": "^2.3.8",
+    "jwt-decode": "^4.0.0",
+    "nuxt-app": "file:",
+    "pinia": "^2.2.6",
+    "qrcode.vue": "^3.6.0",
+    "v-calendar": "^3.1.2",
+    "vue3-bottom-sheet": "^0.1.12"
   }
 }
