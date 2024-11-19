@@ -160,7 +160,6 @@ const handleSignIn = async () => {
     } else if (authStore.isAdmin) {
       await navigateTo(`/admin/stores/${authStore.storeId}`);
     }
-    
   } catch (error) {
     console.log(error);
     loginErrorMessage.value = error.statusMessage || '로그인에 실패했습니다.';

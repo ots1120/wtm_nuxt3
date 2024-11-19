@@ -20,7 +20,7 @@
       </NuxtLink>
     </div>
     <div>
-      <NuxtLink :to="`/admin/${storeId}/menus`">
+      <NuxtLink :to="`/admin/stores/${storeId}/menus`">
         <span class="block rounded-2xl border-2 border-solid bg-white p-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-2">
-    <label class="block text-sm font-medium text-gray-700"
-      >실제 사업장 주소<span class="pl-0.5 text-red-500">*</span></label
+    <label :class="titleClass"
+      >{{ title }}<span class="pl-0.5 text-red-500">*</span></label
     >
     <div class="flex space-x-2">
       <input
@@ -61,10 +61,26 @@
 <script setup>
 import { ref, nextTick } from 'vue';
 
-const postcode = ref('');
-const address = ref('');
-const detailAddress = ref('');
-const extraAddress = ref('');
+const props = defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
+  titleClass: {
+    type: String,
+    default: 'block text-sm font-medium text-gray-700', // 기본 스타일
+  },
+  addressData: {
+    type: Object,
+    required: true,
+  },
+});
+
+// 내부 상태 초기화
+const postcode = ref(props.addressData?.postcode || '');
+const address = ref(props.addressData?.address || '');
+const detailAddress = ref(props.addressData?.detailAddress || '');
+const extraAddress = ref(props.addressData?.extraAddress || '');
 const showModal = ref(false);
 const daumPostcodeContainer = ref(null);
 
@@ -79,6 +95,18 @@ const emitAddressData = () => {
     extraAddress: extraAddress.value,
   });
 };
+
+// Props 값이 변경되었을 때 내부 상태 업데이트
+watch(
+  () => props.addressData,
+  (newAddressData) => {
+    postcode.value = newAddressData?.postcode || '';
+    address.value = newAddressData?.address || '';
+    detailAddress.value = newAddressData?.detailAddress || '';
+    extraAddress.value = newAddressData?.extraAddress || '';
+  },
+  { immediate: true }, // 컴포넌트 초기화 시에도 실행
+);
 
 // 특정 값이 변경되면 emitAddressData 호출
 watch([postcode, address, detailAddress, extraAddress], () => {emitAddressData});

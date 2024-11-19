@@ -176,6 +176,7 @@
 </template>
 
 <script setup>
+import { useRuntimeConfig } from '#app';
 import PostAddressForm from '~/components/user/PostAddressForm.vue';
 
 definePageMeta({
@@ -301,7 +302,8 @@ const checkEmail = async () => {
       return;
     }
     // 서버로 이메일 중복 확인 요청 보내기
-    const response = await $fetch(`${baseApiUrl}/api/v1/auth/check-email`, {
+    const response = await $fetch(`/api/v1/auth/check-email`, {
+      baseURL: baseApiUrl,
       method: 'POST',
       body: {
         email: email.value,
@@ -314,6 +316,7 @@ const checkEmail = async () => {
       : '사용 가능한 이메일입니다';
     emailVerified.value = !isDuplicate;
   } catch (error) {
+    console.log(error);
     emailError.value = true;
     emailMessage.value =
       '서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';

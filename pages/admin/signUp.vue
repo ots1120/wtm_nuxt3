@@ -116,9 +116,12 @@
                 전화번호는 하이픈(-) 없이 입력해주세요.
               </p>
             </div>
-            <ClientOnly>
-              <AdminPostAddressForm @update-address="handleUpdateAddress" />
-            </ClientOnly>
+            <client-only>
+              <AdminPostAddressForm
+                title="실제 사업장 주소"
+                update-address="handleUpdateAddress"
+              />
+            </client-only>
           </div>
         </form>
 
@@ -170,6 +173,9 @@
 import { useRuntimeConfig } from 'nuxt/app';
 import AdminPostAddressForm from '~/components/admin/AdminPostAddressForm.vue';
 
+const config = useRuntimeConfig();
+const baseApiUrl = config.public.baseApiUrl;
+
 definePageMeta({
   title: '사장님 회원가입',
 });
@@ -194,9 +200,6 @@ const phoneError = ref(false);
 const isSubmitting = ref(false);
 const isBusinessVerified = ref(false);
 const showSuccessModal = ref(false);
-
-const config = useRuntimeConfig();
-const baseApiUrl = config.public.baseApiUrl;
 
 const handleBusinessVerification = (verified) => {
   isBusinessVerified.value = verified;
@@ -310,6 +313,7 @@ const checkEmail = async () => {
       : '사용 가능한 이메일입니다';
     emailVerified.value = !isDuplicate;
   } catch (error) {
+    console.log(error);
     emailError.value = true;
     emailMessage.value =
       '서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
