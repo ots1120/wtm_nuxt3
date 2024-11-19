@@ -13,7 +13,7 @@
       </div>
 
       <!-- Fixed bottom navigation -->
-      <UserBottomNav
+      <AdminBottomNav
         class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
       />
     </div>
