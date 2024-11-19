@@ -156,11 +156,11 @@
                   <button
                     class="text-xs text-red-500"
                     @click="
-                      deleteComment(
-                        review.reviewId,
-                        comment.commentId,
+                      prepareDeleteComment(
                         reviewIndex,
                         commentIndex,
+                        review.reviewId,
+                        comment.commentId,
                       )
                     "
                   >
@@ -194,15 +194,32 @@
       <p class="text-center text-gray-500">리뷰가 없습니다.</p>
     </div>
     <!-- Sentinel -->
-    <div ref="sentinel" class="h-1"></div>
+    <div ref="sentinel" class="h-14"></div>
+
+    <!-- Delete Confirmation Modal -->
+    <DeleteModal
+      v-if="modal.visible"
+      :visible="modal.visible"
+      :message-title="'댓글 삭제'"
+      :message-body="'정말로 이 댓글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.'"
+      :cancel-message="'취소'"
+      :confirm-message="'삭제'"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useRuntimeConfig } from '#app';
 import { differenceInDays } from 'date-fns';
 import ReplyForm from '~/components/admin/reviews/ReplyForm.vue';
+import DeleteModal from '~/components/modal/BasicModal.vue'; // Import the Modal component
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '리뷰관리';
@@ -246,16 +263,6 @@ interface ReviewPageResponse {
   totalItems: number;
 }
 
-interface IntersectionObserverEntry {
-  isIntersecting: boolean;
-}
-
-interface IntersectionObserverOptions {
-  root: Element | null;
-  rootMargin: string;
-  threshold: number;
-}
-
 // 라우트 인스턴스 생성
 const route = useRoute();
 
@@ -265,6 +272,21 @@ const isExpanded = ref<boolean[]>([]);
 const isReplying = ref<boolean[]>([]);
 const isEditing = ref<Record<number, Record<number, boolean>>>({});
 const editContent = ref<Record<number, Record<number, string>>>({});
+
+// Modal state
+const modal = ref<{
+  visible: boolean;
+  reviewIndex: number | null;
+  commentIndex: number | null;
+  reviewId: number | null;
+  commentId: number | null;
+}>({
+  visible: false,
+  reviewIndex: null,
+  commentIndex: null,
+  reviewId: null,
+  commentId: null,
+});
 
 // 페이지 상태 관리
 const currentPage = ref<number>(0);
@@ -311,9 +333,9 @@ const loadReviews = async (): Promise<void> => {
 
   try {
     const response = await $fetch<ReviewPageResponse>(
-      `/api/admin/stores/${storeId}/reviews`,
+      `/api/v1/admin/stores/${storeId}/reviews`,
       {
-        baseURL: 'http://localhost:8080',
+        baseURL: baseUrl,
         params: {
           page: currentPage.value,
           size: pageSize.value,
@@ -330,14 +352,12 @@ const loadReviews = async (): Promise<void> => {
         ...review,
         dayDifference: formatDateDifference(review.reviewRegDate),
         userProfilePicture: review.userProfilePicture
-          ? `http://localhost:8080${review.userProfilePicture}`
+          ? `${baseUrl}${review.userProfilePicture}`
           : null,
         adminProfilePicture: review.adminProfilePicture
-          ? `http://localhost:8080${review.adminProfilePicture}`
+          ? `${baseUrl}${review.adminProfilePicture}`
           : null,
-        reviewImgs: review.reviewImgs.map(
-          (img) => `http://localhost:8080${img}`,
-        ),
+        reviewImgs: review.reviewImgs.map((img) => `${baseUrl}${img}`),
       }));
 
       reviews.value = [...reviews.value, ...newReviews];
@@ -361,7 +381,7 @@ const loadReviews = async (): Promise<void> => {
 onMounted(() => {
   loadReviews(); // 첫 번째 페이지 데이터 로드
 
-  const options: IntersectionObserverOptions = {
+  const options = {
     root: null, // 뷰포트 기준
     rootMargin: '0px',
     threshold: 1.0, // sentinel의 100%가 뷰포트에 들어왔을 때 트리거
@@ -393,9 +413,9 @@ const submitComment = async (
 ): Promise<void> => {
   try {
     const newComment = await $fetch<ServerComment>(
-      `/api/admin/stores/${storeId}/reviews/${reviewId}`,
+      `/api/v1/admin/stores/${storeId}/reviews/${reviewId}`,
       {
-        baseURL: 'http://localhost:8080',
+        baseURL: baseUrl,
         method: 'POST',
         body: {
           storeId,
@@ -408,11 +428,11 @@ const submitComment = async (
     );
     // 서버 응답 데이터를 ReviewComment 형식으로 변환
     const processedComment: ReviewComment = {
-      commentId: newComment.reviewId,
+      commentId: newComment.reviewId, // Ensure this maps correctly
       commentContent: newComment.content,
       adminName: newComment.username,
       adminProfilePicture: newComment.profilePicture
-        ? `http://localhost:8080${newComment.profilePicture}`
+        ? `${baseUrl}${newComment.profilePicture}`
         : null,
     };
 
@@ -459,7 +479,7 @@ const submitUpdatedComment = async (
 ): Promise<void> => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
       {
         method: 'PUT',
         headers: {
@@ -486,6 +506,22 @@ const submitUpdatedComment = async (
   }
 };
 
+// 답글 삭제 준비 (opens the modal)
+const prepareDeleteComment = (
+  reviewIndex: number,
+  commentIndex: number,
+  reviewId: number,
+  commentId: number,
+): void => {
+  modal.value = {
+    visible: true,
+    reviewIndex,
+    commentIndex,
+    reviewId,
+    commentId,
+  };
+};
+
 // 답글 삭제 API
 const deleteComment = async (
   reviewId: number,
@@ -495,9 +531,9 @@ const deleteComment = async (
 ): Promise<void> => {
   try {
     await $fetch(
-      `/api/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
+      `/api/v1/admin/stores/${storeId}/reviews/${reviewId}/comments/${commentId}`,
       {
-        baseURL: 'http://localhost:8080',
+        baseURL: baseUrl,
         method: 'DELETE',
       },
     );
@@ -507,11 +543,47 @@ const deleteComment = async (
     console.error('답글 삭제 중 오류 발생: ', error);
   }
 };
+
+// Confirm deletion from modal
+const confirmDelete = async (): Promise<void> => {
+  if (
+    modal.value.reviewId !== null &&
+    modal.value.commentId !== null &&
+    modal.value.reviewIndex !== null &&
+    modal.value.commentIndex !== null
+  ) {
+    await deleteComment(
+      modal.value.reviewId,
+      modal.value.commentId,
+      modal.value.reviewIndex,
+      modal.value.commentIndex,
+    );
+  }
+  // Reset modal state
+  modal.value = {
+    visible: false,
+    reviewIndex: null,
+    commentIndex: null,
+    reviewId: null,
+    commentId: null,
+  };
+};
+
+// Cancel deletion from modal
+const cancelDelete = (): void => {
+  // Simply hide the modal and reset the state
+  modal.value = {
+    visible: false,
+    reviewIndex: null,
+    commentIndex: null,
+    reviewId: null,
+    commentId: null,
+  };
+};
 </script>
 
 <style scoped>
 .sentinel {
-  height: 1px;
   background: transparent;
 }
 </style>
