@@ -1,6 +1,6 @@
 <template>
   <!-- 공지사항 리스트 -->
-  <div>
+  <div class="px-4">
     <div
       v-for="(notice, noticeIndex) in notices"
       :key="notice.noticeId"

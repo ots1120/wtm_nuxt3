@@ -1,5 +1,5 @@
 <template>
-  <section class="flex justify-center mt-4">
+  <section class="flex justify-center mt-4 px-4">
     <form
       action=""
       enctype="multipart/form-data"
@@ -44,10 +44,10 @@
 
       <div class="flex flex-col">
         <!-- 가게 이름 -->
+        <label for="nickname" class="text-lg font-extrabold text-gray-700"
+          >가게이름</label
+        >
         <div class="flex justify-between items-center border-b py-2">
-          <label for="nickname" class="text-lg font-extrabold text-gray-700"
-            >가게이름</label
-          >
           <input
             id="nickname"
             v-model="store.storeName"
@@ -68,10 +68,10 @@
         </div>
 
         <!-- 가게 번호 -->`
+        <label for="phone" class="text-lg font-extrabold text-gray-700"
+          >가게번호</label
+        >
         <div class="flex justify-between items-center border-b py-2">
-          <label for="phone" class="text-lg font-extrabold text-gray-700"
-            >가게번호</label
-          >
           <input
             id="phone"
             v-model="store.phone"

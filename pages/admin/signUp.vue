@@ -201,9 +201,6 @@ const isSubmitting = ref(false);
 const isBusinessVerified = ref(false);
 const showSuccessModal = ref(false);
 
-const config = useRuntimeConfig();
-const baseApiUrl = config.public.baseApiUrl;
-
 const handleBusinessVerification = (verified) => {
   isBusinessVerified.value = verified;
 };
