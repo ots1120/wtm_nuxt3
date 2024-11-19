@@ -145,9 +145,7 @@
       <h2 class="text-lg font-semibold text-gray-700 mb-4">
         {{ selectedDate.toLocaleDateString() }} 메뉴
       </h2>
-      <table
-        class="table-auto table-fixed w-full border-collapse border border-gray-200"
-      >
+      <table class="table-auto w-full border-collapse border border-gray-200">
         <colgroup>
           <col style="width: 45%" />
           <col style="width: 35%" />
@@ -177,8 +175,8 @@
               >
                 <option disabled value="">카테고리 선택</option>
                 <option value="1">메인</option>
-                <option value="2">사이드</option>
-                <option value="3">디저트</option>
+                <option value="2">국물</option>
+                <option value="3">기타</option>
               </select>
             </td>
             <td class="border border-gray-200 px-4 py-2 text-center">

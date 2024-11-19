@@ -1,144 +1,157 @@
 <template>
-  <div class="bg-gray-100 flex flex-col justify-center">
-    <div class="relative px-4 py-10 bg-white">
+  <div class="bg-gray-100 flex flex-col min-h-screen">
+    <!-- 스크롤 가능한 내용 영역 -->
+    <div class="flex-1 overflow-y-auto px-4 py-10 bg-white">
       <div class="max-w-md mx-auto">
-        <form class="space-y-6" @submit.prevent="submitForm">
-          <!-- Email Section -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
-              이메일<span class="pl-0.5 text-red-500">*</span>
-            </label>
-            <div class="flex space-x-2">
-              <input
-                v-model="email"
-                type="email"
-                placeholder="이메일을 입력해주세요"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :class="{ 'border-red-500': emailError }"
-              />
-              <button
-                type="button"
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-                :class="{
-                  'bg-green-500': emailVerified,
-                  'text-white': emailVerified,
-                }"
-                @click="checkEmail"
-              >
-                중복확인
-              </button>
-            </div>
-            <p
-              v-if="emailMessage"
-              :class="{
-                'text-green-600': !emailError,
-                'text-red-600': emailError,
-              }"
-              class="text-sm"
-            >
-              {{ emailMessage }}
-            </p>
-          </div>
-
-          <!-- Password Section -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
-              비밀번호<span class="pl-0.5 text-red-500">*</span>
-            </label>
-            <input
-              v-model="password"
-              type="password"
-              placeholder="비밀번호를 입력해주세요"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <div class="space-y-1">
-              <div class="flex items-center space-x-2">
-                <div
-                  class="h-1 flex-1 rounded-full"
-                  :class="passwordStrengthClass"
-                ></div>
+        <form
+          class="flex flex-col h-full space-y-4"
+          @submit.prevent="submitForm"
+        >
+          <!-- 폼 내용 -->
+          <div class="flex-1 space-y-6">
+            <!-- Email Section -->
+            <div class="bg-white shadow-lg rounded-lg p-6 space-y-6">
+              <label class="block text-sm font-medium text-gray-700">
+                이메일<span class="pl-0.5 text-red-500">*</span>
+              </label>
+              <div class="flex space-x-2">
+                <input
+                  v-model="email"
+                  type="email"
+                  placeholder="이메일을 입력해주세요"
+                  class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  :class="{ 'border-red-500': emailError }"
+                />
+                <button
+                  type="button"
+                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                  :class="{
+                    'bg-green-500 text-white': emailVerified,
+                  }"
+                  @click="checkEmail"
+                >
+                  중복확인
+                </button>
               </div>
-              <p class="text-sm text-gray-500">
-                {{ passwordStrengthMessage }}
+              <p
+                v-if="emailMessage"
+                :class="{
+                  'text-green-600': !emailError,
+                  'text-red-600': emailError,
+                }"
+                class="text-xs"
+              >
+                {{ emailMessage }}
               </p>
+
+              <!-- Password Section -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">
+                  비밀번호<span class="pl-0.5 text-red-500">*</span>
+                </label>
+                <input
+                  v-model="password"
+                  type="password"
+                  placeholder="비밀번호를 입력해주세요"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <div class="space-y-1">
+                  <div class="flex items-center space-x-2">
+                    <div
+                      class="h-1 flex-1 rounded-full"
+                      :class="passwordStrengthClass"
+                    ></div>
+                  </div>
+                  <p class="text-sm text-gray-500">
+                    {{ passwordStrengthMessage }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Password Confirmation -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">
+                  비밀번호 확인<span class="pl-0.5 text-red-500">*</span>
+                </label>
+                <input
+                  v-model="passwordConfirm"
+                  type="password"
+                  placeholder="비밀번호를 다시 입력해주세요"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  :class="{ 'border-red-500': passwordMismatch }"
+                />
+                <p v-if="passwordMismatch" class="text-xs text-red-600 mt-1">
+                  비밀번호가 일치하지 않습니다
+                </p>
+              </div>
+            </div>
+
+            <!-- Name and Phone Section -->
+            <div class="bg-white shadow-lg rounded-lg p-6 space-y-6">
+              <div class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700">
+                  닉네임(이름)<span class="pl-0.5 text-red-500">*</span>
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input
+                    v-model="name"
+                    type="text"
+                    placeholder="닉네임(이름)을 입력해주세요"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <!-- Phone -->
+                <label class="block text-sm font-medium text-gray-700">
+                  전화번호
+                </label>
+                <div class="flex items-center space-x-2">
+                  <!-- 고정된 "010" 부분 -->
+                  <span class="p-2 text-gray-700">010</span>
+                  <!-- 사용자 입력란 -->
+                  <input
+                    v-model="phone"
+                    type="tel"
+                    placeholder="전화번호를 입력해주세요 (8자리)"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    @input="formatAndValidatePhone"
+                  />
+                </div>
+                <p v-if="phoneError" class="text-red-500 text-sm">
+                  전화번호는 하이픈(-) 없이 8자리 숫자로 입력해주세요.
+                </p>
+              </div>
+
+              <!-- Address -->
+              <PostAddressForm @update-address="handleUpdateAddress" />
             </div>
           </div>
-
-          <!-- Password Confirmation -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
-              비밀번호 확인<span class="pl-0.5 text-red-500">*</span>
-            </label>
-            <input
-              v-model="passwordConfirm"
-              type="password"
-              placeholder="비밀번호를 다시 입력해주세요"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              :class="{ 'border-red-500': passwordMismatch }"
-            />
-            <p v-if="passwordMismatch" class="text-sm text-red-600">
-              비밀번호가 일치하지 않습니다
-            </p>
-          </div>
-
-          <!-- Name -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700"
-              >닉네임(이름)<span class="pl-0.5 text-red-500">*</span></label
-            >
-            <input
-              v-model="name"
-              type="text"
-              placeholder="닉네임(이름)을 입력해주세요"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <!-- Phone -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
-              전화번호
-            </label>
-            <div class="flex items-center space-x-2">
-              <!-- 고정된 "010-" 부분 -->
-              <span class="p-2 text-gray-700">010</span>
-              <!-- 사용자 입력란 -->
-              <input
-                v-model="phone"
-                type="tel"
-                placeholder="전화번호를 입력해주세요 (8자리)"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                @input="formatAndValidatePhone"
-              />
-            </div>
-            <p v-if="phoneError" class="text-red-500 text-sm">
-              전화번호는 하이픈(-) 없이 8자리 숫자로 입력해주세요.
-            </p>
-          </div>
-
-          <!-- Address -->
-          <client-only>
-            <PostAddressForm @update-address="handleUpdateAddress" />
-          </client-only>
 
           <!-- Submit Button -->
-          <button
-            type="submit"
-            class="w-full bg-blue-500 text-white py-3 rounded-md font-medium hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            :disabled="!isFormValid || isSubmitting"
-          >
-            {{ isSubmitting ? '처리 중...' : '가입하기' }}
-          </button>
-          <!-- 입력이 부족할 경우 경고 메시지 표시 -->
-          <p v-if="showErrorMessage" class="text-red-500 text-sm mt-2">
-            모든 필수 항목을 입력하고 이메일 중복 확인을 완료해주세요.
-          </p>
+          <div class="p-4 bg-white border-t">
+            <button
+              type="submit"
+              class="w-full bg-blue-500 text-white py-3 rounded-md font-medium hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              :disabled="!isFormValid || isSubmitting"
+            >
+              {{ isSubmitting ? '처리 중...' : '가입하기' }}
+            </button>
+
+            <!-- 입력이 부족할 경우 경고 메시지 표시 -->
+            <p
+              v-if="showErrorMessage"
+              class="text-xs text-center text-red-600 mt-2"
+            >
+              모든 필수 항목을 입력하고 이메일 중복 확인을 완료해주세요.
+            </p>
+          </div>
         </form>
       </div>
+
       <!-- Congratulatory Modal -->
       <div
         v-if="showSuccessModal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
       >
         <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
           <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
@@ -163,6 +176,7 @@
 </template>
 
 <script setup>
+import { useRuntimeConfig } from '#app';
 import PostAddressForm from '~/components/user/PostAddressForm.vue';
 
 definePageMeta({
@@ -288,7 +302,8 @@ const checkEmail = async () => {
       return;
     }
     // 서버로 이메일 중복 확인 요청 보내기
-    const response = await $fetch(`${baseApiUrl}/api/v1/auth/check-email`, {
+    const response = await $fetch(`/api/v1/auth/check-email`, {
+      baseURL: baseApiUrl,
       method: 'POST',
       body: {
         email: email.value,
@@ -301,6 +316,7 @@ const checkEmail = async () => {
       : '사용 가능한 이메일입니다';
     emailVerified.value = !isDuplicate;
   } catch (error) {
+    console.log(error);
     emailError.value = true;
     emailMessage.value =
       '서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';

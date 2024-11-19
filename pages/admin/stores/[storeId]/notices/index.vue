@@ -1,6 +1,6 @@
 <template>
   <!-- 공지사항 리스트 -->
-  <div>
+  <div class="px-4">
     <div
       v-for="(notice, noticeIndex) in notices"
       :key="notice.noticeId"
@@ -65,7 +65,7 @@
         </button>
         <button
           class="text-xs text-red-500"
-          @click="deleteNotice(notice.noticeId)"
+          @click="openDeleteModal(notice.noticeId)"
         >
           삭제
         </button>
@@ -90,6 +90,16 @@
     <div v-if="isLoading" class="flex justify-center items-center mt-4">
       <span class="text-gray-500">로딩 중...</span>
     </div>
+    <Modal
+      v-if="isModalVisible"
+      :visible="isModalVisible"
+      message-title="공지사항 삭제"
+      message-body="정말로 이 공지사항을 삭제하시겠습니까?"
+      cancel-message="취소"
+      confirm-message="삭제"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
@@ -99,6 +109,7 @@ import { useRuntimeConfig } from '#app';
 import { useRouter, useRoute } from 'vue-router';
 import { differenceInDays } from 'date-fns';
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
+import Modal from '~/components/modal/BasicModal.vue';
 
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
@@ -150,6 +161,9 @@ const totalPages = ref(1);
 
 // Sentinel 참조
 const sentinel = ref<HTMLElement | null>(null);
+
+const isModalVisible = ref(false);
+const noticeToDelete = ref<number | null>(null);
 
 // 등록일자 계산
 const formatDateDifference = (regDate: string) => {
@@ -241,22 +255,40 @@ const goToEditForm = (noticeId: number) => {
 };
 
 // 삭제 기능
-const deleteNotice = async (noticeId: number) => {
-  if (!confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
-    return;
-  }
+// 모달 확인 (삭제)
+const confirmDelete = async () => {
+  if (!noticeToDelete.value) return;
+
   try {
-    await $fetch(`/api/v1/admin/stores/${storeId}/notices/${noticeId}`, {
-      baseURL: baseUrl,
-      method: 'DELETE',
-    });
-    // 삭제 후 notices 배열 업데이트
+    await $fetch(
+      `/api/v1/admin/stores/${storeId}/notices/${noticeToDelete.value}`,
+      {
+        baseURL: baseUrl,
+        method: 'DELETE',
+      },
+    );
+
     notices.value = notices.value.filter(
-      (notice) => notice.noticeId !== noticeId,
+      (notice) => notice.noticeId !== noticeToDelete.value,
     );
   } catch (error) {
     console.error('삭제 실패:', error);
+  } finally {
+    isModalVisible.value = false;
+    noticeToDelete.value = null;
   }
+};
+
+// 모달 열기
+const openDeleteModal = (noticeId: number) => {
+  noticeToDelete.value = noticeId;
+  isModalVisible.value = true;
+};
+
+// 모달 취소
+const cancelDelete = () => {
+  isModalVisible.value = false;
+  noticeToDelete.value = null;
 };
 </script>
 

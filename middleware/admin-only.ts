@@ -1,5 +1,7 @@
 import { storeToRefs } from 'pinia';
 
+// admin - only.ts;
+
 export default defineNuxtRouteMiddleware((to, from) => {
   const authStore = useAuthStore();
   const { isAdmin, isAuthenticated, user } = storeToRefs(authStore);

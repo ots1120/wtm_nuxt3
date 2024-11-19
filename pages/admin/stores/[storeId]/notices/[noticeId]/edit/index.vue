@@ -1,5 +1,7 @@
 <template>
-  <div class="flex-grow mt-14 mb-16 overflow-y-auto w-full max-w-lg mx-auto">
+  <div
+    class="flex-grow mt-14 mb-16 overflow-y-auto w-full max-w-lg mx-auto px-4"
+  >
     <AdminNoticesNoticeRegistForm
       :initial-data="notice"
       :is-edit-mode="isEditMode"
