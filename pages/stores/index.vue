@@ -276,6 +276,7 @@
 import { ref, onMounted, watch, nextTick, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useHead, useRuntimeConfig } from '#imports';
+import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
 
 // 런타임 설정을 사용하여 네이버 지도 클라이언트 ID를 가져옵니다.
 const config = useRuntimeConfig();
@@ -294,6 +295,10 @@ const router = useRouter(); // 라우터 사용을 위한 변수
 // 터치 이벤트 처리를 위한 변수들
 let startY = 0;
 let currentY = 0;
+
+// Pinia에서 username과 인증 상태 가져오기
+const authStore = useAuthStore();
+const username = computed(() => authStore.user?.username);
 
 // 선택된 식당 ID 및 정보 창을 추적하기 위한 변수
 const selectedStoreId = ref(null);
@@ -325,11 +330,19 @@ const userCircle = ref(null); // 사용자 위치 반경을 표시할 원
 // 식당 데이터와 주소 데이터를 가져오는 함수
 const fetchStores = async () => {
   isLoading.value = true;
+  console.log(username.value);
   try {
     // 검색어가 있을 경우 쿼리 파라미터로 추가하여 식당 데이터를 가져옵니다.
     const [storesResponse, addressesResponse] = await Promise.all([
       fetch(
         `http://localhost:8080/api/v1/stores${searchText.value ? `?query=${encodeURIComponent(searchText.value)}` : ''}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Username': username.value, // 헤더에 username 추가
+          },
+        },
       ),
       fetch('http://localhost:8080/api/v1/stores/address'),
     ]);

@@ -277,6 +277,7 @@ const storeId = route.params.storeId;
 
 // Auth Store 사용
 const authStore = useAuthStore();
+const username = computed(() => authStore.user?.username);
 const isAuthenticated = computed(() => authStore.isAuthenticated); // 인증 상태 확인
 
 // 정렬 기준 상태: 최신순('date') 또는 평점순('rating')
@@ -361,7 +362,13 @@ const fetchReviews = async () => {
 
   try {
     const url = `http://localhost:8080/api/v1/stores/${storeId}/reviews?sortOption=${sortBy.value}&page=${page.value}&size=${size.value}`;
-    const response = await $fetch(url);
+    const response = await $fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json', // JSON 데이터 요청 시 설정
+        'X-Username': username.value, // Pinia에서 가져온 username을 헤더에 추가
+      },
+    });
 
     if (response && response.content) {
       const newReviews = response.content.map((review) => ({
@@ -467,7 +474,13 @@ const toggleHelpful = async (index, review) => {
       // liked가 true인 경우 DELETE API 호출
       await $fetch(
         `http://localhost:8080/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
-        { method: 'DELETE' },
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Username': username.value, // username 데이터를 헤더로 전달
+          },
+        },
       );
       review.liked = false;
       review.helpfulCount--; // 도움돼요 카운트 감소
@@ -475,7 +488,13 @@ const toggleHelpful = async (index, review) => {
       // liked가 false인 경우 POST API 호출
       await $fetch(
         `http://localhost:8080/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
-        { method: 'POST' },
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Username': username.value, // username 데이터를 헤더로 전달
+          },
+        },
       );
       review.liked = true;
       review.helpfulCount++; // 도움돼요 카운트 증가
