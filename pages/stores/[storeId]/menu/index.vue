@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- 메뉴 탭 섹션 -->
     <div
       v-if="menuItems && menuItems.length > 0"
       class="w-full max-w-md mx-auto p-4"
@@ -13,14 +12,24 @@
           <li
             v-for="(menuItem, index) in menuItems"
             :key="index"
-            class="flex items-center bg-slate-100 rounded-lg p-3 transition duration-300 hover:bg-slate-200"
+            class="flex items-center justify-between bg-slate-100 rounded-lg p-3 transition duration-300 hover:bg-slate-200"
           >
-            <span class="w-5 h-5 text-slate-500 mr-3">🍴</span>
-            <span class="text-lg text-gray-700">{{ menuItem }}</span>
+            <!-- 메뉴 이름 -->
+            <span class="text-lg text-gray-700 font-semibold">
+              {{ menuItem.name }}
+            </span>
+
+            <!-- 카테고리 라벨 -->
+            <span
+              class="ml-4 px-2 py-1 text-sm font-medium text-white bg-blue-500 rounded-full"
+            >
+              {{ menuItem.categoryName }}
+            </span>
           </li>
         </ul>
       </div>
     </div>
+
     <div v-else class="flex flex-col items-center justify-center">
       <h3 class="text-lg font-bold mb-4">오늘의 메뉴</h3>
       <div
@@ -48,6 +57,7 @@ import { useFetch } from '#app'; // 필요에 따라 경로를 조정하세요.
 // 메뉴 항목의 인터페이스 정의
 interface MenuItem {
   name: string;
+  categoryName: string; // 카테고리 이름 추가
 }
 
 // API 응답 형식 인터페이스 정의
@@ -86,7 +96,10 @@ const menuItems = computed(() => {
     console.warn('Menu data is empty:', menuData.value);
   }
 
-  return menus.length ? menus.map((item) => item.name || '메뉴 이름 없음') : [];
+  return menus.map((item) => ({
+    name: item.name || '메뉴 이름 없음',
+    categoryName: item.categoryName || '카테고리 없음',
+  }));
 });
 
 // 레이아웃 설정

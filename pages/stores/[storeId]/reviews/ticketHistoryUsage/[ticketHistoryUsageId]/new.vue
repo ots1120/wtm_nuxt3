@@ -48,6 +48,10 @@
               </label>
             </div>
           </div>
+          <!-- 별점 에러 메시지 -->
+          <p v-if="errors.ratings" class="text-red-500 text-sm">
+            {{ errors.ratings }}
+          </p>
         </div>
 
         <!-- 재방문 체크박스 -->
@@ -58,9 +62,9 @@
 
         <!-- 사진 업로드 -->
         <div class="mb-8">
-          <h2 class="text-lg font-semibold mb-2">사진 업로드</h2>
+          <h2 class="text-lg font-semibold mb-2">사진 업로드 (선택 사항)</h2>
           <p class="text-sm text-gray-500 mb-4">
-            식당과 메뉴에 관련된 사진을 업로드해주세요.
+            식당과 메뉴에 관련된 사진을 업로드해주세요. (최대 5장)
           </p>
 
           <!-- 미리보기 및 삭제 기능 -->
@@ -86,17 +90,23 @@
 
             <!-- 이미지 추가 버튼 -->
             <label
+              v-if="imageFiles.length < 5"
               class="w-20 h-20 flex items-center justify-center border rounded-md cursor-pointer"
             >
               <input
                 type="file"
                 class="hidden"
                 multiple
+                accept="image/*"
                 @change="onFileChange"
               />
               <span>+</span>
             </label>
           </div>
+          <!-- 이미지 업로드 에러 메시지 -->
+          <p v-if="errors.images" class="text-red-500 text-sm">
+            {{ errors.images }}
+          </p>
         </div>
 
         <!-- 리뷰 작성 -->
@@ -105,8 +115,18 @@
           <textarea
             v-model="reviewText"
             class="w-full h-32 border rounded-md p-2"
+            :class="{ 'border-red-500': errors.reviewText }"
             placeholder="식당과 유저들에게 도움이 되는 따뜻한 리뷰를 작성해주세요 :)"
+            aria-describedby="reviewTextError"
           ></textarea>
+          <!-- 리뷰 작성 에러 메시지 -->
+          <p
+            v-if="errors.reviewText"
+            id="reviewTextError"
+            class="text-red-500 text-sm"
+          >
+            {{ errors.reviewText }}
+          </p>
         </div>
 
         <!-- 작성 완료 버튼 -->
@@ -124,14 +144,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // 현재 경로에서 storeId 가져오기
 const route = useRoute();
 const router = useRouter();
 const storeId = route.params.storeId;
-const ticketHistoryUsageId = route.params.ticketHistoryUsageId; // 수정 필요
+const ticketHistoryUsageId = route.params.ticketHistoryUsageId; // 필요에 따라 수정
 
 const ratings = ref({
   taste: 0,
@@ -161,6 +181,13 @@ const ratingIds = {
   kindness: 4,
 };
 
+// 에러 메시지 초기화
+const errors = reactive({
+  ratings: '',
+  images: '',
+  reviewText: '',
+});
+
 // 별점 호버 설정 및 초기화
 const setHover = (key, star) => {
   hoverRatings.value[key] = star;
@@ -185,7 +212,11 @@ const onFileChange = (event) => {
     }
     const reader = new FileReader();
     reader.onload = (e) => {
-      imageFiles.value.push({ file, preview: e.target.result });
+      if (imageFiles.value.length < 5) {
+        imageFiles.value.push({ file, preview: e.target.result });
+        // 이미지 관련 에러가 있으면 제거
+        errors.images = '';
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -194,10 +225,56 @@ const onFileChange = (event) => {
 // 이미지 제거 함수
 const removeImage = (index) => {
   imageFiles.value.splice(index, 1);
+  // 이미지 관련 에러가 있으면 제거 (이미지 업로드가 선택 사항이므로 필요 없음)
+  // 하지만 업로드된 이미지가 최대 갯수를 초과했을 때 다시 추가 가능하도록 유지
+};
+
+// 유효성 검사 함수
+const validateForm = () => {
+  let isValid = true;
+
+  // 에러 초기화
+  errors.ratings = '';
+  errors.images = '';
+  errors.reviewText = '';
+
+  // 별점 유효성 검사
+  for (const key in ratings.value) {
+    if (ratings.value[key] < 1) {
+      errors.ratings = '모든 항목에 대해 최소 1점 이상의 별점을 선택해주세요.';
+      isValid = false;
+      break;
+    }
+  }
+
+  // 이미지 유효성 검사 (선택 사항)
+  // 업로드된 이미지가 있을 경우 크기와 형식은 이미 onFileChange에서 검사하였으므로 추가 검사 필요 없음
+  // 단, 추가적인 조건이 필요하다면 여기서 추가할 수 있습니다.
+
+  // 리뷰 텍스트 유효성 검사
+  if (!reviewText.value.trim()) {
+    errors.reviewText = '리뷰 내용을 입력해주세요.';
+    isValid = false;
+  } else if (reviewText.value.trim().length < 10) {
+    // 최소 10자 이상
+    errors.reviewText = '리뷰는 최소 10자 이상이어야 합니다.';
+    isValid = false;
+  }
+
+  return isValid;
 };
 
 // 리뷰 제출 함수
 const submitReview = async () => {
+  if (!validateForm()) {
+    // 첫 번째 에러로 스크롤 (선택 사항)
+    const firstError = document.querySelector('.text-red-500');
+    if (firstError) {
+      firstError.scrollIntoView({ behavior: 'smooth' });
+    }
+    return;
+  }
+
   const formData = new FormData();
   formData.append('revisit', revisit.value);
   formData.append('reviewContent', reviewText.value);
@@ -224,9 +301,11 @@ const submitReview = async () => {
     await router.push(`/stores/${storeId}/reviews`);
   } catch (error) {
     console.error('리뷰 등록 중 오류 발생:', error.response || error.message);
+    // 선택적으로 서버 측 유효성 검사 오류를 처리할 수 있습니다.
   }
 };
 
+// 페이지 메타데이터 설정
 onBeforeMount(() => {
   route.meta.title = '리뷰 작성';
 });
@@ -234,4 +313,7 @@ onBeforeMount(() => {
 
 <style scoped>
 /* 필요한 경우 스타일 추가 */
+.text-red-500 {
+  color: #f56565;
+}
 </style>

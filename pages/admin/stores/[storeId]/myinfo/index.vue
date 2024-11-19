@@ -1,5 +1,5 @@
 <template>
-  <section class="flex justify-center">
+  <section class="flex justify-center mt-4 px-4">
     <form
       action=""
       enctype="multipart/form-data"
@@ -10,7 +10,7 @@
         class="flex flex-col items-center justify-center border-b text-center"
       >
         <div
-          class="w-32 h-32 rounded-full border overflow-hidden flex items-center justify-center"
+          class="w-28 h-28 rounded-full border overflow-hidden flex items-center justify-center"
         >
           <img
             v-if="isDataLoaded"
@@ -44,10 +44,10 @@
 
       <div class="flex flex-col">
         <!-- 가게 이름 -->
+        <label for="nickname" class="text-lg font-extrabold text-gray-700"
+          >가게이름</label
+        >
         <div class="flex justify-between items-center border-b py-2">
-          <label for="nickname" class="text-lg font-extrabold text-gray-700"
-            >가게이름</label
-          >
           <input
             id="nickname"
             v-model="store.storeName"
@@ -59,23 +59,19 @@
 
         <!-- 가게 주소 -->
         <div class="flex justify-between items-center border-b py-2">
-          <label for="address" class="text-lg font-extrabold text-gray-700"
-            >가게주소</label
-          >
-          <input
-            id="address"
-            v-model="store.storeAddress"
-            type="text"
-            class="w-full max-w-sm p-2"
-            placeholder="가게 주소"
+          <AdminPostAddressForm
+            title="실제 사업장 주소"
+            :title-class="'text-lg font-extrabold text-gray-700'"
+            :address-data="store.storeAddress"
+            @update-address="updateStoreAddress"
           />
         </div>
 
-        <!-- 가게 번호 -->
+        <!-- 가게 번호 -->`
+        <label for="phone" class="text-lg font-extrabold text-gray-700"
+          >가게번호</label
+        >
         <div class="flex justify-between items-center border-b py-2">
-          <label for="phone" class="text-lg font-extrabold text-gray-700"
-            >가게번호</label
-          >
           <input
             id="phone"
             v-model="store.phone"
@@ -138,59 +134,120 @@
           />
         </div>
       </div>
-      <div class="mt-10">
+      <div class="mt-2 mb-24">
         <button
           class="w-full h-12 mt-4 bg-orange-400 text-white p-2 rounded-xl"
           type="submit"
+          @click="openModal"
         >
           저장
         </button>
       </div>
     </form>
+    <BasicModal
+      v-if="modal.visible"
+      :visible="modal.visible"
+      :message-title="'정보 수정'"
+      :message-body="'가게 정보를 수정하시겠습니까?'"
+      :cancel-message="'취소'"
+      :confirm-message="'저장'"
+      @confirm="confirmSave"
+      @cancel="cancelSave"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { ref, watchEffect } from 'vue';
-import { useFetch, useRuntimeConfig } from '#app';
-
-const config = useRuntimeConfig();
-const baseUrl = config.public.baseApiUrl;
+import { ref, onMounted } from 'vue';
+import { useRuntimeConfig } from '#app';
+import AdminPostAddressForm from '~/components/admin/AdminPostAddressForm.vue';
+import BasicModal from '~/components/modal/BasicModal.vue';
 
 onBeforeMount(() => {
-  route.meta.title = '가게정보수정';
+  route.meta.title = '정보수정';
 });
 
 definePageMeta({
   layout: 'admin',
 });
 
-interface Store {
-  storeId: number;
-  profilePicture: string;
-  storeName: string;
-  storeAddress: string;
-  snsAddress: string[];
-  phone: string;
-  openTime: string;
-  closeTime: string;
-}
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 // 라우트 설정
 const route = useRoute();
 const storeId = route.params.storeId;
 
 // 상태 관리
+interface Address {
+  postcode: string;
+  address: string;
+  detailAddress: string;
+  extraAddress: string;
+}
+
+interface Store {
+  storeId: number;
+  profilePicture: string;
+  storeName: string;
+  storeAddress: Address;
+  snsAddress: string[];
+  phone: string;
+  openTime: string;
+  closeTime: string;
+}
+
 const store = ref<Store>({
   storeId: 0,
   profilePicture: '',
   storeName: '',
-  storeAddress: '',
+  storeAddress: {
+    postcode: '',
+    address: '',
+    detailAddress: '',
+    extraAddress: '',
+  },
   snsAddress: [],
   phone: '',
   openTime: '',
   closeTime: '',
+});
+
+// 데이터 로드 상태
+const isDataLoaded = ref(false);
+
+// 데이터 가져오기
+const fetchStoreData = async () => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/v1/admin/stores/${storeId}/info`,
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const fetchData: Store = await response.json();
+    store.value = {
+      ...fetchData,
+      profilePicture: `${baseUrl}${fetchData.profilePicture}`,
+      storeAddress: fetchData.storeAddress || {
+        // storeAddress가 없는 경우 기본값 설정
+        postcode: '',
+        address: '',
+        detailAddress: '',
+        extraAddress: '',
+      },
+    };
+    isDataLoaded.value = true;
+  } catch (error) {
+    console.error('데이터 요청 중 오류 발생:', error);
+    isDataLoaded.value = false;
+  }
+};
+
+// 컴포넌트가 마운트되었을 때 데이터 로드
+onMounted(() => {
+  fetchStoreData();
 });
 
 // SNS 관리 로직
@@ -205,28 +262,6 @@ const removeSnsAddress = (index: number) => {
     store.value.snsAddress[0] = '';
   }
 };
-
-// 데이터 로드 상태
-const isDataLoaded = ref(false);
-
-// 데이터 가져오기
-const { data, error } = useFetch(`/api/v1/admin/stores/${storeId}/info`, {
-  baseURL: baseUrl,
-});
-watchEffect(() => {
-  if (data.value) {
-    const fetchData = data.value as Store;
-    store.value = {
-      ...fetchData,
-      profilePicture: `${baseUrl}${fetchData.profilePicture}`,
-    };
-    isDataLoaded.value = true;
-  }
-  if (error.value) {
-    console.error('데이터 요청 중 오류 발생:', error.value);
-    isDataLoaded.value = false;
-  }
-});
 
 // 이미지 미리보기 로직
 const handleImageUpload = (event: Event) => {
@@ -243,8 +278,41 @@ const handleImageUpload = (event: Event) => {
   }
 };
 
-// 폼 데이터 제출
-const openModal = async () => {
+// 다음 주소 API
+const updateStoreAddress = (addressData: {
+  postcode: string;
+  address: string;
+  detailAddress: string;
+  extraAddress: string;
+}) => {
+  store.value.storeAddress = {
+    postcode: addressData.postcode || '',
+    address: addressData.address || '',
+    detailAddress: addressData.detailAddress || '',
+    extraAddress: addressData.extraAddress || '',
+  };
+};
+
+// Modal 관리 로직
+const modal = ref<{
+  visible: boolean;
+  reviewIndex: number | null;
+  commentIndex: number | null;
+  reviewId: number | null;
+  commentId: number | null;
+}>({
+  visible: false,
+  reviewIndex: null,
+  commentIndex: null,
+  reviewId: null,
+  commentId: null,
+});
+
+const openModal = () => {
+  modal.value.visible = true;
+};
+
+const confirmSave = async () => {
   try {
     const formatTime = (time: string) => {
       // 초 단위를 제거하고 HH:mm 형식으로 변환
@@ -280,12 +348,24 @@ const openModal = async () => {
 
     if (response.ok) {
       console.log('데이터가 성공적으로 저장되었습니다.');
+      modal.value.visible = false;
     } else {
       console.error('저장 중 오류 발생:', await response.text());
     }
   } catch (err) {
     console.error('폼 제출 중 예외 발생:', err);
   }
+};
+
+const cancelSave = (): void => {
+  // Simply hide the modal and reset the state
+  modal.value = {
+    visible: false,
+    reviewIndex: null,
+    commentIndex: null,
+    reviewId: null,
+    commentId: null,
+  };
 };
 </script>
 

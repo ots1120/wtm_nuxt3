@@ -1,10 +1,8 @@
 <template>
-  <div
-    class="fixed bottom-0 w-full max-w-lg mx-auto bg-slate-100 pt-2 flex justify-evenly"
-  >
+  <div class="w-full bg-slate-100 pt-2 flex justify-evenly shadow-inner">
     <div>
       <NuxtLink to="/">
-        <button>
+        <button class="flex flex-col items-center">
           <span class="rounded-2xl border-2 border-solid bg-white p-2 block">
             <!-- 홈 아이콘 -->
             <svg

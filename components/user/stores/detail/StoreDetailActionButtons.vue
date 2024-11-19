@@ -63,7 +63,7 @@
       </div>
 
       <div>
-        <button @click="shareAction">
+        <button @click="shareContent">
           <svg
             class="w-9"
             viewBox="0 0 24 24"
@@ -105,10 +105,16 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BookmarkModal from '~/components/user/modal/BookmarkModal.vue';
+import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
 
 // 라우터 및 라우트 인스턴스
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
+
+// Pinia에서 username과 인증 상태 가져오기
+const username = computed(() => authStore.user?.username);
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 // 북마크 모달 상태
 const visible = ref(false);
@@ -188,11 +194,6 @@ async function navigateToPath() {
     console.error('경로 API 호출 중 오류 발생:', error);
     alert('경로를 가져오는 데 문제가 발생했습니다.');
   }
-}
-
-// 공유 버튼 동작
-function shareAction() {
-  console.log('공유 버튼 클릭');
 }
 
 // 북마크 추가 함수
@@ -282,6 +283,26 @@ const confirmDelete = async () => {
     await deleteBookmark(selectedStoreId.value);
   }
 };
+
+// 공유 버튼 동작
+function shareContent() {
+  if (navigator.share) {
+    navigator
+      .share({
+        title: 'WTM 공유하기',
+        text: '이 페이지를 친구와 공유하세요!',
+        url: window.location.href, // 현재 페이지 URL
+      })
+      .then(() => {
+        console.log('공유 성공!');
+      })
+      .catch((error) => {
+        console.error('공유 실패:', error);
+      });
+  } else {
+    alert('이 브라우저에서는 공유 기능을 지원하지 않습니다.');
+  }
+}
 </script>
 
 <style scoped>
