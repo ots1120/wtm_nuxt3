@@ -30,6 +30,9 @@ import ConfirmModal from '~/components/modal/BasicModal.vue';
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
+const authstore = useAuthStore();
+const adminId = Number(authstore.user?.userId);
+
 onBeforeMount(() => {
   route.meta.title = '공지등록';
 });
@@ -56,7 +59,7 @@ const notice = ref<NoticeData>({
   title: '',
   content: '',
 });
-const userId = 1; // 등록 userId는 실제 로그인한 사용자의 id를 가져와야 함.
+const userId = adminId; // 등록 userId는 실제 로그인한 사용자의 id를 가져와야 함.
 
 // 모달 열기 핸들러
 const handleOpenModal = (data: NoticeData) => {
