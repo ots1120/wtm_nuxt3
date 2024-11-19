@@ -34,7 +34,7 @@
     >
       <SearchBar
         v-model="searchText"
-        placeholder="식당 이름을 입력해주세요"
+        placeholder="먹고 싶은 메뉴나 가게를 찾아보세요"
         class="bg-white dark:bg-gray-800 rounded-full shadow-lg px-4 py-0.1"
         @search="fetchStores"
       />
@@ -620,8 +620,8 @@ const toggleBookmark = async (store, index) => {
     stores.value[index].isBookmarked = !store.isBookmarked;
     console.log(
       store.isBookmarked
-        ? '북마크가 삭제되었습니다.'
-        : '북마크가 추가되었습니다.',
+        ? '북마크가 추가되었습니다.'
+        : '북마크가 삭제되었습니다.',
     );
 
     // 선택된 식당일 경우 업데이트

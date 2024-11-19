@@ -265,7 +265,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
 
