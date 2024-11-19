@@ -138,7 +138,7 @@
           />
         </div>
       </div>
-      <div class="mt-20">
+      <div class="mt-10">
         <button
           class="w-full h-12 mt-4 bg-orange-400 text-white p-2 rounded-xl"
           type="submit"
@@ -153,7 +153,10 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { ref, watchEffect } from 'vue';
-import { useFetch } from '#app';
+import { useFetch, useRuntimeConfig } from '#app';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 onBeforeMount(() => {
   route.meta.title = '가게정보수정';
@@ -207,15 +210,15 @@ const removeSnsAddress = (index: number) => {
 const isDataLoaded = ref(false);
 
 // 데이터 가져오기
-const { data, error } = useFetch(`/api/admin/stores/${storeId}/info`, {
-  baseURL: 'http://localhost:8080',
+const { data, error } = useFetch(`/api/v1/admin/stores/${storeId}/info`, {
+  baseURL: baseUrl,
 });
 watchEffect(() => {
   if (data.value) {
     const fetchData = data.value as Store;
     store.value = {
       ...fetchData,
-      profilePicture: `http://localhost:8080${fetchData.profilePicture}`,
+      profilePicture: `${baseUrl}${fetchData.profilePicture}`,
     };
     isDataLoaded.value = true;
   }
@@ -243,6 +246,11 @@ const handleImageUpload = (event: Event) => {
 // 폼 데이터 제출
 const openModal = async () => {
   try {
+    const formatTime = (time: string) => {
+      // 초 단위를 제거하고 HH:mm 형식으로 변환
+      const [hours, minutes] = time.split(':');
+      return `${hours}:${minutes}`;
+    };
     const formData = new FormData();
     formData.append(
       'dto',
@@ -251,8 +259,8 @@ const openModal = async () => {
         storeAddress: store.value.storeAddress,
         snsAddress: store.value.snsAddress,
         phone: store.value.phone,
-        openTime: store.value.openTime,
-        closeTime: store.value.closeTime,
+        openTime: formatTime(store.value.openTime),
+        closeTime: formatTime(store.value.closeTime),
       }),
     );
     const profileImgInput = document.getElementById(
@@ -263,7 +271,7 @@ const openModal = async () => {
     }
 
     const response = await fetch(
-      `http://localhost:8080/api/admin/stores/${storeId}/info`,
+      `${baseUrl}/api/v1/admin/stores/${storeId}/info`,
       {
         method: 'PUT',
         body: formData,

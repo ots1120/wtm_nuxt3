@@ -37,6 +37,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "device-detector-js": "^3.0.3",
+    "html5-qrcode": "^2.3.8",
     "lucide-vue-next": "^0.456.0",
     "nuxt-app": "file:",
     "qrcode.vue": "^3.6.0",
