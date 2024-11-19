@@ -28,7 +28,6 @@ import { useRuntimeConfig } from '#app';
 interface storeInfo {
   storeName: string;
   storeId: number;
-  ticketId: number;
   ticketAmount: number;
   isBookmarked: boolean;
 }

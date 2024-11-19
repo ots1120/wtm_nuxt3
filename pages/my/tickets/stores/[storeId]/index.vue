@@ -81,14 +81,12 @@ import DeviceDetector from 'device-detector-js';
 interface storeInfo {
   storeName: string;
   storeId: number;
-  ticketId: number;
   ticketAmount: number;
   isBookmarked: boolean;
 }
 const storeInfo = ref<storeInfo>({
   storeName: '',
   storeId: 0,
-  ticketId: 0,
   ticketAmount: 0,
   isBookmarked: false,
 });
