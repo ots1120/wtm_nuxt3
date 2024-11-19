@@ -164,6 +164,7 @@ import AdminPostAddressForm from '~/components/admin/AdminPostAddressForm.vue';
 
 definePageMeta({
   title: '사장님 회원가입',
+  middleware: ['guest-only'],
 });
 
 const email = ref('');

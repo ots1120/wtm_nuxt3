@@ -119,6 +119,7 @@ const baseApiUrl = config.public.baseApiUrl;
 
 definePageMeta({
   layout: 'login',
+  middleware: ['auth-check'],
 });
 const username = ref('');
 const password = ref('');
@@ -157,9 +158,10 @@ const handleSignIn = async () => {
     if (authStore.isUser) {
       await navigateTo('/');
     } else if (authStore.isAdmin) {
-      await navigateTo('/admin/dashboard');
+      await navigateTo('/admin');
     }
   } catch (error) {
+    console.log(error);
     loginErrorMessage.value = error.statusMessage || '로그인에 실패했습니다.';
   }
 };

@@ -1,10 +1,11 @@
 <template>
-  <div>ADMIN storeId : {{ $route.params.storeId }} menu</div>
+  <NuxtPage />
 </template>
 
 <script setup lang="ts">
 definePageMeta({
   layout: 'admin',
+  middleware: ['admin-only'],
 });
 </script>
 

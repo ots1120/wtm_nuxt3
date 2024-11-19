@@ -3,6 +3,9 @@ import { defineStore } from 'pinia';
 import type { UserWithoutPassword } from '~/types/user';
 
 export const useAuthStore = defineStore('auth', () => {
+  const config = useRuntimeConfig();
+  const baseApiUrl = config.public.baseApiUrl;
+
   const authUser = ref<Maybe<UserWithoutPassword>>(null);
   const jwtToken = ref<string | null>(null);
 
@@ -10,13 +13,13 @@ export const useAuthStore = defineStore('auth', () => {
     authUser.value = user;
   };
 
-  const signIn = async (email: string, password: string, role: string) => {
+  const signIn = async (username: string, password: string, role: string) => {
     try {
-      const response = await fetch('/api/v1/auth/user/signIn', {
+      const response = await fetch(`${baseApiUrl}/api/v1/auth/signIn`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ username: email, password, role }),
+        body: JSON.stringify({ username, password, role }),
       });
 
       if (!response.ok) {
@@ -36,10 +39,9 @@ export const useAuthStore = defineStore('auth', () => {
       });
     }
   };
-
   const initializeAuth = async () => {
     try {
-      const response = await fetch('/api/v1/auth/user/me', {
+      const response = await fetch(`${baseApiUrl}/api/v1/auth/me`, {
         method: 'GET',
         credentials: 'include', // 쿠키 포함
       });
@@ -47,21 +49,26 @@ export const useAuthStore = defineStore('auth', () => {
       if (response.ok) {
         const data = await response.json();
         setUser({
-          email: data.username,
-          roles: data.roles,
+          username: data.username,
+          role: data.role,
           storeId: data.storeId,
         });
+      } else if (response.status === 401) {
+        // 만료된 토큰 처리
+        console.warn('JWT token expired or user not authenticated');
+        setUser(null);
       } else {
-        signOut();
+        throw new Error('User not authenticated');
       }
-    } catch {
-      signOut();
+    } catch (error) {
+      console.error('Error during initializeAuth:', error);
+      setUser(null);
     }
   };
 
   const signOut = async () => {
     try {
-      await fetch('/api/v1/auth/signout', {
+      await fetch(`${baseApiUrl}/api/v1/auth/signout`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -71,12 +78,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const storeId = computed(() => authUser.value?.storeId || null);
+
   return {
     user: authUser,
     token: jwtToken,
+    storeId,
     isAuthenticated: computed(() => !!authUser.value),
-    isUser: computed(() => authUser.value?.roles.includes('USER') || false),
-    isAdmin: computed(() => authUser.value?.roles.includes('ADMIN') || false),
+    isUser: computed(() => authUser.value?.role === 'USER'),
+    isAdmin: computed(() => authUser.value?.role === 'ADMIN'),
     signIn,
     signOut,
     initializeAuth,

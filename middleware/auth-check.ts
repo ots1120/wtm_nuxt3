@@ -1,9 +1,8 @@
-import { storeToRefs } from 'pinia';
-
 export default defineNuxtRouteMiddleware(() => {
   const { isAuthenticated } = storeToRefs(useAuthStore());
+
   if (isAuthenticated.value) {
-    if (import.meta.server) return navigateTo('/');
-    return abortNavigation();
+    // 이미 로그인한 사용자는 `/`로 리다이렉트
+    return navigateTo('/');
   }
 });
