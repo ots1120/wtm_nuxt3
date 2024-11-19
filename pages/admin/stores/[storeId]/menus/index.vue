@@ -145,9 +145,7 @@
       <h2 class="text-lg font-semibold text-gray-700 mb-4">
         {{ selectedDate.toLocaleDateString() }} 메뉴
       </h2>
-      <table
-        class="table-auto table-fixed w-full border-collapse border border-gray-200"
-      >
+      <table class="table-auto w-full border-collapse border border-gray-200">
         <colgroup>
           <col style="width: 45%" />
           <col style="width: 35%" />

@@ -158,7 +158,8 @@ const handleSignIn = async () => {
     if (authStore.isUser) {
       await navigateTo('/');
     } else if (authStore.isAdmin) {
-      await navigateTo('/admin');
+      const storeId = authStore.user.storeId;
+      await navigateTo(`/admin/stores/${storeId}`);
     }
   } catch (error) {
     console.log(error);
