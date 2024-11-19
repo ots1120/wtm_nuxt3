@@ -114,7 +114,10 @@
               </p>
             </div>
             <client-only>
-              <AdminPostAddressForm @update-address="handleUpdateAddress" />
+              <AdminPostAddressForm
+                title="실제 사업장 주소"
+                update-address="handleUpdateAddress"
+              />
             </client-only>
           </div>
 
