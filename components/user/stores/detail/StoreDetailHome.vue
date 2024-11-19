@@ -1,27 +1,48 @@
 <template>
   <div class="mt-3 space-y-4">
     <!-- 주소 정보 -->
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
       <svg
-        class="w-5 h-5 text-gray-700"
+        class="w-5 h-5 text-gray-700 flex-shrink-0"
         viewBox="0 0 24 24"
-        fill="currentColor"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
         xmlns="http://www.w3.org/2000/svg"
       >
+        <circle cx="12" cy="9" r="3" />
         <path
-          d="M12 2C8.13401 2 5 5.13401 5 9C5 13.902 11 21 12 22C13 21 19 13.902 19 9C19 5.13401 15.866 2 12 2ZM12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9C14 10.1046 13.1046 11 12 11Z"
+          d="M12 2C8.134 2 5 5.134 5 9c0 4.902 6 11.902 7 13 1-1.098 7-8.098 7-13 0-3.866-3.134-7-7-7z"
         />
       </svg>
-      <span
-        >{{ props.store.address.address || '주소 정보 없음' }}
+      <span>
+        {{ props.store.address.address || '주소 정보 없음' }}
         {{ props.store.address.detailAddress }}
-        {{ props.store.address.extraAddress }}</span
-      >
+        {{ props.store.address.extraAddress }}
+      </span>
     </div>
 
     <!-- SNS 링크 -->
-    <div v-if="props.store.storeSns?.url" class="flex items-center gap-4">
-      <span class="font-semibold text-gray-700">SNS</span>
+    <div v-if="props.store.storeSns?.url" class="flex items-center gap-2">
+      <svg
+        class="w-5 h-5 text-gray-700 flex-shrink-0"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 100 100"
+        fill="currentColor"
+      >
+        <text
+          x="50%"
+          y="50%"
+          dominant-baseline="middle"
+          text-anchor="middle"
+          font-family="Arial, sans-serif"
+          font-size="50"
+          font-weight="bold"
+          fill="currentColor"
+        >
+          SNS
+        </text>
+      </svg>
       <a :href="props.store.storeSns.url" target="_blank" class="text-blue-500">
         {{ props.store.storeSns.url }}
       </a>
@@ -29,9 +50,8 @@
 
     <!-- 연락처 정보 (복사 버튼 포함) -->
     <div class="flex items-center gap-2">
-      <!-- 전화 아이콘 -->
       <svg
-        class="w-4 h-4 text-gray-700"
+        class="w-5 h-5 text-gray-700 flex-shrink-0"
         viewBox="0 0 24 24"
         fill="currentColor"
         xmlns="http://www.w3.org/2000/svg"
@@ -40,20 +60,16 @@
           d="M6.62 10.79a15.34 15.34 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.27 1.12.27 2.33.42 3.57.42.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-10.5 0-19-8.5-19-19 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.24.15 2.45.42 3.57.09.35 0 .74-.27 1.02l-2.2 2.2z"
         />
       </svg>
-      <!-- 전화번호 표시 -->
-      <span class="text-gray-800">{{
-        props.store.contact || '연락처 정보 없음'
-      }}</span>
-      <!-- "복사" 버튼 -->
+      <span>{{ props.store.contact || '연락처 정보 없음' }}</span>
       <button class="text-blue-500 underline ml-2" @click="copyPhoneNumber">
         복사
       </button>
     </div>
 
     <!-- 운영 시간 정보 -->
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
       <svg
-        class="w-5 h-5 text-gray-700"
+        class="w-5 h-5 text-gray-700 flex-shrink-0"
         viewBox="0 0 24 24"
         fill="currentColor"
         xmlns="http://www.w3.org/2000/svg"
@@ -66,16 +82,17 @@
     </div>
 
     <!-- 가격 정보 -->
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
       <svg
-        class="w-5 h-5 text-gray-700"
+        class="w-5 h-5 text-gray-700 flex-shrink-0"
         viewBox="0 0 24 24"
-        fill="currentColor"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path
-          d="M12 1C5.93 1 1 5.93 1 12s4.93 11 11 11 11-4.93 11-11S18.07 1 12 1zm0 18.93c-4.42 0-8.08-3.45-8.08-7.93S7.58 5.07 12 5.07s8.08 3.45 8.08 7.93-3.66 7.93-8.08 7.93z"
-        />
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="6" />
       </svg>
       <span>{{
         props.store.ticket?.price

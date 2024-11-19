@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center w-full p-10">
+  <div class="min-h-screen flex items-center justify-center w-full">
     <main class="w-full max-w-full px-4">
       <section class="w-full max-w-xl mx-auto bg-white p-8">
         <h1 class="hidden">메뉴 등록</h1>
         <form
           class="space-y-4"
           enctype="multipart/form-data"
-          @submit.prevent="submitForm"
+          @submit.prevent="handleSubmit"
         >
           <!-- 메뉴 사진 업로드 -->
           <div>
@@ -52,6 +52,10 @@
                 <span>+</span>
               </label>
             </div>
+            <!-- 이미지 업로드 에러 메시지 -->
+            <p v-if="errors.images" class="text-red-500 text-sm">
+              {{ errors.images }}
+            </p>
           </div>
 
           <!-- 메인메뉴 입력 -->
@@ -69,6 +73,10 @@
               class="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="메인 메뉴 하나를 입력해주세요."
             />
+            <!-- 메인메뉴 에러 메시지 -->
+            <p v-if="errors.mainMenu" class="text-red-500 text-sm">
+              {{ errors.mainMenu }}
+            </p>
           </div>
 
           <!-- 국물류 입력 -->
@@ -86,23 +94,47 @@
               class="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="국 혹은 찌개류 하나를 입력해주세요."
             />
+            <!-- 국물류 에러 메시지 -->
+            <p v-if="errors.soupMenu" class="text-red-500 text-sm">
+              {{ errors.soupMenu }}
+            </p>
           </div>
 
           <!-- 기타메뉴 입력 -->
-          <div v-for="(etcMenu, index) in formData.etcMenus" :key="index">
-            <label
-              :for="'etc-menu-' + index"
-              class="mb-2 block text-sm font-medium text-gray-700"
+          <div
+            v-for="(etcMenu, index) in formData.etcMenus"
+            :key="index"
+            class="flex items-center space-x-2"
+          >
+            <div class="flex-1">
+              <label
+                :for="'etc-menu-' + index"
+                class="mb-2 block text-sm font-medium text-gray-700"
+              >
+                기타메뉴{{ index + 1 }}
+              </label>
+              <input
+                :id="'etc-menu-' + index"
+                v-model="formData.etcMenus[index]"
+                :name="'etcMenu' + index"
+                class="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                placeholder="그 외 메뉴 하나를 입력해주세요."
+              />
+              <!-- 기타메뉴 에러 메시지 -->
+              <p v-if="errors.etcMenus[index]" class="text-red-500 text-sm">
+                {{ errors.etcMenus[index] }}
+              </p>
+            </div>
+            <!-- 기타메뉴 삭제 버튼 (기타메뉴가 1개 이상일 때 표시) -->
+            <button
+              v-if="formData.etcMenus.length > 1"
+              type="button"
+              class="text-red-500 hover:text-red-700"
+              aria-label="기타메뉴 삭제"
+              @click="removeMenu(index)"
             >
-              기타메뉴{{ index + 1 }}
-            </label>
-            <input
-              :id="'etc-menu-' + index"
-              v-model="formData.etcMenus[index]"
-              :name="'etcMenu' + index"
-              class="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
-              placeholder="그 외 메뉴 하나를 입력해주세요."
-            />
+              ✕
+            </button>
           </div>
 
           <!-- 메뉴 추가 -->
@@ -129,12 +161,21 @@
         </form>
       </section>
     </main>
+
+    <!-- Menu Registration Confirmation Modal -->
+    <MenuRegModal
+      :visible="isModalVisible"
+      :store-id="storeId"
+      @cancel="hideModal"
+      @confirm="submitToServer"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from '#app';
+import MenuRegModal from '~/components/user/modal/MenuRegModal.vue'; // Adjust the path as necessary
 
 // 폼 데이터 초기화
 const formData = ref({
@@ -144,12 +185,22 @@ const formData = ref({
   menuImages: [],
 });
 const imageFiles = ref([]); // 이미지 미리보기와 파일을 함께 저장
-const imagePreview = ref(null); // 이미지 미리보기 저장
+
+// 에러 메시지 초기화
+const errors = reactive({
+  mainMenu: '',
+  soupMenu: '',
+  etcMenus: [],
+  images: '',
+});
 
 // 라우트 및 라우터 정보 가져오기
 const route = useRoute();
 const router = useRouter();
-const storeId = route.params.storeId;
+const storeId = parseInt(route.params.storeId, 10); // Ensure storeId is a number
+
+// Modal visibility state
+const isModalVisible = ref(false);
 
 // 파일 선택 시 미리보기 추가
 const onFileChange = (event) => {
@@ -167,7 +218,11 @@ const onFileChange = (event) => {
     }
     const reader = new FileReader();
     reader.onload = (e) => {
-      imageFiles.value.push({ file, preview: e.target.result });
+      if (imageFiles.value.length < 5) {
+        imageFiles.value.push({ file, preview: e.target.result });
+        // 이미지 관련 에러가 있으면 제거
+        errors.images = '';
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -176,17 +231,91 @@ const onFileChange = (event) => {
 // 이미지 제거 함수
 const removeImage = (index) => {
   imageFiles.value.splice(index, 1);
+  // 이미지 관련 에러가 있으면 제거
+  if (imageFiles.value.length < 5) {
+    errors.images = '';
+  }
 };
 
 // 기타 메뉴 추가 핸들러
 const addMenu = () => {
   if (formData.value.etcMenus.length < 5) {
     formData.value.etcMenus.push('');
+    errors.etcMenus.push(''); // 새 메뉴의 에러 초기화
   }
 };
 
+// 기타 메뉴 제거 핸들러
+const removeMenu = (index) => {
+  formData.value.etcMenus.splice(index, 1);
+  errors.etcMenus.splice(index, 1);
+};
+
+// 유효성 검사 함수
+const validateForm = () => {
+  let isValid = true;
+
+  // 에러 초기화
+  errors.mainMenu = '';
+  errors.soupMenu = '';
+  errors.images = '';
+  errors.etcMenus = formData.value.etcMenus.map(() => '');
+
+  // 메인메뉴 유효성 검사
+  if (!formData.value.mainMenu.trim()) {
+    errors.mainMenu = '메인메뉴는 필수 입력 사항입니다.';
+    isValid = false;
+  }
+
+  // 국물류 유효성 검사
+  if (!formData.value.soupMenu.trim()) {
+    errors.soupMenu = '국물류는 필수 입력 사항입니다.';
+    isValid = false;
+  }
+
+  // 기타메뉴 유효성 검사
+  formData.value.etcMenus.forEach((menu, index) => {
+    if (!menu.trim()) {
+      errors.etcMenus[index] = '이 항목은 비워둘 수 없습니다.';
+      isValid = false;
+    }
+  });
+
+  // 이미지 유효성 검사
+  if (imageFiles.value.length === 0) {
+    errors.images = '적어도 한 장의 메뉴 사진을 업로드해야 합니다.';
+    isValid = false;
+  }
+
+  return isValid;
+};
+
+// Modal control functions
+const showModal = () => {
+  isModalVisible.value = true;
+};
+
+const hideModal = () => {
+  isModalVisible.value = false;
+};
+
 // 폼 제출 핸들러
-const submitForm = async () => {
+const handleSubmit = () => {
+  if (validateForm()) {
+    showModal();
+  } else {
+    // 첫 번째 에러로 스크롤 (선택 사항)
+    const firstError = document.querySelector('.text-red-500');
+    if (firstError) {
+      firstError.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+};
+
+// 실제 폼 제출 함수
+const submitToServer = async (storeId) => {
+  hideModal();
+
   const form = new FormData();
   form.append('mainMenu', formData.value.mainMenu);
   form.append('soupMenu', formData.value.soupMenu);
@@ -209,13 +338,13 @@ const submitForm = async () => {
     router.push(`/stores/${storeId}/menu`);
   } catch (error) {
     console.error('메뉴 등록 중 오류 발생:', error);
+    // 선택적으로 서버 측 유효성 검사 오류를 처리할 수 있습니다.
+    alert('메뉴 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
   }
 };
+
+// 페이지 메타데이터 설정
 onBeforeMount(() => {
   route.meta.title = '메뉴 등록';
 });
 </script>
-
-<style scoped>
-/* 필요한 경우 스타일 추가 */
-</style>
