@@ -1,11 +1,11 @@
 <template>
-  <div>ADMIN DASHBOARD</div>
+  <NuxtPage />
 </template>
 
 <script setup lang="ts">
 definePageMeta({
   layout: 'admin',
-  title: 'DashBoard',
+  middleware: ['admin-only'],
 });
 </script>
 

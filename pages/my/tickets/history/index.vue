@@ -3,21 +3,21 @@
     <div class="max-w-lg mx-auto">
       <div v-if="myHistory.length > 0">
         <TicketSummary
-          :purchasePrice="ticketData.purchasePrice"
-          :usedPrice="ticketData.usedPrice"
-          :remainingCount="ticketData.remainingCount"
-          :selectedMonth="selectedMonth"
-          :selectedYear="selectedYear"
-          @dateChanged="resetLoadItems"
+          :purchase-price="ticketData.purchasePrice"
+          :used-price="ticketData.usedPrice"
+          :remaining-count="ticketData.remainingCount"
+          :selected-month="selectedMonth"
+          :selected-year="selectedYear"
+          @date-changed="resetLoadItems"
         />
         <div class="mt-2">
           <TicketHistoryList
-            :myHistory="myHistory"
-            :selectedMonth="selectedMonth"
-            :selectedYear="selectedYear"
-            :hasMoreItems="hasMoreItems"
-            @loadMoreItems="loadMoreItems"
-            @resetLoadItems="resetLoadItems"
+            :my-history="myHistory"
+            :selected-month="selectedMonth"
+            :selected-year="selectedYear"
+            :has-more-items="hasMoreItems"
+            @load-more-items="loadMoreItems"
+            @reset-load-items="resetLoadItems"
           />
         </div>
       </div>
@@ -62,14 +62,18 @@ const fetchItems = async () => {
   if (!hasMoreItems.value) return;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/tickets/history?userId=1&month=${selectedMonth.value}&year=${selectedYear.value}&page=${page.value}&size=7`
+      `http://localhost:8080/api/v1/user/my/tickets/history?userId=1&month=${selectedMonth.value}&year=${selectedYear.value}&page=${page.value}&size=7`,
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     const fetchedData = await response.json();
 
-    if (fetchedData && fetchedData.combinedHistory && Array.isArray(fetchedData.combinedHistory)) {
+    if (
+      fetchedData &&
+      fetchedData.combinedHistory &&
+      Array.isArray(fetchedData.combinedHistory)
+    ) {
       ticketData.value = {
         purchasePrice: fetchedData.totalPurchasedPrice,
         usedPrice: fetchedData.totalUsedPrice,
