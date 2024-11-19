@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-2">
+  <div>
     <label class="block text-sm font-medium text-gray-700">주소</label>
     <div class="flex space-x-2">
       <input
@@ -41,7 +41,7 @@
     <!-- 모달 창 -->
     <div
       v-if="showModal"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
       @click.self="closeDaumPostcode"
     >
       <div
@@ -80,15 +80,18 @@ const emitAddressData = () => {
 };
 
 // 특정 값이 변경되면 emitAddressData 호출
-watch([postcode, address, detailAddress, extraAddress], emitAddressData);
+watch([postcode, address, detailAddress, extraAddress], () => {emitAddressData});
 
-useHead({
-  script: [
-    {
-      src: '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js',
-      async: true,
-    },
-  ],
+// 클라이언트에서만 실행되는 코드
+onMounted(() => {
+  // Daum 우편번호 API 스크립트 로드
+  if (typeof window !== 'undefined' && !window.daum) {
+    const script = document.createElement('script');
+    script.src =
+      '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.async = true;
+    document.head.appendChild(script);
+  }
 });
 
 const closeDaumPostcode = () => {
@@ -99,7 +102,8 @@ const execDaumPostcode = () => {
   showModal.value = true;
 
   nextTick(() => {
-    new window.daum.Postcode({
+    if (typeof window !== 'undefined' && window.daum) {
+      new window.daum.Postcode({
       oncomplete: (data) => {
         let addr = '';
         let extraAddr = '';
@@ -135,6 +139,7 @@ const execDaumPostcode = () => {
       width: '100%',
       height: '100%',
     }).embed(daumPostcodeContainer.value);
+    }
   });
 };
 </script>

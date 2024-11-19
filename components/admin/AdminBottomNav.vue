@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="relative bottom-0 flex justify-evenly max-h-screen max-w-lg w-full bg-slate-100 pt-2"
-  >
+  <div class="w-full bg-slate-100 pt-2 flex justify-evenly shadow-inner">
     <div>
       <NuxtLink :to="`/admin/stores/${storeId}`">
         <span class="block rounded-2xl border-2 border-solid bg-white p-2">

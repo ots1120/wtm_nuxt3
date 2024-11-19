@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-gray-100 flex flex-col justify-center">
-    <div class="relative px-4 py-10 bg-white">
+  <div class="bg-gray-100 flex flex-col justify-center min-h-screen">
+    <div class="relative px-4 bg-white">
       <div class="max-w-md mx-auto">
         <form class="space-y-2" @submit.prevent="submitForm">
           <!-- Email Section -->
@@ -17,13 +17,16 @@
                   v-model="email"
                   type="email"
                   placeholder="이메일을 입력해주세요"
-                  class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   :class="{ 'border-red-500': emailError }"
                 />
                 <button
                   type="button"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  :class="{ 'bg-green-500 hover:bg-green-600': emailVerified }"
+                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                  :class="{
+                    'bg-green-500': emailVerified,
+                    'text-white': emailVerified,
+                  }"
                   @click="checkEmail"
                 >
                   중복확인
@@ -35,7 +38,7 @@
                   'text-green-600': !emailError,
                   'text-red-600': emailError,
                 }"
-                class="text-xs mt-1"
+                class="text-xs"
               >
                 {{ emailMessage }}
               </p>
@@ -49,7 +52,7 @@
                 v-model="password"
                 type="password"
                 placeholder="비밀번호를 입력해주세요"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <div class="space-y-1">
                 <div class="flex items-center space-x-2">
@@ -58,7 +61,7 @@
                     :class="passwordStrengthClass"
                   ></div>
                 </div>
-                <p class="text-xs text-gray-500">
+                <p class="text-sm text-gray-500">
                   {{ passwordStrengthMessage }}
                 </p>
               </div>
@@ -72,7 +75,7 @@
                 v-model="passwordConfirm"
                 type="password"
                 placeholder="비밀번호를 다시 입력해주세요"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 :class="{ 'border-red-500': passwordMismatch }"
               />
               <p v-if="passwordMismatch" class="text-xs text-red-600 mt-1">
@@ -120,24 +123,28 @@
               />
             </client-only>
           </div>
-
-          <div>
-            <button
-              type="submit"
-              class="w-full bg-blue-500 text-white py-3 rounded-md font-medium hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              :disabled="!isBusinessVerified || !isFormValid || isSubmitting"
-            >
-              {{ isSubmitting ? '처리 중...' : '가입하기' }}
-            </button>
-            <!-- Error and Success Messages -->
-            <p v-if="showErrorMessage" class="text-xs text-red-600 mt-2">
-              모든 필수 항목을 입력하고 이메일 중복 확인을 완료해주세요.
-            </p>
-          </div>
         </form>
+
+        <div class="p-4 bg-white border-t">
+          <button
+            type="submit"
+            class="w-full bg-blue-500 text-white py-3 rounded-md font-medium hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            :disabled="!isBusinessVerified || !isFormValid || isSubmitting"
+            @click="submitForm"
+          >
+            {{ isSubmitting ? '처리 중...' : '가입하기' }}
+          </button>
+          <!-- Error and Success Messages -->
+          <p
+            v-if="showErrorMessage"
+            class="text-xs text-center text-red-600 mt-2"
+          >
+            모든 필수 항목을 입력하고 이메일 중복 확인을 완료해주세요.
+          </p>
+        </div>
         <div
           v-if="showSuccessModal"
-          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10"
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
         >
           <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
             <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
@@ -163,6 +170,7 @@
 </template>
 
 <script setup>
+import { useRuntimeConfig } from 'nuxt/app';
 import AdminPostAddressForm from '~/components/admin/AdminPostAddressForm.vue';
 
 const config = useRuntimeConfig();
@@ -192,6 +200,9 @@ const phoneError = ref(false);
 const isSubmitting = ref(false);
 const isBusinessVerified = ref(false);
 const showSuccessModal = ref(false);
+
+const config = useRuntimeConfig();
+const baseApiUrl = config.public.baseApiUrl;
 
 const handleBusinessVerification = (verified) => {
   isBusinessVerified.value = verified;
@@ -315,7 +326,7 @@ const checkEmail = async () => {
 
 const submitForm = async () => {
   // 필수 입력값 검증
-  if (!isBusinessVerified.value || isSubmitting.value || !isFormValid.value) {
+  if (isSubmitting.value || !isFormValid.value) {
     // 부족한 정보가 있을 때 showErrorMessage 활성화
     showErrorMessage.value = !isFormValid.value;
     showSuccessMessage.value = false;
