@@ -1,29 +1,36 @@
 <template>
-  <div class="h-screen flex flex-col overflow-hidden">
-    <!-- 상단 헤더 -->
-    <header
-      class="fixed top-0 left-0 right-0 mx-auto w-full max-w-lg h-16 flex items-center z-20 bg-white dark:bg-gray-900 shadow-md"
-    >
-      <UserSearchHeader />
-    </header>
+  <div class="min-h-screen bg-gray-100 flex justify-center">
+    <!-- Mobile container with fixed width -->
+    <div class="w-full max-w-md relative bg-white min-h-screen shadow-lg">
+      <UserSearchHeader
+        class="fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
+      />
 
-    <!-- 페이지 콘텐츠와 하단 네비게이션을 포함하는 영역 -->
-    <div
-      class="pb-24 z-50 flex-grow w-full max-w-lg mx-auto overflow-y-auto pt-16"
-    >
-      <!-- 페이지 콘텐츠 -->
-      <NuxtPage />
+      <!-- Scrollable content -->
+      <div class="flex-1 overflow-y-auto mt-16 mb-20">
+        <NuxtPage />
+      </div>
+
+      <!-- Fixed bottom navigation -->
+      <UserBottomNav
+        class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
+      />
     </div>
-
-    <!-- 하단 네비게이션 -->
-    <footer
-      class="sticky bottom-0 left-0 w-full max-w-lg h-32 flex items-center bg-white dark:bg-gray-900 shadow-md z-10 mx-auto"
-    >
-      <UserBottomNav />
-    </footer>
   </div>
 </template>
 
 <script setup lang="ts"></script>
 
-<style scoped></style>
+<style scoped>
+.mt-16 {
+  margin-top: 4rem; /* Adjust based on your header height */
+}
+.mb-20 {
+  margin-bottom: 5rem; /* Adjust based on your footer height */
+}
+
+/* Ensure the layout takes up at least the full viewport height */
+.min-h-screen {
+  min-height: 100vh;
+}
+</style>

@@ -2,7 +2,7 @@
 <template>
   <div class="flex justify-center">
     <div
-      class="flex w-1/2 max-w-lg flex-col items-center gap-4 rounded-lg bg-gray-100 p-7"
+      class="flex w-2/3 max-w-lg flex-col items-center gap-4 rounded-lg bg-gray-100 p-7"
     >
       <h3 class="w-full text-lg font-bold text-black">{{ storeName }}</h3>
       <p class="flex justify-between w-full text-gray-600">

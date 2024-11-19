@@ -255,7 +255,7 @@
     </div>
 
     <!-- 리뷰 쓰기 버튼 -->
-    <div class="fixed bottom-40 right-20 z-50">
+    <div v-if="isAuthenticated" class="fixed bottom-40 right-20 z-50">
       <WriteButton :push-route="`/stores/${storeId}/notices`" />
     </div>
   </div>
@@ -265,7 +265,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
-
+import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
 
 // 라우터 설정
@@ -274,6 +274,10 @@ const route = useRoute();
 
 // 라우트 파라미터에서 storeId를 가져옵니다.
 const storeId = route.params.storeId;
+
+// Auth Store 사용
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated); // 인증 상태 확인
 
 // 정렬 기준 상태: 최신순('date') 또는 평점순('rating')
 const sortBy = ref('date');

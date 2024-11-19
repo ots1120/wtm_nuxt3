@@ -105,10 +105,16 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BookmarkModal from '~/components/user/modal/BookmarkModal.vue';
+import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
 
 // 라우터 및 라우트 인스턴스
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
+
+// Pinia에서 username과 인증 상태 가져오기
+const username = computed(() => authStore.user?.username);
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 // 북마크 모달 상태
 const visible = ref(false);
