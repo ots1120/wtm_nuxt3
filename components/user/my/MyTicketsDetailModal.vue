@@ -26,6 +26,7 @@ import CryptoJS from 'crypto-js';
 import { useRuntimeConfig } from '#app';
 
 interface storeInfo {
+  userId: number;
   storeName: string;
   storeId: number;
   ticketAmount: number;
@@ -36,7 +37,6 @@ interface storeInfo {
 const props = defineProps<{
   storeInfo: storeInfo;
   ticketQuantity: number;
-  userId: number;
   type: string;
 }>();
 
@@ -45,7 +45,7 @@ const config = useRuntimeConfig();
 // QR 코드 URL을 동적으로 생성
 const qrCodeUrl = computed(() => {
   const data = {
-    userId: props.userId,
+    userId: props.storeInfo.userId,
     storeId: props.storeInfo.storeId,
     ticketQuantity: props.ticketQuantity,
     type: props.type

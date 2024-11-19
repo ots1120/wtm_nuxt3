@@ -166,8 +166,7 @@
 import PostAddressForm from '~/components/user/PostAddressForm.vue';
 
 definePageMeta({
-  title: '회원가입',
-  middleware: ['guest-only'],
+  title: '회원가입'
 });
 
 const config = useRuntimeConfig();

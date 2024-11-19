@@ -64,7 +64,6 @@
       <MyTicketsDetailModal
         :store-info="storeInfo"
         :ticket-quantity="ticketQuantity"
-        :user-id="userId"
         :type="modalType"
         @close-modal="closeModal"
       />
@@ -79,22 +78,28 @@ import DeviceDetector from 'device-detector-js';
 import MyTicketsDetailModal from '~/components/user/my/MyTicketsDetailModal.vue';
 
 interface storeInfo {
+  userId: number;
   storeName: string;
   storeId: number;
   ticketAmount: number;
   isBookmarked: boolean;
 }
 const storeInfo = ref<storeInfo>({
+  userId: 0,
   storeName: '',
   storeId: 0,
   ticketAmount: 0,
   isBookmarked: false,
 });
 
+// 여기가 pinia 전역변수
+// username 을 업데이트
+
 const isModalVisible = ref(false);
 const ticketQuantity = ref(1);
 const router = useRouter();
-const userId = 1;
+const authstore = useAuthStore();
+const username = authstore.user?.username;
 const modalType = ref<string>(''); // 추가된 타입 상태 변수
 
 const deviceDetector = new DeviceDetector();
@@ -109,11 +114,10 @@ const route = useRoute();
 const storeId = route.params.storeId;
 
 const { data, error } = await useFetch<storeInfo>(
-  `http://localhost:8080/api/v1/user/my/tickets/stores?storeId=${storeId}&userId=${userId}`,
+  `http://localhost:8080/api/v1/user/my/tickets/stores?username=${username}&storeId=${storeId}`,
 );
 
 if (data.value) {
-  console.log(data.value);
   storeInfo.value = data.value;
 } else if (error.value) {
   console.error('자세한 티켓 정보를 불러오는 데 실패했습니다', error.value);

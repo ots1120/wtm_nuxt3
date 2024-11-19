@@ -84,7 +84,10 @@ interface User {
 }
 
 const router = useRouter();
-const userId = 1;
+const route = useRoute();
+
+const authstore = useAuthStore();
+const username = authstore.user?.username;
 
 const user = ref<User>({
   email: '',
@@ -94,12 +97,7 @@ const user = ref<User>({
 
 // useFetch에서 User 타입을 지정
 const { data, error } = useFetch<User>(
-  `http://localhost:8080/api/v1/user/my?userId=${userId}`,
-  {
-    // headers: {
-    //   Authorization: `Bearer ${token}`
-    // },
-  },
+  `http://localhost:8080/api/v1/user/my?username=${username}`,
 );
 
 if (data.value) {
@@ -109,14 +107,13 @@ if (data.value) {
     profilePicture: `http://localhost:8080${data.value.profilePicture}`,
   };
 } else if (error.value) {
-  console.error('유저 정보를 불러오는 데 실패했습니다', error.value);
+  console.error('유저 정보를 불러오는 데 실패했습니다1', error.value);
 }
 
 const navigateTo = (path: string) => {
   router.push(path);
 };
 
-const route = useRoute();
 onBeforeMount(() => {
   route.meta.title = '내 정보';
 });

@@ -4,6 +4,14 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const authStore = useAuthStore();
   const { isAdmin, isAuthenticated, user } = storeToRefs(authStore);
 
+  // 예외 경로 설정
+  const exemptRoutes = ['/admin/signUp'];
+
+  // 현재 경로가 예외 경로에 포함되면 미들웨어 통과
+  if (exemptRoutes.includes(to.path)) {
+    return;
+  }
+
   if (!isAuthenticated.value) {
     return navigateTo('/signIn');
   }
