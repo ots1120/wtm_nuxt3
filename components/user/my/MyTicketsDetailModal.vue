@@ -51,7 +51,7 @@ const qrCodeUrl = computed(() => {
     ticketQuantity: props.ticketQuantity,
     type: props.type
   }
-  const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), config.public.SECRET_KEY).toString();
+  const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), config.public.qrSecretKey).toString();
 
   return encryptedData;
 
