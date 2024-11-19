@@ -2,11 +2,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
   typescript: { typeCheck: true },
   devtools: { enabled: true },
-  tailwindcss: {
-    // viewer: { endpoint: '/_tailwind', exportViewer: true },
+  // tailwindcss: {
+  //   viewer: { endpoint: '/_tailwind', exportViewer: true },
+  // },
+  imports: {
+    autoImport: true,
   },
   css: ['~/assets/css/reset.css', '~/assets/css/font.css'],
   runtimeConfig: {

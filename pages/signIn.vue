@@ -119,11 +119,14 @@ const baseApiUrl = config.public.baseApiUrl;
 
 definePageMeta({
   layout: 'login',
+  middleware: ['auth-check'],
 });
 const username = ref('');
 const password = ref('');
 const role = ref('USER');
 const loginErrorMessage = ref('');
+
+const authStore = useAuthStore();
 
 const onKakaoLogin = async () => {
   await navigateTo(`${baseApiUrl}/oauth2/authorization/kakao`, {
@@ -144,52 +147,22 @@ const onGoogleLogin = async () => {
 };
 
 const toSignUpPage = computed(() => {
-  return role.value === 'USER' ? '/user/signUp' : '/admin/signUp';
+  return role.value === 'USER' ? '/signUp' : '/admin/signUp';
 });
 
 const handleSignIn = async () => {
   try {
-    const response = await fetch(`${baseApiUrl}/api/v1/auth/user/signIn`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // 쿠키를 포함하여 요청
-      body: JSON.stringify({
-        username: username.value,
-        password: password.value,
-        role: role.value, // role 추가
-      }),
-    });
-    console.log(response);
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.log(errorData);
-      if (errorData.message === 'Role mismatch') {
-        loginErrorMessage.value = '선택한 계정 유형과 일치하지 않습니다.';
-      } else {
-        loginErrorMessage.value =
-          '로그인에 실패했습니다. 이메일이나 패스워드를 확인하고 다시 시도해 주세요.';
-      }
-      throw new Error(errorData.message);
-    }
+    await authStore.signIn(username.value, password.value, role.value);
 
-    // 헤더에서 토큰을 추출
-    const token = response.headers.get('Authorization');
-    if (token) {
-      // 로컬 스토리지에 저장 (또는 다른 저장소 사용 가능)
-      localStorage.setItem('Authorization', token);
-      console.log('토큰 저장 완료:', token);
-    } else {
-      console.warn('Authorization 헤더가 없습니다.');
+    // 성공 후 페이지 이동
+    if (authStore.isUser) {
+      await navigateTo('/');
+    } else if (authStore.isAdmin) {
+      await navigateTo('/admin');
     }
-    // 로그인 성공 후 Nuxt의 navigateTo로 user role에 따라 홈 경로로 이동
-    if (role.value === 'USER') await navigateTo('/');
-    else if (role.value === 'ADMIN') await navigateTo('/admin/dashboard');
   } catch (error) {
-    if (error instanceof Error) {
-      console.log(error.message); // 'message' 프로퍼티에 접근 가능
-    } else {
-      console.log('Unknown error occurred');
-    }
+    console.log(error);
+    loginErrorMessage.value = error.statusMessage || '로그인에 실패했습니다.';
   }
 };
 </script>
