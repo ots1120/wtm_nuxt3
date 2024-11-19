@@ -2,7 +2,7 @@
   <div class="h-screen flex flex-col overflow-hidden">
     <!-- 상단 헤더 -->
     <header
-      class="fixed top-0 left-0 right-0 mx-auto w-full max-w-lg h-16 flex items-center px-4 z-20 bg-white dark:bg-gray-900 shadow-md"
+      class="fixed top-0 left-0 right-0 mx-auto w-full max-w-lg h-16 flex items-center z-20 bg-white dark:bg-gray-900 shadow-md"
     >
       <UserSearchHeader />
     </header>

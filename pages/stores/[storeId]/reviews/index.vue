@@ -255,27 +255,8 @@
     </div>
 
     <!-- 리뷰 쓰기 버튼 -->
-    <div class="fixed bottom-32 left-1/2 transform -translate-x-1/2 z-10">
-      <button
-        class="flex items-center space-x-2 bg-orange-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg"
-        @click="goToReviewPage"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M5 12h14M12 5l7 7-7 7"
-          />
-        </svg>
-        <span>리뷰 쓰기</span>
-      </button>
+    <div class="fixed bottom-40 right-20 z-50">
+      <WriteButton :push-route="`/stores/${storeId}/notices`" />
     </div>
   </div>
 </template>
@@ -285,6 +266,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+
+import WriteButton from '~/components/admin/ui/WriteButton.vue';
 
 // 라우터 설정
 const router = useRouter();
@@ -320,11 +303,6 @@ const isLoading = ref(false); // 로딩 상태 관리
 
 // Intersection Observer를 위한 ref
 const infiniteScrollTrigger = ref(null);
-
-// 리뷰 작성 페이지로 이동하는 함수
-const goToReviewPage = () => {
-  router.push(`/stores/${storeId}/reviews/new`);
-};
 
 // 정렬 기준을 변경하는 함수
 const sortReviews = (criteria) => {

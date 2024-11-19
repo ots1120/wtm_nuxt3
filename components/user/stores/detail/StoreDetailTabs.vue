@@ -16,21 +16,21 @@
     </NuxtLink>
     <NuxtLink
       :to="`/stores/${storeId}/tickets`"
-      :class="{ 'text-blue-500 border-blue-500': isActiveTab('ticket') }"
+      :class="{ 'text-blue-500 border-blue-500': isActiveTab('tickets') }"
       class="px-4 py-2 border-b-2"
     >
       식권
     </NuxtLink>
     <NuxtLink
       :to="`/stores/${storeId}/reviews`"
-      :class="{ 'text-blue-500 border-blue-500': isActiveTab('review') }"
+      :class="{ 'text-blue-500 border-blue-500': isActiveTab('reviews') }"
       class="px-4 py-2 border-b-2"
     >
       리뷰
     </NuxtLink>
     <NuxtLink
       :to="`/stores/${storeId}/notices`"
-      :class="{ 'text-blue-500 border-blue-500': isActiveTab('notice') }"
+      :class="{ 'text-blue-500 border-blue-500': isActiveTab('notices') }"
       class="px-4 py-2 border-b-2"
     >
       공지

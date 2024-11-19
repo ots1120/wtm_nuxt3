@@ -7,6 +7,7 @@
         class="p-4"
         :store-name="ticketInf.name"
         :remaining-tickets="ticketInf.remainingTickets"
+        :store-id="storeId"
       />
     </div>
     <div v-else>
@@ -16,11 +17,17 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
+import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import StoreDetailTicket from '~/components/user/stores/detail/StoreDetailTicket.vue';
 
-// 레이아웃에서 제공된 storeId를 inject로 받아옵니다.
-const storeId = inject('storeId');
+// storeId를 라우트 파라미터에서 가져오는 예시
+const route = useRoute();
+const storeId = route.params.storeId; // 라우트 설정에 따라 변경 필요
+
+if (!storeId) {
+  console.error('storeId가 존재하지 않습니다.');
+}
 
 // 티켓 데이터를 위한 상태 정의
 const ticketInf = ref(null);

@@ -6,7 +6,7 @@
         <form
           class="space-y-4"
           enctype="multipart/form-data"
-          @submit.prevent="submitForm"
+          @submit.prevent="handleSubmit"
         >
           <!-- 메뉴 사진 업로드 -->
           <div>
@@ -161,12 +161,21 @@
         </form>
       </section>
     </main>
+
+    <!-- Menu Registration Confirmation Modal -->
+    <MenuRegModal
+      :visible="isModalVisible"
+      :store-id="storeId"
+      @cancel="hideModal"
+      @confirm="submitToServer"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from '#app';
+import MenuRegModal from '~/components/user/modal/MenuRegModal.vue'; // Adjust the path as necessary
 
 // 폼 데이터 초기화
 const formData = ref({
@@ -188,7 +197,10 @@ const errors = reactive({
 // 라우트 및 라우터 정보 가져오기
 const route = useRoute();
 const router = useRouter();
-const storeId = route.params.storeId;
+const storeId = parseInt(route.params.storeId, 10); // Ensure storeId is a number
+
+// Modal visibility state
+const isModalVisible = ref(false);
 
 // 파일 선택 시 미리보기 추가
 const onFileChange = (event) => {
@@ -278,16 +290,31 @@ const validateForm = () => {
   return isValid;
 };
 
+// Modal control functions
+const showModal = () => {
+  isModalVisible.value = true;
+};
+
+const hideModal = () => {
+  isModalVisible.value = false;
+};
+
 // 폼 제출 핸들러
-const submitForm = async () => {
-  if (!validateForm()) {
+const handleSubmit = () => {
+  if (validateForm()) {
+    showModal();
+  } else {
     // 첫 번째 에러로 스크롤 (선택 사항)
     const firstError = document.querySelector('.text-red-500');
     if (firstError) {
       firstError.scrollIntoView({ behavior: 'smooth' });
     }
-    return;
   }
+};
+
+// 실제 폼 제출 함수
+const submitToServer = async (storeId) => {
+  hideModal();
 
   const form = new FormData();
   form.append('mainMenu', formData.value.mainMenu);
@@ -312,6 +339,7 @@ const submitForm = async () => {
   } catch (error) {
     console.error('메뉴 등록 중 오류 발생:', error);
     // 선택적으로 서버 측 유효성 검사 오류를 처리할 수 있습니다.
+    alert('메뉴 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
   }
 };
 
@@ -320,10 +348,3 @@ onBeforeMount(() => {
   route.meta.title = '메뉴 등록';
 });
 </script>
-
-<style scoped>
-/* 필요한 경우 스타일 추가 */
-.text-red-500 {
-  color: #f56565;
-}
-</style>

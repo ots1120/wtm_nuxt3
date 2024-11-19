@@ -63,7 +63,7 @@
         <!-- 선택된 식당이 있을 때 상세 정보 표시 -->
         <div v-if="selectedStore" class="p-4 overflow-y-auto">
           <button
-            class="mb-4 text-blue-500 dark:text-blue-400 underline"
+            class="mb-4 px-3 py-1.5 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-md shadow-md hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-in-out transform hover:scale-105"
             @click="clearSelection"
           >
             전체 목록 보기
