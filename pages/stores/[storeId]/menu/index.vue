@@ -39,13 +39,20 @@
         <form action="#" method="post" class="w-full">
           <button
             class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg w-full transition hover:bg-gray-400"
-            @click.prevent="goToMenuRegPage"
+            @click.prevent="RegAction"
           >
             메뉴 등록하기
           </button>
         </form>
       </div>
     </div>
+
+    <!-- 로그인 요청 모달 -->
+    <LoginPromptModal
+      v-if="loginModalVisible"
+      @cancel="closeLoginModal"
+      @confirm="redirectToLogin"
+    />
   </div>
 </template>
 
@@ -53,6 +60,11 @@
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useFetch } from '#app'; // 필요에 따라 경로를 조정하세요.
+import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
+import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
+
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 // 메뉴 항목의 인터페이스 정의
 interface MenuItem {
@@ -78,6 +90,35 @@ const router = useRouter();
 function goToMenuRegPage() {
   router.push(`/stores/${storeId}/menu/new`);
 }
+
+// 로그인 요청 모달 상태
+const loginModalVisible = ref(false);
+
+// 로그인 요청 모달 열기 함수
+const openLoginModal = () => {
+  loginModalVisible.value = true;
+};
+
+// 로그인 요청 모달 닫기 함수
+const closeLoginModal = () => {
+  loginModalVisible.value = false;
+};
+
+// 로그인 페이지로 리디렉션 함수
+const redirectToLogin = () => {
+  router.push(`/signIn`); // 라우터 설정에 따라 경로 또는 이름 변경
+};
+
+// 저장 버튼 클릭 시 동작
+const RegAction = () => {
+  if (isAuthenticated.value) {
+    // 인증된 사용자라면 북마크 토글 처리
+    goToMenuRegPage();
+  } else {
+    // 인증되지 않은 사용자라면 로그인 요청 모달 열기
+    openLoginModal();
+  }
+};
 
 // useFetch를 setup 함수의 최상위 레벨에서 사용합니다.
 const { data: menuData, error: menuError } = useFetch<MenuResponse>(

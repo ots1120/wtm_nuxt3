@@ -92,19 +92,27 @@
 
     <!-- Bookmark Modal -->
     <BookmarkModal
-      v-if="visible"
-      :visible="visible"
+      v-if="bookmarkModalVisible"
+      :visible="bookmarkModalVisible"
       :store-id="selectedStoreId"
-      @cancel="closeModal"
+      @cancel="closeBookmarkModal"
       @confirm="confirmDelete"
+    />
+
+    <!-- 로그인 요청 모달 -->
+    <LoginPromptModal
+      v-if="loginModalVisible"
+      @cancel="closeLoginModal"
+      @confirm="redirectToLogin"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BookmarkModal from '~/components/user/modal/BookmarkModal.vue';
+import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
 import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
 
 // 라우터 및 라우트 인스턴스
@@ -117,14 +125,14 @@ const username = computed(() => authStore.user?.username);
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 // 북마크 모달 상태
-const visible = ref(false);
+const bookmarkModalVisible = ref(false);
 const selectedStoreId = ref<number | null>(null);
+
+// 로그인 요청 모달 상태
+const loginModalVisible = ref(false);
 
 // 현재 북마크 상태
 const isBookmarked = ref(false);
-
-// 현재 사용자 ID (실제 애플리케이션에서는 인증된 사용자 ID를 사용)
-const userId = 1;
 
 // 스토어 ID 가져오기
 const storeId = Number(route.params.storeId);
@@ -133,11 +141,12 @@ const storeId = Number(route.params.storeId);
 const fetchBookmarkStatus = async () => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/bookmark?userId=${userId}`,
+      `http://localhost:8080/api/v1/stores/${storeId}/bookmark`,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'X-Username': username.value || 'default-username', // username 기본값 설정
         },
       },
     );
@@ -150,7 +159,7 @@ const fetchBookmarkStatus = async () => {
     isBookmarked.value = data.isBookmarked;
   } catch (error) {
     console.error('북마크 상태 조회 중 오류 발생:', error);
-    alert('북마크 상태를 가져오는 데 문제가 발생했습니다.');
+    console.log('북마크 상태를 가져오는 데 문제가 발생했습니다.');
   }
 };
 
@@ -192,7 +201,6 @@ async function navigateToPath() {
     window.open(naverMapsUrl, '_blank');
   } catch (error) {
     console.error('경로 API 호출 중 오류 발생:', error);
-    alert('경로를 가져오는 데 문제가 발생했습니다.');
   }
 }
 
@@ -200,12 +208,12 @@ async function navigateToPath() {
 const addBookmark = async (storeId: number) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/bookmarks?storeId=${storeId}&userId=${userId}`,
+      `http://localhost:8080/api/v1/stores/${storeId}/bookmark`,
       {
         method: 'POST',
-        body: JSON.stringify({ storeId, userId }),
         headers: {
           'Content-Type': 'application/json',
+          'X-Username': username.value || '', // 기본값 설정
         },
       },
     );
@@ -218,7 +226,6 @@ const addBookmark = async (storeId: number) => {
     console.log('북마크가 추가되었습니다.');
   } catch (error) {
     console.error('북마크 추가에 실패했습니다:', error);
-    alert('북마크를 추가하는 데 실패했습니다.');
   }
 };
 
@@ -226,11 +233,12 @@ const addBookmark = async (storeId: number) => {
 const deleteBookmark = async (storeId: number) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/bookmarks?storeId=${storeId}&userId=${userId}`,
+      `http://localhost:8080/api/v1/stores/${storeId}/bookmark`,
       {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'X-Username': username.value || '', // 기본값 설정
         },
       },
     );
@@ -245,7 +253,7 @@ const deleteBookmark = async (storeId: number) => {
     console.error('북마크 삭제에 실패했습니다:', error);
     alert('북마크를 삭제하는 데 실패했습니다.');
   } finally {
-    closeModal();
+    closeBookmarkModal();
   }
 };
 
@@ -253,7 +261,7 @@ const deleteBookmark = async (storeId: number) => {
 const handleBookmarkToggle = async () => {
   if (isBookmarked.value) {
     // 북마크가 되어 있는 경우 삭제 확인 모달 열기
-    openModal(storeId);
+    openBookmarkModal(storeId);
   } else {
     // 북마크가 되어 있지 않은 경우 바로 추가
     await addBookmark(storeId);
@@ -261,20 +269,41 @@ const handleBookmarkToggle = async () => {
 };
 
 // 저장 버튼 클릭 시 동작
-function saveAction() {
-  handleBookmarkToggle();
-}
-
-// 모달 열기 함수
-const openModal = (storeId: number) => {
-  selectedStoreId.value = storeId;
-  visible.value = true;
+const saveAction = () => {
+  if (isAuthenticated.value) {
+    // 인증된 사용자라면 북마크 토글 처리
+    handleBookmarkToggle();
+  } else {
+    // 인증되지 않은 사용자라면 로그인 요청 모달 열기
+    openLoginModal();
+  }
 };
 
-// 모달 닫기 함수
-const closeModal = () => {
-  visible.value = false;
+// 북마크 모달 열기 함수
+const openBookmarkModal = (storeId: number) => {
+  selectedStoreId.value = storeId;
+  bookmarkModalVisible.value = true;
+};
+
+// 북마크 모달 닫기 함수
+const closeBookmarkModal = () => {
+  bookmarkModalVisible.value = false;
   selectedStoreId.value = null;
+};
+
+// 로그인 요청 모달 열기 함수
+const openLoginModal = () => {
+  loginModalVisible.value = true;
+};
+
+// 로그인 요청 모달 닫기 함수
+const closeLoginModal = () => {
+  loginModalVisible.value = false;
+};
+
+// 로그인 페이지로 리디렉션 함수
+const redirectToLogin = () => {
+  router.push(`/signIn`); // 라우터 설정에 따라 경로 또는 이름 변경
 };
 
 // 모달에서 삭제 확인 시 동작
@@ -285,7 +314,7 @@ const confirmDelete = async () => {
 };
 
 // 공유 버튼 동작
-function shareContent() {
+const shareContent = () => {
   if (navigator.share) {
     navigator
       .share({
@@ -300,9 +329,9 @@ function shareContent() {
         console.error('공유 실패:', error);
       });
   } else {
-    alert('이 브라우저에서는 공유 기능을 지원하지 않습니다.');
+    console.log('이 브라우저에서는 공유 기능을 지원하지 않습니다.');
   }
-}
+};
 </script>
 
 <style scoped>
