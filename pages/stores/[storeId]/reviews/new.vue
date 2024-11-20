@@ -147,10 +147,16 @@
 import { ref, reactive, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useNavigationState } from '~/composables/useNavigationState';
+import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
 
 // 현재 경로에서 storeId 가져오기
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
+
+// Pinia에서 username과 인증 상태 가져오기
+const username = computed(() => authStore.user?.username);
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 const ratings = ref({
   taste: 0,
@@ -296,12 +302,14 @@ const submitReview = async () => {
   });
 
   try {
-    
     const response = await $fetch(
       `http://localhost:8080/api/v1/stores/${storeId}/ticketHistoryUsage/${ticketHistoryUsageId}/reviews`,
       {
         method: 'POST',
         body: formData,
+        headers: {
+          'X-Username': username.value, // Pinia에서 가져온 username을 헤더에 추가
+        },
       },
     );
     console.log('리뷰가 성공적으로 등록되었습니다.', response);
