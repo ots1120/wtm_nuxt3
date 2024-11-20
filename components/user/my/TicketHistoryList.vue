@@ -19,7 +19,7 @@
             <div v-if="!history.hasReview && history.type === 'usage'">
               <a
               class="cursor-pointer"
-              @click.prevent="navigateToWithState(history.id)"
+              @click.prevent="navigateToWithState(history.id, history.storeId)"
               >
               <span class="text-sm text-blue-800">글쓰기</span>
             </a>
@@ -34,8 +34,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
+import { useNavigationState } from '~/composables/useNavigationState';
 
 interface TicketHistory {
+  storeId: number;
   id: number;
   formattedRegDate: string;
   price: number;
@@ -86,11 +88,13 @@ const setupObserver = () => {
     intersectionObserver.observe(observerTarget.value);
   }
 };
+const { setState } = useNavigationState();
 
-const navigateToWithState = (id: number) => {
+const navigateToWithState = (ticketHistoryUsageId: number, storeId: number) => {
+  setState('ticketHistoryUsageId', ticketHistoryUsageId);
+  setState('storeId', storeId);
   router.push({
-    path: '/my/settings',
-    state: { id }
+    path: `/stores/${storeId}/reviews/new`
   });
 };
 

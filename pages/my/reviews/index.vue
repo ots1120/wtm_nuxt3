@@ -36,7 +36,9 @@ interface Review {
   reviewImgUrl: string;
 }
 const reviews = ref<Review[]>([]);
-const userId = 1;
+
+const authstore = useAuthStore();
+const username = authstore.user?.username;
 
 // 모달 상태 관리
 const visible = ref(false);
@@ -56,8 +58,7 @@ const closeModal = () => {
 
 // 컴포넌트 생성 시 리뷰 데이터를 가져옴
 const { data, error } = useFetch<Review[]>(
-  `http://localhost:8080/api/v1/user/my/reviews?userId=${userId}`,
-  {},
+  `http://localhost:8080/api/v1/user/my/reviews?username=${username}`,
 );
 
 if (data.value) {
@@ -71,13 +72,12 @@ if (data.value) {
 
 const deleteCard = async (reviewId: number) => {
   try {
-    console.log(reviewId);
     // 백엔드에 DELETE 요청을 보내 북마크를 삭제
-    const userId = 1; // 실제로는 적절한 userId를 사용해야 합니다
     const { data, error } = await useFetch(
-      `http://localhost:8080/api/v1/user/my/reviews?reviewId=${reviewId}&userId=${userId}`,
+      `http://localhost:8080/api/v1/user/my/reviews`,
       {
         method: 'DELETE',
+        body: JSON.stringify({ reviewId, username }),
       },
     );
 
@@ -89,8 +89,7 @@ const deleteCard = async (reviewId: number) => {
 
     // 최신 북마크 데이터를 다시 가져오기
     const { data: updatedData, error: fetchError } = await useFetch<Review[]>(
-      `http://localhost:8080/api/v1/user/my/reviews?userId=${userId}`,
-      {},
+      `http://localhost:8080/api/v1/user/my/reviews?username=${username}`,
     );
 
     if (fetchError.value) {
