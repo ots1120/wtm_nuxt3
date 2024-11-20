@@ -253,6 +253,9 @@ import ConfirmModal from '~/components/modal/BasicModal.vue';
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
+const authstore = useAuthStore();
+const adminId = Number(authstore.user?.userId);
+
 onBeforeMount(() => {
   route.meta.title = '메뉴관리';
 });
@@ -378,7 +381,7 @@ const allImages = ref<ImageItem[]>([]);
 const currentImageIndex = ref(0);
 
 // 현재 로그인된 사용자 ID (예시로 1을 사용, 실제로는 로그인한 사용자 정보에서 가져와야 함)
-const currentUserId = ref<number>(1);
+const currentUserId = ref<number>(adminId);
 
 // 메뉴 추가
 const addMenu = () => {

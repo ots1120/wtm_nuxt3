@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center">
+  <div class="flex flex-col items-center pt-10">
     <div
       class="w-32 h-32 rounded-full border overflow-hidden flex items-center justify-center"
     >
@@ -116,6 +116,11 @@
         <span>식당 정보 관리</span>
       </button>
     </div>
+    <div
+      class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
+    >
+      <AdminBottomNav />
+    </div>
   </div>
 </template>
 
@@ -123,16 +128,13 @@
 import { useRouter, useRoute } from 'vue-router';
 import { ref, watchEffect } from 'vue';
 import { useFetch, useRuntimeConfig } from '#app';
+import AdminBottomNav from '~/components/admin/AdminBottomNav.vue';
 
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
-onBeforeMount(() => {
-  route.meta.title = '대시보드';
-});
-
 definePageMeta({
-  layout: 'admin',
+  layout: false,
 });
 
 // 라우터 및 라우트 초기화
