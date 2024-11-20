@@ -43,7 +43,6 @@ interface Bookmark {
 
 const authstore = useAuthStore();
 const username = authstore.user?.username;
-const storeId = authstore.user?.storeId;
 
 // bookmarks를 ref로 정의
 const bookmarks = ref<Bookmark[]>([]);
@@ -103,7 +102,7 @@ const confirmDelete = async (storeId: number) => {
 
 // 북마크 데이터를 불러오는 함수
 const { data, error } = useFetch<Bookmark[]>(
-  `http://localhost:8080/api/v1/user/my/bookmarks?username=${username}&storeId=${storeId}`,
+  `http://localhost:8080/api/v1/user/my/bookmarks?username=${username}`,
 );
 
 if (data.value) {
