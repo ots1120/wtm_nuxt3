@@ -255,27 +255,8 @@
     </div>
 
     <!-- 리뷰 쓰기 버튼 -->
-    <div class="fixed bottom-32 left-1/2 transform -translate-x-1/2 z-10">
-      <button
-        class="flex items-center space-x-2 bg-orange-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg"
-        @click="goToReviewPage"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M5 12h14M12 5l7 7-7 7"
-          />
-        </svg>
-        <span>리뷰 쓰기</span>
-      </button>
+    <div v-if="isAuthenticated" class="fixed bottom-40 right-20 z-50">
+      <WriteButton :push-route="`/stores/${storeId}/notices`" />
     </div>
   </div>
 </template>
@@ -284,7 +265,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
+import WriteButton from '~/components/admin/ui/WriteButton.vue';
 
 // 라우터 설정
 const router = useRouter();
@@ -292,6 +274,10 @@ const route = useRoute();
 
 // 라우트 파라미터에서 storeId를 가져옵니다.
 const storeId = route.params.storeId;
+
+// Auth Store 사용
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated); // 인증 상태 확인
 
 // 정렬 기준 상태: 최신순('date') 또는 평점순('rating')
 const sortBy = ref('date');
@@ -303,6 +289,9 @@ const reviewStats = ref({
 });
 const reviewCount = ref(0);
 const reviews = ref([]);
+
+// 데이터 로딩 상태
+const isReviewStatsLoading = ref(true);
 
 // 이미지 컨테이너 참조와 스크롤 버튼 표시 여부를 관리하는 상태
 const imageContainers = ref([]);
@@ -317,11 +306,6 @@ const isLoading = ref(false); // 로딩 상태 관리
 
 // Intersection Observer를 위한 ref
 const infiniteScrollTrigger = ref(null);
-
-// 리뷰 작성 페이지로 이동하는 함수
-const goToReviewPage = () => {
-  router.push(`/stores/${storeId}/reviews/new`);
-};
 
 // 정렬 기준을 변경하는 함수
 const sortReviews = (criteria) => {
@@ -347,15 +331,20 @@ if (reviewCountData.value) {
 const { data: reviewStatsData, error: reviewStatsError } = useFetch(
   `http://localhost:8080/api/v1/stores/${storeId}/review-stats`,
 );
-if (reviewStatsData.value) {
-  reviewStats.value.overallAverageScore =
-    reviewStatsData.value.overallAverageScore;
-  reviewStats.value.reviewScaleAverages =
-    reviewStatsData.value.reviewScaleAverages.map((scale) => ({
-      scaleName: scale.scaleName,
-      averageScore: scale.averageScore,
-    }));
-}
+
+// 리뷰 통계 데이터가 변경될 때마다 상태 업데이트
+watch(reviewStatsData, (newData) => {
+  if (newData) {
+    reviewStats.value.overallAverageScore = newData.overallAverageScore;
+    reviewStats.value.reviewScaleAverages = newData.reviewScaleAverages.map(
+      (scale) => ({
+        scaleName: scale.scaleName,
+        averageScore: scale.averageScore,
+      }),
+    );
+    isReviewStatsLoading.value = false;
+  }
+});
 
 // 계산된 속성 정의
 const reviewScaleAverages = computed(

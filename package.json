@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxi build",
-    "dev": "nuxi dev --host",
+    "dev": "nuxt dev --host",
     "generate": "nuxi generate",
     "preview": "nuxi preview",
     "postinstall": "nuxi prepare",
