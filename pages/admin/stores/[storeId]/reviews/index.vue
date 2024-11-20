@@ -9,11 +9,13 @@
         <!-- 유저 프로필 사진 영역 -->
         <div class="flex items-start justify-center p-3">
           <div v-if="review.userProfilePicture">
-            <img
-              :src="review.userProfilePicture"
-              alt="profile"
-              class="h-14 w-14 rounded-full object-cover"
-            />
+            <div class="h-14 w-14 rounded-full overflow-hidden">
+              <img
+                :src="review.userProfilePicture"
+                alt="profile"
+                class="h-full w-full object-cover"
+              />
+            </div>
           </div>
           <div v-else>
             <svg

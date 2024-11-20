@@ -239,6 +239,7 @@ const fetchStoreData = async () => {
       },
     };
     isDataLoaded.value = true;
+    console.log(store.value.storeAddress);
   } catch (error) {
     console.error('데이터 요청 중 오류 발생:', error);
     isDataLoaded.value = false;
@@ -349,6 +350,7 @@ const confirmSave = async () => {
     if (response.ok) {
       console.log('데이터가 성공적으로 저장되었습니다.');
       modal.value.visible = false;
+      alert('저장 완료');
     } else {
       console.error('저장 중 오류 발생:', await response.text());
     }
