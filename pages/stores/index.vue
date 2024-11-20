@@ -45,69 +45,106 @@
     <transition name="slide-up">
       <div
         v-if="isSheetOpen"
-        class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-t-lg shadow-lg overflow-hidden transition-all duration-300 w-full max-w-lg z-30"
+        class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-t-lg shadow-lg transition-all duration-300 w-full max-w-md z-30"
         :style="{ height: selectedStore ? '30%' : sheetHeight }"
-        @touchstart="startTouch"
-        @touchmove="onTouchMove"
-        @touchend="endTouch"
       >
         <!-- 드래그 핸들 영역 -->
         <div
           class="h-8 bg-gray-200 dark:bg-gray-700 flex justify-center items-center cursor-pointer"
-          @click="toggleSheet"
+          @touchstart="startTouch"
+          @touchmove="onTouchMove"
+          @touchend="endTouch"
         >
           <span
             class="w-12 h-1 bg-gray-400 dark:bg-gray-500 rounded-full"
           ></span>
         </div>
 
-        <!-- 선택된 식당 상세 정보 -->
-        <div v-if="selectedStore" class="p-4 overflow-y-auto">
-          <button
-            class="mb-4 px-3 py-1.5 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-md shadow-md hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-in-out transform hover:scale-105"
-            @click="clearSelection"
-          >
-            전체 목록 보기
-          </button>
-          <!-- 식당 상세 정보 표시 -->
-          <div
-            class="flex items-start space-x-4 border-b border-gray-200 dark:border-gray-700 pb-4"
-          >
-            <!-- 식당 이미지 섹션 -->
-            <div
-              class="bg-gray-200 dark:bg-gray-700 w-24 h-24 rounded-lg overflow-hidden"
+        <!-- 콘텐츠 영역 -->
+        <div class="overflow-y-auto h-full">
+          <!-- 선택된 식당 상세 정보 -->
+          <div v-if="selectedStore" class="p-4">
+            <button
+              class="mb-4 px-3 py-1.5 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-md shadow-md hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-in-out transform hover:scale-105"
+              @click="clearSelection"
             >
-              <img
-                :src="selectedStore.profilePicture"
-                alt="Store Image"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-
-            <!-- 식당 정보 섹션 -->
-            <div class="flex-1">
-              <h2
-                class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200"
+              전체 목록 보기
+            </button>
+            <!-- 식당 상세 정보 표시 -->
+            <div
+              class="flex items-start space-x-4 border-b border-gray-200 dark:border-gray-700 pb-4"
+            >
+              <!-- 식당 이미지 섹션 -->
+              <div
+                class="bg-gray-200 dark:bg-gray-700 w-24 h-24 rounded-lg overflow-hidden"
               >
-                {{ selectedStore.name }}
-                <span class="text-yellow-500"
-                  >⭐ {{ selectedStore.rating }}</span
+                <img
+                  :src="selectedStore.profilePicture"
+                  alt="Store Image"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+
+              <!-- 식당 정보 섹션 -->
+              <div class="flex-1">
+                <h2
+                  class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200"
                 >
-              </h2>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                운영시간 : {{ selectedStore.operatingHours }}
-              </p>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                가격 : {{ selectedStore.price }}원
-              </p>
+                  {{ selectedStore.name }}
+                  <span class="text-yellow-500"
+                    >⭐ {{ selectedStore.rating }}</span
+                  >
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  운영시간 : {{ selectedStore.operatingHours }}
+                </p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  가격 : {{ selectedStore.price }}원
+                </p>
+                <button
+                  class="mt-2 px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
+                  @click="goToStoreDetail(selectedStore.storeId)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                  <span>상세 보기</span>
+                </button>
+              </div>
+
+              <!-- 북마크 버튼 -->
               <button
-                class="mt-2 px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
-                @click="goToStoreDetail(selectedStore.storeId)"
+                class="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200 rounded-full"
+                aria-label="북마크 토글"
+                @click.stop="
+                  attemptToggleBookmark(selectedStore, selectedStoreIndex)
+                "
               >
                 <svg
+                  v-if="selectedStore.isBookmarked"
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
+                  class="h-6 w-6 text-blue-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2H5z" />
+                </svg>
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 dark:text-gray-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -116,160 +153,129 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2H5z"
                   />
                 </svg>
-                <span>상세 보기</span>
               </button>
             </div>
-
-            <!-- 북마크 버튼 -->
-            <button
-              class="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200 rounded-full"
-              aria-label="북마크 토글"
-              @click.stop="
-                attemptToggleBookmark(selectedStore, selectedStoreIndex)
-              "
-            >
-              <svg
-                v-if="selectedStore.isBookmarked"
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 text-blue-500"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2H5z" />
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 text-gray-400 dark:text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2H5z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- 식당 목록 -->
-        <div
-          v-else
-          class="overflow-y-auto"
-          :style="{ maxHeight: 'calc(100vh - 100px)' }"
-        >
-          <!-- 로딩 스피너 -->
-          <div v-if="isLoading" class="flex justify-center items-center h-full">
-            <!-- 스피너 아이콘 -->
-            <svg
-              class="animate-spin h-8 w-8 text-blue-500"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8z"
-              />
-            </svg>
           </div>
 
-          <!-- 검색 결과 없음 메시지 -->
+          <!-- 식당 목록 -->
           <div
-            v-if="!isLoading && filteredStores.length === 0"
-            class="m-4 text-center text-gray-500 dark:text-gray-400"
+            v-else
+            class="overflow-y-auto"
+            :style="{ maxHeight: 'calc(100vh - 100px)' }"
           >
-            검색 결과가 없습니다.
-          </div>
-
-          <!-- 식당 목록 표시 -->
-          <div
-            v-for="(store, index) in filteredStores"
-            :key="store.storeId"
-            :ref="(el) => (storeRefs[store.storeId] = el)"
-            class="m-3 flex items-start space-x-4 border-b border-gray-200 dark:border-gray-700 pb-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-            :class="{
-              'bg-gray-100 dark:bg-gray-700': store.storeId === selectedStoreId,
-            }"
-            tabindex="0"
-            @click="goToStoreDetail(store.storeId)"
-            @keyup.enter="goToStoreDetail(store.storeId)"
-          >
-            <!-- 식당 이미지 섹션 -->
+            <!-- 로딩 스피너 -->
             <div
-              class="bg-gray-200 dark:bg-gray-700 w-16 h-16 rounded-lg overflow-hidden"
+              v-if="isLoading"
+              class="flex justify-center items-center h-full"
             >
-              <img
-                :src="store.profilePicture"
-                alt="Store Image"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-
-            <!-- 식당 정보 섹션 -->
-            <div class="flex-1">
-              <h2
-                class="text-base md:text-lg font-semibold text-gray-800 dark:text-gray-200"
-              >
-                {{ store.name }}
-                <span class="text-yellow-500">⭐ {{ store.rating }}</span>
-              </h2>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                운영시간 : {{ store.operatingHours }}
-              </p>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                가격 : {{ store.price }}원
-              </p>
-            </div>
-
-            <!-- 북마크 버튼 -->
-            <button
-              class="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
-              aria-label="북마크 토글"
-              @click.stop="attemptToggleBookmark(store, index)"
-            >
+              <!-- 스피너 아이콘 -->
               <svg
-                v-if="store.isBookmarked"
+                class="animate-spin h-8 w-8 text-blue-500"
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 text-blue-500"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2H5z" />
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 text-gray-400 dark:text-gray-500"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
               >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2H5z"
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
                 />
               </svg>
-            </button>
+            </div>
+
+            <!-- 검색 결과 없음 메시지 -->
+            <div
+              v-if="!isLoading && filteredStores.length === 0"
+              class="m-4 text-center text-gray-500 dark:text-gray-400"
+            >
+              검색 결과가 없습니다.
+            </div>
+
+            <!-- 식당 목록 표시 -->
+            <div
+              v-for="(store, index) in filteredStores"
+              :key="store.storeId"
+              :ref="(el) => (storeRefs[store.storeId] = el)"
+              class="m-3 flex items-start space-x-4 border-b border-gray-200 dark:border-gray-700 pb-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+              :class="{
+                'bg-gray-100 dark:bg-gray-700':
+                  store.storeId === selectedStoreId,
+              }"
+              tabindex="0"
+              @click="goToStoreDetail(store.storeId)"
+              @keyup.enter="goToStoreDetail(store.storeId)"
+            >
+              <!-- 식당 이미지 섹션 -->
+              <div
+                class="bg-gray-200 dark:bg-gray-700 w-16 h-16 rounded-lg overflow-hidden"
+              >
+                <img
+                  :src="store.profilePicture"
+                  alt="Store Image"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+
+              <!-- 식당 정보 섹션 -->
+              <div class="flex-1">
+                <h2
+                  class="text-base md:text-lg font-semibold text-gray-800 dark:text-gray-200"
+                >
+                  {{ store.name }}
+                  <span class="text-yellow-500">⭐ {{ store.rating }}</span>
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  운영시간 : {{ store.operatingHours }}
+                </p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  가격 : {{ store.price }}원
+                </p>
+              </div>
+
+              <!-- 북마크 버튼 -->
+              <button
+                class="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
+                aria-label="북마크 토글"
+                @click.stop="attemptToggleBookmark(store, index)"
+              >
+                <svg
+                  v-if="store.isBookmarked"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-blue-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2H5z" />
+                </svg>
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400 dark:text-gray-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 3a2 2 0 00-2 2v12l7-5 7 5V5a2 2 0 00-2-2H5z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -574,7 +580,7 @@ const goToCurrentLocation = () => {
     userCircle.value = new naver.maps.Circle({
       map: map.value,
       center: position,
-      radius: 100,
+      radius: 50,
       fillColor: 'rgba(51, 136, 255, 0.3)',
       fillOpacity: 0.5,
       strokeColor: '#3388ff',
@@ -694,11 +700,6 @@ const endTouch = () => {
   }
 };
 
-// 시트 토글
-const toggleSheet = () => {
-  isSheetOpen.value = !isSheetOpen.value;
-};
-
 // 선택된 식당 초기화
 const clearSelection = () => {
   selectedStoreId.value = null;
@@ -756,6 +757,11 @@ const redirectToLogin = () => {
   }
   router.push('/signIn');
 };
+
+// 레이아웃 설정
+definePageMeta({
+  layout: 'search',
+});
 </script>
 
 <style scoped>

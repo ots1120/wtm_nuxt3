@@ -13,9 +13,6 @@
         :days-ago="noticeData.timeAgo ? noticeData.timeAgo : '등록일 없음'"
       />
     </div>
-    <div v-else>
-      <p>공지사항이 없습니다.</p>
-    </div>
 
     <!-- 감시 대상 요소 -->
     <div ref="infiniteScrollTrigger"></div>

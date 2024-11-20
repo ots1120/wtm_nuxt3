@@ -176,8 +176,6 @@
               {{ review.relativeDate }}
             </div>
           </div>
-          <!-- 신고 링크 -->
-          <a href="#" class="text-sm">신고</a>
         </div>
 
         <!-- 리뷰 내용 -->
