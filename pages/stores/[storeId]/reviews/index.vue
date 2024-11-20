@@ -258,6 +258,13 @@
     <div v-if="isAuthenticated" class="fixed bottom-40 right-20 z-50">
       <WriteButton :push-route="`/stores/${storeId}/notices`" />
     </div>
+
+    <!-- 로그인 요청 모달 -->
+    <LoginPromptModal
+      v-if="loginModalVisible"
+      @cancel="closeLoginModal"
+      @confirm="redirectToLogin"
+    />
   </div>
 </template>
 
@@ -265,8 +272,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/solid';
 import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
+import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue'; // 모달 컴포넌트 임포트
 
 // 라우터 설정
 const router = useRouter();
@@ -307,6 +316,12 @@ const isLoading = ref(false); // 로딩 상태 관리
 
 // Intersection Observer를 위한 ref
 const infiniteScrollTrigger = ref(null);
+
+// 로그인 요청 모달 상태
+const loginModalVisible = ref(false);
+
+// 리뷰에 대한 모달 트리거를 저장할 상태
+const selectedReviewIndexForHelpful = ref(null);
 
 // 정렬 기준을 변경하는 함수
 const sortReviews = (criteria) => {
@@ -469,6 +484,13 @@ const getStarFillPercentage = (reviewScore, starIndex) => {
 
 // "도움돼요" 버튼 상태를 토글하는 함수
 const toggleHelpful = async (index, review) => {
+  if (!isAuthenticated.value) {
+    // 인증되지 않은 사용자는 모달을 표시하고, 선택된 리뷰 인덱스를 저장
+    selectedReviewIndexForHelpful.value = index;
+    loginModalVisible.value = true;
+    console.log(loginModalVisible.value);
+    return;
+  }
   try {
     if (review.liked) {
       // liked가 true인 경우 DELETE API 호출
@@ -544,7 +566,20 @@ if (reviewStatsError.value)
     reviewStatsError.value,
   );
 
-// 페이지 레이아웃 설정
+// --- Login Prompt Modal Functions ---
+
+// 로그인 요청 모달 닫기 함수
+const closeLoginModal = () => {
+  loginModalVisible.value = false;
+  selectedReviewIndexForHelpful.value = null;
+};
+
+// 로그인 페이지로 리디렉션 함수
+const redirectToLogin = () => {
+  router.push('/signIn'); // 라우터에 'login' 경로가 설정되어 있어야 합니다.
+};
+
+// 레이아웃 설정
 definePageMeta({
   layout: 'storedetail',
 });
