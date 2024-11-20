@@ -303,7 +303,12 @@ const closeLoginModal = () => {
 
 // 로그인 페이지로 리디렉션 함수
 const redirectToLogin = () => {
-  router.push(`/signIn`); // 라우터 설정에 따라 경로 또는 이름 변경
+  if (process.client) {
+    const currentPath = route.fullPath; // 현재 경로 가져오기
+    console.log('Current Path:', currentPath); // 디버깅 로그
+    localStorage.setItem('redirectPath', currentPath); // 경로 저장
+  }
+  router.push(`/signIn`); // 로그인 페이지로 이동
 };
 
 // 모달에서 삭제 확인 시 동작
