@@ -2,11 +2,18 @@
 *.sh text eol=lf
 *.bat text eol=crlf
 
-# 폰트 파일 설정
+# 모든 이진 파일은 텍스트 처리 비활성화
+*.ttf -text
+*.otf -text
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.gif -text
+*.svg -text
+
+# Git이 바이너리 파일로 인식하도록 강제
 *.ttf binary
 *.otf binary
-
-# 이미지 파일 설정
 *.png binary
 *.jpg binary
 *.jpeg binary
