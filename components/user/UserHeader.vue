@@ -5,29 +5,17 @@
     <div class="flex flex-col items-center">
       <button type="button" @click="goBack">
         <svg
-          class="w-8"
-          viewBox="0 0 1024 1024"
           xmlns="http://www.w3.org/2000/svg"
-          fill="#000000"
-          stroke="#000000"
-          stroke-width="20.48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-arrow-left w-7"
         >
-          <g id="SVGRepo_bgCarrier" stroke-width="0" />
-          <g
-            id="SVGRepo_tracerCarrier"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <g id="SVGRepo_iconCarrier">
-            <path
-              fill="#000000"
-              d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"
-            />
-            <path
-              fill="#000000"
-              d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"
-            />
-          </g>
+          <path d="m12 19-7-7 7-7" />
+          <path d="M19 12H5" />
         </svg>
       </button>
     </div>
