@@ -256,7 +256,7 @@
 
     <!-- 리뷰 쓰기 버튼 -->
     <div v-if="isAuthenticated" class="fixed bottom-40 right-20 z-50">
-      <WriteButton :push-route="`/stores/${storeId}/notices`" />
+      <WriteButton :push-route="`/my/tickets/history`" />
     </div>
 
     <!-- 로그인 요청 모달 -->

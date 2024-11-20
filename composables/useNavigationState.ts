@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive } from 'vue';
 type NavigationState = Record<string, unknown>;
 
 const navigationState = reactive<NavigationState>({});
@@ -12,5 +12,5 @@ export const useNavigationState = () => {
     return navigationState[key];
   };
 
-  return { setState, getState }
-}
+  return { setState, getState };
+};
