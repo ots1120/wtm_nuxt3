@@ -150,8 +150,8 @@ import { useRoute, useRouter } from 'vue-router';
 // 현재 경로에서 storeId 가져오기
 const route = useRoute();
 const router = useRouter();
-const storeId = route.params.storeId;
-const ticketHistoryUsageId = route.params.ticketHistoryUsageId; // 필요에 따라 수정
+const storeId = route.state?.storeId;
+const ticketHistoryUsageId = route.state?.ticketHistoryUsageId; // 필요에 따라 수정
 
 const ratings = ref({
   taste: 0,

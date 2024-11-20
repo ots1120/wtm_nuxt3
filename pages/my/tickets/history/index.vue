@@ -37,6 +37,7 @@ interface TicketData {
 }
 
 interface TicketHistory {
+  storeId: number;
   id: number;
   formattedRegDate: string;
   price: number;
