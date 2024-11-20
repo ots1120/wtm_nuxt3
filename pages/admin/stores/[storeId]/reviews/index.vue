@@ -221,6 +221,11 @@ import DeleteModal from '~/components/modal/BasicModal.vue'; // Import the Modal
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
+const authStore = useAuthStore();
+const adminId = ref<number | null>(
+  authStore.user?.userId ? Number(authStore.user.userId) : null,
+);
+
 onBeforeMount(() => {
   route.meta.title = '리뷰관리';
 });
@@ -419,7 +424,7 @@ const submitComment = async (
         method: 'POST',
         body: {
           storeId,
-          userId: 1,
+          userId: adminId,
           reviewId,
           content: commentContent,
           userProfilePciture: null,
