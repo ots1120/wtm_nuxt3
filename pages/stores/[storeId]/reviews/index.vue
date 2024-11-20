@@ -272,7 +272,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/solid';
 import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
 import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue'; // 모달 컴포넌트 임포트
