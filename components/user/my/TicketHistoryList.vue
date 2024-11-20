@@ -19,7 +19,7 @@
             <div v-if="!history.hasReview && history.type === 'usage'">
               <a
               class="cursor-pointer"
-              @click.prevent="navigateToWithState(history.id)"
+              @click.prevent="navigateToWithState(history.id, history.storeId)"
               >
               <span class="text-sm text-blue-800">글쓰기</span>
             </a>
@@ -36,6 +36,7 @@
 import { ref, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
 
 interface TicketHistory {
+  storeId: number;
   id: number;
   formattedRegDate: string;
   price: number;
@@ -87,10 +88,10 @@ const setupObserver = () => {
   }
 };
 
-const navigateToWithState = (id: number) => {
+const navigateToWithState = (ticketHistoryUsageId: number, storeId: number) => {
   router.push({
-    path: '/my/settings',
-    state: { id }
+    path: `/stores/${storeId}/reviews/new`,
+    state: { ticketHistoryUsageId, storeId }
   });
 };
 

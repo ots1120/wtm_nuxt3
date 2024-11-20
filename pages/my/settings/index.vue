@@ -132,8 +132,12 @@ const userFormData = (data: any) => {
 };
 
 // useFetch로 사용자 정보 가져오기
-const userId = '1';
-const { data, error } = await useFetch(`http://localhost:8080/api/v1/user/my/settings?userId=${userId}`);
+const authstore = useAuthStore();
+const username = authstore.user?.username;
+
+const { data, error } = await useFetch(
+  `http://localhost:8080/api/v1/user/my/settings?username=${username}`,
+);
 
 if (data.value) {
   userFormData(data.value);  // 첫 번째 GET 요청 결과 적용
@@ -163,13 +167,16 @@ const onSubmitForm = async (): Promise<void> => {
       }
     });
 
-    await useFetch(`http://localhost:8080/api/v1/user/my/settings?userId=${userId}`, {
+    await useFetch(`http://localhost:8080/api/v1/user/my/settings`, {
       method: 'PUT',
       body: formData,
     });
 
     // 유저 정보 다시 불러오기
-    const { data: updatedData, error: fetchError } = await useFetch<User>(`http://localhost:8080/api/v1/user/my/settings?userId=${userId}`);
+    const { data: updatedData, error: fetchError } = await useFetch<User>(
+      `http://localhost:8080/api/v1/user/my/settings?username=${username}`,
+    
+  );
     if (fetchError.value) {
       throw new Error('Failed to fetch updated user data');
     }

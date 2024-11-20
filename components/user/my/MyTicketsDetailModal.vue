@@ -26,9 +26,9 @@ import CryptoJS from 'crypto-js';
 import { useRuntimeConfig } from '#app';
 
 interface storeInfo {
+  userId: number;
   storeName: string;
   storeId: number;
-  ticketId: number;
   ticketAmount: number;
   isBookmarked: boolean;
 }
@@ -37,7 +37,6 @@ interface storeInfo {
 const props = defineProps<{
   storeInfo: storeInfo;
   ticketQuantity: number;
-  userId: number;
   type: string;
 }>();
 
@@ -46,12 +45,12 @@ const config = useRuntimeConfig();
 // QR 코드 URL을 동적으로 생성
 const qrCodeUrl = computed(() => {
   const data = {
-    userId: props.userId,
+    userId: props.storeInfo.userId,
     storeId: props.storeInfo.storeId,
     ticketQuantity: props.ticketQuantity,
     type: props.type
   }
-  const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), config.public.SECRET_KEY).toString();
+  const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), config.public.qrSecretKey).toString();
 
   return encryptedData;
 

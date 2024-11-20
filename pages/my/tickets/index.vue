@@ -44,6 +44,9 @@ const tickets = ref<Ticket[]>([]);
 const visible = ref(false);
 const selectedStoreId = ref<number | null>(null);
 
+const authstore = useAuthStore();
+const username = authstore.user?.username;
+
 // 북마크 토글 처리
 const handleBookmarkToggle = async (ticket: Ticket) => {
   if (ticket.isBookmarked) {
@@ -57,12 +60,11 @@ const handleBookmarkToggle = async (ticket: Ticket) => {
 // 북마크 추가
 const addBookmark = async (storeId: number) => {
   try {
-    const userId = 1; // 실제로는 적절한 userId를 사용해야 합니다
     const { data, error } = await useFetch(
-      `http://localhost:8080/api/v1/user/my/bookmarks?storeId=${storeId}&userId=${userId}`,
+      `http://localhost:8080/api/v1/user/my/bookmarks`,
       {
         method: 'POST',
-        body: JSON.stringify({ storeId, userId }),
+        body: JSON.stringify({ storeId, username }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -94,15 +96,13 @@ const closeModal = () => {
   selectedStoreId.value = null;
 };
 
-const userId = 1;
 // 북마크 삭제 확인
 const confirmDelete = async (storeId: number) => {
   try {
     console.log(storeId);
     // 백엔드에 DELETE 요청을 보내 북마크를 삭제
-    const userId = 1; // 실제로는 적절한 userId를 사용해야 합니다
     const { data, error } = await useFetch(
-      `http://localhost:8080/api/v1/user/my/bookmarks?storeId=${storeId}&userId=${userId}`,
+      `http://localhost:8080/api/v1/user/my/bookmarks/stores/${storeId}/users/${username}`,
       {
         method: 'DELETE',
       },
@@ -116,7 +116,7 @@ const confirmDelete = async (storeId: number) => {
 
     // 최신 북마크 데이터를 다시 가져오기
     const { data: updatedData, error: fetchError } = await useFetch<Ticket[]>(
-      `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`,
+      `http://localhost:8080/api/v1/user/my/tickets?username=${username}`,
       {},
     );
 
@@ -142,8 +142,7 @@ const confirmDelete = async (storeId: number) => {
 // 티켓 데이터 업데이트 함수
 const fetchUpdatedTickets = async () => {
   const { data: updatedData, error: fetchError } = await useFetch<Ticket[]>(
-    `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`,
-    {},
+    `http://localhost:8080/api/v1/user/my/tickets?username=${username}`,
   );
 
   if (fetchError.value) {
@@ -161,8 +160,7 @@ const fetchUpdatedTickets = async () => {
 };
 
 const { data, error } = useFetch<Ticket[]>(
-  `http://localhost:8080/api/v1/user/my/tickets?userId=${userId}`,
-  {},
+  `http://localhost:8080/api/v1/user/my/tickets?username=${username}`,
 );
 
 if (data.value) {
