@@ -146,12 +146,11 @@
 <script setup>
 import { ref, reactive, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useNavigationState } from '~/composables/useNavigationState';
 
 // 현재 경로에서 storeId 가져오기
 const route = useRoute();
 const router = useRouter();
-const storeId = route.state?.storeId;
-const ticketHistoryUsageId = route.state?.ticketHistoryUsageId; // 필요에 따라 수정
 
 const ratings = ref({
   taste: 0,
@@ -180,6 +179,8 @@ const ratingIds = {
   mood: 3,
   kindness: 4,
 };
+
+const { getState } = useNavigationState();
 
 // 에러 메시지 초기화
 const errors = reactive({
@@ -266,6 +267,11 @@ const validateForm = () => {
 
 // 리뷰 제출 함수
 const submitReview = async () => {
+  const storeId = getState('storeId'); // 타입 단언 필요
+  const ticketHistoryUsageId = getState('ticketHistoryUsageId'); // 타입 단언 필요
+
+  console.log('storeId:', storeId); // 123
+  console.log('ticketHistoryUsageId:', ticketHistoryUsageId);
   if (!validateForm()) {
     // 첫 번째 에러로 스크롤 (선택 사항)
     const firstError = document.querySelector('.text-red-500');
@@ -290,6 +296,7 @@ const submitReview = async () => {
   });
 
   try {
+    
     const response = await $fetch(
       `http://localhost:8080/api/v1/stores/${storeId}/ticketHistoryUsage/${ticketHistoryUsageId}/reviews`,
       {

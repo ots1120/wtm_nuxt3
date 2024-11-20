@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
+import { useNavigationState } from '~/composables/useNavigationState';
 
 interface TicketHistory {
   storeId: number;
@@ -87,11 +88,13 @@ const setupObserver = () => {
     intersectionObserver.observe(observerTarget.value);
   }
 };
+const { setState } = useNavigationState();
 
 const navigateToWithState = (ticketHistoryUsageId: number, storeId: number) => {
+  setState('ticketHistoryUsageId', ticketHistoryUsageId);
+  setState('storeId', storeId);
   router.push({
-    path: `/stores/${storeId}/reviews/new`,
-    state: { ticketHistoryUsageId, storeId }
+    path: `/stores/${storeId}/reviews/new`
   });
 };
 
