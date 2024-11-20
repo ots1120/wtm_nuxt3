@@ -7,15 +7,16 @@
     <div
       class="flex flex-col items-center justify-center bg-white shadow-md rounded-lg p-6 mb-6"
     >
-      <h2 class="text-lg font-semibold text-gray-700 mb-4">날짜 선택</h2>
-      <Datepicker
-        v-model="selectedDate"
-        :auto-apply="true"
-        :enable-time-picker="false"
-        :inline="true"
-        :format="'yyyy-MM-dd'"
-        class=""
-      />
+      <div class="scale-110">
+        <Datepicker
+          v-model="selectedDate"
+          :auto-apply="true"
+          :enable-time-picker="false"
+          :inline="true"
+          :format="'yyyy-MM-dd'"
+          class="w-full"
+        />
+      </div>
     </div>
 
     <!-- 이미지 업로드 및 슬라이더 -->
@@ -50,7 +51,7 @@
                 <img
                   :src="image.url"
                   alt="Uploaded Image"
-                  class="object-cover w-full h-full"
+                  class="object-contain w-full h-full"
                 />
                 <!-- 삭제 버튼 -->
                 <button
@@ -153,8 +154,10 @@
         </colgroup>
         <thead>
           <tr>
-            <th class="border border-gray-200 px-4 py-2 text-left">메뉴</th>
-            <th class="border border-gray-200 px-4 py-2 text-left">카테고리</th>
+            <th class="border border-gray-200 px-4 py-2 text-center">메뉴</th>
+            <th class="border border-gray-200 px-4 py-2 text-center">
+              카테고리
+            </th>
             <th class="border border-gray-200 px-4 py-2 text-center"></th>
           </tr>
         </thead>

@@ -5,7 +5,7 @@
       <input
         v-model="formData.title"
         type="text"
-        class="h-14 w-full border-2 rounded-lg bg-slate-200 focus:border-orange-400 focus:outline-none"
+        class="h-14 p-3 w-full border-2 rounded-lg bg-slate-200 focus:border-orange-400 focus:outline-none"
         spellcheck="false"
         placeholder="공지 제목을 입력하세요"
         required

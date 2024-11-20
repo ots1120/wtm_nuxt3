@@ -5,20 +5,18 @@
       <div
         v-for="(notice, noticeIndex) in notices"
         :key="notice.noticeId"
-        class="flex flex-col mb-10 w-full border-b last:border-b-0"
+        class="flex flex-col mb-4 w-full border-b last:border-b-0"
       >
         <div class="mb-2 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div
-              class="w-16 h-16 rounded-full border overflow-hidden flex items-center justify-center"
+              class="w-14 h-14 rounded-full border overflow-hidden flex items-center justify-center"
             >
               <img
                 v-if="isDataLoaded"
                 :src="notice.userProfilePicture"
                 alt="Profile Image"
                 class="w-full h-full object-cover"
-                width="120"
-                height="120"
               />
               <svg
                 v-else
@@ -59,7 +57,7 @@
             {{ isExpanded[noticeIndex] ? '접기' : '더보기' }}
           </button>
         </div>
-        <div class="flex justify-end gap-4 mt-2">
+        <div class="flex justify-end gap-4 mt-2 mb-2">
           <button
             class="text-xs text-blue-500"
             @click="goToEditForm(notice.noticeId)"

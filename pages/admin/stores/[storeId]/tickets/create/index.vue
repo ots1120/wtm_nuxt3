@@ -5,20 +5,23 @@
     <!-- 식권 생성 폼 -->
     <div class="flex space-x-2 mb-4">
       <div>
-        <label for="category" class="block text-sm font-medium text-gray-600"
+        <label
+          for="category"
+          class="block text-center text-sm font-medium text-gray-600"
           >카테고리</label
         >
         <select
           v-model="newItemCategory"
           class="w-32 mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
         >
-          <option disabled hidden :value="0">카테고리 선택</option>
           <option :value="1">현금</option>
           <option :value="2">카드</option>
         </select>
       </div>
       <div>
-        <label for="name" class="block text-sm font-medium text-gray-600"
+        <label
+          for="name"
+          class="block text-center text-sm font-medium text-gray-600"
           >이름</label
         >
         <input
@@ -29,7 +32,9 @@
         />
       </div>
       <div>
-        <label for="price" class="block text-sm font-medium text-gray-600"
+        <label
+          for="price"
+          class="block text-center text-sm font-medium text-gray-600"
           >가격</label
         >
         <input
@@ -40,10 +45,10 @@
         />
       </div>
       <button
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mt-auto"
+        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 mt-auto"
         @click="addTicketItem"
       >
-        추가
+        등록
       </button>
     </div>
 
@@ -51,23 +56,28 @@
     <table class="table-fixed w-full border-collapse border border-gray-200">
       <thead>
         <tr>
-          <th class="border border-gray-200 px-4 py-2 text-left w-1/4">
+          <th class="border border-gray-200 px-4 py-2 text-center w-1/4">
             카테고리
           </th>
-          <th class="border border-gray-200 px-4 py-2 text-left w-1/4">이름</th>
-          <th class="border border-gray-200 px-4 py-2 text-left w-1/4">가격</th>
-          <th class="border border-gray-200 px-4 py-2 text-left w-1/4">작업</th>
+          <th class="border border-gray-200 px-4 py-2 text-center w-1/4">
+            이름
+          </th>
+          <th class="border border-gray-200 px-4 py-2 text-center w-1/4">
+            가격
+          </th>
+          <th class="border border-gray-200 px-4 py-2 text-center w-1/4">
+            작업
+          </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="text-sm">
         <tr v-for="item in ticketItems" :key="item.id">
           <td class="border border-gray-200 px-4 py-2">
             <template v-if="editingId === item.id">
               <select
                 v-model="editItemCategory"
-                class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
+                class="w-full py-2 border rounded-md focus:ring focus:ring-blue-200"
               >
-                <option disabled hidden :value="0">카테고리 선택</option>
                 <option :value="1">현금</option>
                 <option :value="2">카드</option>
               </select>
@@ -96,7 +106,7 @@
                 v-model="editItemPrice"
                 type="number"
                 placeholder="가격"
-                class="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
+                class="w-full py-2 border rounded-md focus:ring focus:ring-blue-200"
               />
             </template>
             <template v-else> {{ item.price }}원 </template>
@@ -104,13 +114,13 @@
           <td class="border border-gray-200 px-4 py-2 whitespace-nowrap">
             <template v-if="editingId === item.id">
               <button
-                class="px-2 py-1 bg-green-600 text-white rounded-md hover:bg-green-700"
+                class="px-[4px] py-1 bg-green-600 text-white rounded-md hover:bg-green-700"
                 @click="saveEdit(item.id)"
               >
                 저장
               </button>
               <button
-                class="px-2 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 ml-2"
+                class="px-[4px] py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 ml-2"
                 @click="cancelEdit"
               >
                 취소
@@ -118,13 +128,13 @@
             </template>
             <template v-else>
               <button
-                class="px-2 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                class="px-[4px] py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
                 @click="startEditing(item)"
               >
                 수정
               </button>
               <button
-                class="px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 ml-2"
+                class="px-[4px] py-1 bg-red-600 text-white rounded-md hover:bg-red-700 ml-2"
                 @click="openDeleteModal(item.id)"
               >
                 삭제
@@ -179,19 +189,19 @@ const baseUrl = config.public.baseApiUrl;
 
 const ticketItems = ref<TicketItem[]>([]);
 const newItemName = ref<string>('');
-const newItemCategory = ref<number>(0);
+const newItemCategory = ref<number>(1);
 const newItemPrice = ref<number | null>(null);
 
 const editingId = ref<number | null>(null);
 const editItemName = ref<string>('');
-const editItemCategory = ref<number>(0);
+const editItemCategory = ref<number>(1);
 const editItemPrice = ref<number | null>(null);
 
 // 상태 변수 추가
 const isModalVisible = ref(false);
 const selectedItemId = ref<number | null>(null);
 
-const storeId = 1;
+const storeId = route.params.storeId;
 
 // 티켓 데이터 가져오기
 const fetchTickets = async () => {

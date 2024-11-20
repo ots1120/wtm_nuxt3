@@ -22,13 +22,13 @@
       </svg>
     </div>
 
-    <div class="mt-3 text-center">
+    <div class="mt-3 mb-4 text-center">
       <p class="font-bold text-xl">{{ storeName || '' }} 사장님</p>
       <p>안녕하세요!</p>
     </div>
     <div class="grid grid-cols-2 gap-10 p-2">
       <button
-        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-slate-200"
         @click="goToMenuManagement"
       >
         <svg
@@ -44,7 +44,7 @@
         <span>메뉴 관리</span>
       </button>
       <button
-        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-slate-200"
         @click="goToTicketManagement"
       >
         <svg
@@ -61,7 +61,7 @@
         <span>식권 관리</span>
       </button>
       <button
-        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-slate-200"
         @click="goToReviewManagement"
       >
         <svg
@@ -77,7 +77,7 @@
         <span>리뷰 관리</span>
       </button>
       <button
-        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-slate-200"
         @click="goToNoticeManagement"
       >
         <svg
@@ -100,7 +100,7 @@
         <span>공지 관리</span>
       </button>
       <button
-        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-orange-400"
+        class="flex h-32 w-32 flex-col items-center justify-center rounded-lg border-2 shadow-xl duration-500 ease-in-out hover:bg-slate-200"
         @click="goToStoreManagement"
       >
         <svg
