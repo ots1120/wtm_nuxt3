@@ -74,10 +74,9 @@ const deleteCard = async (reviewId: number) => {
   try {
     // 백엔드에 DELETE 요청을 보내 북마크를 삭제
     const { data, error } = await useFetch(
-      `http://localhost:8080/api/v1/user/my/reviews`,
+      `http://localhost:8080/api/v1/user/my/reviews/${reviewId}/usernames/${username}`,
       {
-        method: 'DELETE',
-        body: JSON.stringify({ reviewId, username }),
+        method: 'DELETE'
       },
     );
 
