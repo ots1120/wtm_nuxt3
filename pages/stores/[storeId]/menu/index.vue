@@ -38,7 +38,7 @@
         <p class="text-gray-500 mb-4">아직 메뉴 정보가 없어요 😢</p>
         <form action="#" method="post" class="w-full">
           <button
-            class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg w-full transition hover:bg-gray-400"
+            class="bg-[#db3d39] text-white font-semibold py-2 px-4 rounded-lg w-full transition hover:bg-[#c22420]"
             @click.prevent="goToMenuRegPage"
           >
             메뉴 등록하기
