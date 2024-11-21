@@ -11,6 +11,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   // 인증 및 인가 규칙
   const guestRoutes = [
+    '/',
     '/signIn',
     '/signUp',
     '/stores',

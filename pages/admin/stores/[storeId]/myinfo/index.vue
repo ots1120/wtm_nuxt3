@@ -17,8 +17,6 @@
             :src="store.profilePicture"
             alt="Profile Image"
             class="w-full h-full object-cover"
-            width="120"
-            height="120"
           />
           <svg
             v-else
@@ -44,7 +42,7 @@
 
       <div class="flex flex-col">
         <!-- 가게 이름 -->
-        <label for="nickname" class="text-lg font-extrabold text-gray-700"
+        <label for="nickname" class="text-lg font-extrabold text-gray-700 mt-2"
           >가게이름</label
         >
         <div class="flex justify-between items-center border-b py-2">
@@ -58,7 +56,7 @@
         </div>
 
         <!-- 가게 주소 -->
-        <div class="flex justify-between items-center border-b py-2">
+        <div class="flex justify-between mt-2 items-center border-b py-2">
           <AdminPostAddressForm
             title="실제 사업장 주소"
             :title-class="'text-lg font-extrabold text-gray-700'"
@@ -67,8 +65,8 @@
           />
         </div>
 
-        <!-- 가게 번호 -->`
-        <label for="phone" class="text-lg font-extrabold text-gray-700"
+        <!-- 가게 번호 -->
+        <label for="phone" class="text-lg mt-2 font-extrabold text-gray-700"
           >가게번호</label
         >
         <div class="flex justify-between items-center border-b py-2">
@@ -82,7 +80,7 @@
         </div>
 
         <!-- SNS -->
-        <div class="flex flex-col border-b py-2">
+        <div class="flex flex-col border-b py-2 mt-2">
           <label class="text-lg font-extrabold text-gray-700">SNS</label>
           <div
             v-for="(address, index) in store.snsAddress"
@@ -93,13 +91,13 @@
               :id="`sns-${index}`"
               v-model="store.snsAddress[index]"
               type="text"
-              class="w-full max-w-sm p-2"
+              class="w-3/4 max-w-sm p-2"
               placeholder="SNS 주소"
             />
             <button
               v-if="store.snsAddress.length > 1"
               type="button"
-              class="bg-red-500 text-white text-sm px-2 py-1 rounded"
+              class="bg-[#db3d39] text-white text-sm px-2 py-1 rounded"
               @click="removeSnsAddress(index)"
             >
               삭제
@@ -107,7 +105,7 @@
           </div>
           <button
             type="button"
-            class="bg-green-400 text-white px-3 py-1 mt-2 rounded"
+            class="bg-blue-600 text-white px-3 py-1 mt-2 rounded-lg"
             @click="addSnsAddress"
           >
             SNS 추가
@@ -136,7 +134,7 @@
       </div>
       <div class="mt-2 mb-24">
         <button
-          class="w-full h-12 mt-4 bg-orange-400 text-white p-2 rounded-xl"
+          class="w-full h-12 mt-4 bg-[#db3d39] text-white p-2 rounded-xl"
           type="submit"
           @click="openModal"
         >
@@ -239,6 +237,7 @@ const fetchStoreData = async () => {
       },
     };
     isDataLoaded.value = true;
+    console.log(store.value.storeAddress);
   } catch (error) {
     console.error('데이터 요청 중 오류 발생:', error);
     isDataLoaded.value = false;
@@ -324,7 +323,10 @@ const confirmSave = async () => {
       'dto',
       JSON.stringify({
         storeName: store.value.storeName,
-        storeAddress: store.value.storeAddress,
+        postcode: store.value.storeAddress.postcode,
+        address: store.value.storeAddress.address,
+        detailAddress: store.value.storeAddress.detailAddress,
+        extraAddress: store.value.storeAddress.extraAddress,
         snsAddress: store.value.snsAddress,
         phone: store.value.phone,
         openTime: formatTime(store.value.openTime),
@@ -347,8 +349,10 @@ const confirmSave = async () => {
     );
 
     if (response.ok) {
+      console.log(store.value.storeAddress);
       console.log('데이터가 성공적으로 저장되었습니다.');
       modal.value.visible = false;
+      alert('저장 완료');
     } else {
       console.error('저장 중 오류 발생:', await response.text());
     }
