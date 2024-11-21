@@ -262,7 +262,6 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { ChevronLeft, ChevronRight, ThumbsUp } from 'lucide-vue-next';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '~/stores/auth'; // authStore 불러오기

@@ -2,30 +2,6 @@
   <div
     class="flex flex-col w-full max-w-md mx-auto min-h-screen bg-white font-sans"
   >
-    <!-- Header with back button -->
-    <div
-      class="sticky top-0 bg-white z-20 px-4 py-3 flex items-center border-b border-gray-200"
-    >
-      <button
-        type="button"
-        class="text-blue-500 focus:outline-none"
-        @click="goBack"
-      >
-        <svg
-          class="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
-      <h1 class="text-lg font-semibold ml-4">{{ restaurantName }}</h1>
-    </div>
-
     <!-- Scrollable content -->
     <div class="flex-grow overflow-y-auto pb-16">
       <!-- 상단 이미지 섹션 -->
@@ -68,13 +44,12 @@
 
 <script setup>
 import { ref, onMounted, provide } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import StoreDetailImages from '~/components/user/stores/detail/StoreDetailImages.vue';
 import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
 import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
 
-const router = useRouter();
 const route = useRoute();
 const storeId = route.params.storeId ? String(route.params.storeId) : '';
 
@@ -117,10 +92,6 @@ async function fetchData(storeId) {
     console.error('데이터 가져오기 중 오류 발생:', error);
   }
 }
-
-const goBack = () => {
-  router.go(-1);
-};
 
 onMounted(() => {
   fetchData(storeId);

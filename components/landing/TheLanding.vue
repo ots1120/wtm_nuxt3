@@ -1,5 +1,5 @@
 <template>
-  <transition name="modal-fade" @after-leave="onModalClose">
+  <transition name="modal-fade">
     <div v-if="isVisible" class="fixed top-0 left-0 w-screen h-screen z-50">
       <!-- Main content container -->
       <div class="max-w-md mx-auto relative">
@@ -283,7 +283,7 @@
             <!-- Primary CTA Button -->
             <button
               class="w-full bg-[#db3d39] text-white py-4 rounded-lg text-lg font-medium hover:bg-[#FF8565] transition-colors"
-              @click="close"
+              @click="closeModal"
             >
               바로 시작하기
             </button>
@@ -305,10 +305,19 @@
 </template>
 
 <script setup>
-const isVisible = ref(true);
+import { defineProps, defineEmits } from 'vue';
 
-const close = () => {
-  isVisible.value = false; // 모달 닫기
+const props = defineProps({
+  isVisible: {
+    type: Boolean,
+    default: true,
+  },
+});
+
+const emit = defineEmits(['close']);
+
+const closeModal = () => {
+  emit('close');
 };
 
 const toSignIn = () => {
@@ -317,13 +326,6 @@ const toSignIn = () => {
 </script>
 
 <style scoped>
-/* Custom font settings for Korean text */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
-
-:root {
-  font-family: 'Noto Sans KR', sans-serif;
-}
-
 /* Smooth transition for interactive elements */
 button {
   transition: all 0.2s ease-in-out;
