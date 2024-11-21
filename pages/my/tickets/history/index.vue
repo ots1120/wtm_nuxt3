@@ -118,5 +118,6 @@ onMounted(() => {
 const route = useRoute();
 onBeforeMount(() => {
   route.meta.title = '내 식권';
+  fetchItems();
 });
 </script>

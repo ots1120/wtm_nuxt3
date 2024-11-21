@@ -1,61 +1,74 @@
 <template>
-  <div class="flex items-center space-x-3 py-4 border-b">
-    <div class="mb-4">
-          <figure class="mb-4 mt-2">
-            <img
-              v-if="props.bookmark.storeImgUrl"
-              :src="props.bookmark.storeImgUrl"
-              alt="프로필 사진"
-              class="w-20 h-20 object-cover rounded-full"
-            /> 
-            <!-- 프로필 사진이 없는 경우 SVG 아이콘을 보여줌 -->
-            <svg
-              v-else
-              width="20px"
-              height="20px"
-              viewBox="0 0 64 64"
-              xmlns="http://www.w3.org/2000/svg"
-              stroke-width="3"
-              stroke="#000000"
-              fill="none"
-              class="block stroke-white rounded-full"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0" />
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <g id="SVGRepo_iconCarrier">
-                <circle cx="32" cy="18.14" r="11.14" />
-                <path
-                  d="M54.55,56.85A22.55,22.55,0,0,0,32,34.3h0A22.55,22.55,0,0,0,9.45,56.85Z"
-                />
-              </g>
-            </svg>
-          </figure>
-        </div>
-    <div class="flex-1 min-w-0">
-      <div class="flex items-center space-x-1">
-        <h2 class="text-base font-medium truncate">
-          {{ props.bookmark.storeName }}
-        </h2>
-        <div class="flex items-center space-x-1 flex-shrink-0">
-          <span class="text-yellow-400">⭐</span>
-          <span class="text-sm">{{ props.bookmark.reviewAverage }}</span>
-        </div>
+  <div class="flex items-start space-x-4 py-4 px-4 border-b border-gray-200">
+    <div class="flex space-x-4 flex-1">
+      <div class="w-16 h-16 bg-gray-200 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center">
+        <img
+          v-if="bookmark.storeImgUrl"
+          :src="bookmark.storeImgUrl"
+          :alt="bookmark.storeName"
+          class="w-full h-full object-cover"
+        />
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-utensils w-12 h-12 text-gray-400"
+        >
+          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+          <path d="M7 2v20" />
+          <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+        </svg>
       </div>
-      <p class="text-sm text-gray-500 mt-1">
-        운영시간: {{ props.bookmark.storeOpenTime }} ~ {{ props.bookmark.storeCloseTime }}
-      </p>
-      <p class="text-sm text-gray-500 mt-0.5">
-        가격: {{ props.bookmark.ticketPrice.toLocaleString() }}원
-      </p>
+
+      <div class="flex-1 min-w-0 flex flex-col justify-between h-16">
+        <div class="flex items-center space-x-1">
+          <h2 class="text-base font-medium text-gray-900 truncate">
+            {{ bookmark.storeName }}
+          </h2>
+          <div class="flex items-center space-x-1 text-yellow-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="flex-shrink-0"
+            >
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            <span class="text-sm text-gray-900">{{ bookmark.reviewAverage }}</span>
+          </div>
+        </div>
+        <p class="text-sm text-gray-500">
+          운영시간:
+          <span v-if="bookmark.storeOpenTime && bookmark.storeCloseTime">
+            {{ bookmark.storeOpenTime }} ~ {{ bookmark.storeCloseTime }}
+          </span>
+          <span v-else>운영시간 정보 없음</span>
+        </p>
+        <!-- 가격 -->
+        <p class="text-sm text-gray-500">
+          가격:
+          <span v-if="bookmark.ticketPrice">
+            {{ bookmark.ticketPrice.toLocaleString() }}원
+          </span>
+          <span v-else>가격 정보 없음</span>
+        </p>
+      </div>
     </div>
-    <BookmarkButton
-      :isBookmarked="props.bookmark.isBookmarked"
-      @toggle-bookmark="toggleBookmark"
-    />
+    <div class="flex-shrink-0 pt-1">
+      <BookmarkButton
+        :isBookmarked="bookmark.isBookmarked"
+        @toggle-bookmark="toggleBookmark"
+      />
+    </div>
   </div>
 </template>
 
@@ -65,23 +78,23 @@ import BookmarkButton from '~/components/user/ui/BookmarkButton.vue';
 interface Bookmark {
   storeId: number;
   storeName: string;
-  storeOpenTime: string;
-  storeCloseTime: string;
+  storeOpenTime: string | null;
+  storeCloseTime: string | null;
   reviewAverage: number;
-  ticketPrice: number;
-  isBookmarked: Boolean;
-  storeImgUrl: string;
+  ticketPrice: number | null;
+  isBookmarked: boolean;
+  storeImgUrl: string | null;
 }
 
-const props = defineProps<{ bookmark: Bookmark }>();
+const props = defineProps<{
+  bookmark: Bookmark;
+}>();
 
-// 이벤트 정의
 const emit = defineEmits<{
   (event: 'toggle-bookmark', storeId: number): void;
 }>();
 
-// 이벤트 호출 메서드
 const toggleBookmark = () => {
-  emit('toggle-bookmark', props.bookmark.storeId); // 부모 컴포넌트로 storeId 전달
+  emit('toggle-bookmark', props.bookmark.storeId);
 };
 </script>

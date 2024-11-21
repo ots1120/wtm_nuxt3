@@ -33,12 +33,12 @@ import BookmarkModal from "~/components/user/modal/BookmarkModal.vue";
 interface Bookmark {
   storeId: number;
   storeName: string;
-  storeOpenTime: string;
-  storeCloseTime: string;
+  storeOpenTime: string | null;
+  storeCloseTime: string | null;
   reviewAverage: number;
-  ticketPrice: number;
+  ticketPrice: number | null;
   isBookmarked: boolean;
-  storeImgUrl: string;
+  storeImgUrl: string | null;
 }
 
 const authstore = useAuthStore();
@@ -68,10 +68,9 @@ const confirmDelete = async (storeId: number) => {
   try {
     // 백엔드에 DELETE 요청을 보내 북마크를 삭제
     const { data, error } = await useFetch(
-      `http://localhost:8080/api/v1/user/my/bookmarks`,
+      `http://localhost:8080/api/v1/user/my/bookmarks/stores/${storeId}/users/${username}`,
       {
-        method: "DELETE",
-        body: JSON.stringify({ storeId, username }),
+        method: "DELETE"
       }
     );
 
@@ -100,22 +99,23 @@ const confirmDelete = async (storeId: number) => {
   }
 };
 
-// 북마크 데이터를 불러오는 함수
-const { data, error } = useFetch<Bookmark[]>(
-  `http://localhost:8080/api/v1/user/my/bookmarks?username=${username}`,
-);
-
-if (data.value) {
-  bookmarks.value = data.value.map((bookmark) => ({
-    ...bookmark,
-    storeImgUrl: `http://localhost:8080${bookmark.storeImgUrl}`,
-  }));
-} else if (error.value) {
-  console.error("북마크 정보를 불러오는 데 실패했습니다", error.value);
-}
-
 const route = useRoute();
-onBeforeMount(() => {
+onBeforeMount(async () => {
   route.meta.title = "내 북마크";
+  // 북마크 데이터를 불러오는 함수
+  const { data, error } = await useFetch<Bookmark[]>(
+    `http://localhost:8080/api/v1/user/my/bookmarks?username=${username}`,
+  );
+  
+  if (data.value) {
+    bookmarks.value = data.value.map((bookmark) => ({
+      ...bookmark,
+      storeImgUrl: bookmark.storeImgUrl
+      ? `http://localhost:8080${bookmark.storeImgUrl}`
+      : null,
+    }));
+  } else if (error.value) {
+    console.error("북마크 정보를 불러오는 데 실패했습니다", error.value);
+  }
 });
 </script>

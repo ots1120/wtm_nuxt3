@@ -55,7 +55,7 @@ interface Ticket{
   storeOpentime: String,
   storeClosetime: String,
   ticketPrice: Number,
-  isBookmarked: Boolean,
+  isBookmarked: boolean,
   ticketAmount: number,
   storeImgUrl: string,
 }
