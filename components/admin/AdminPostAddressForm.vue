@@ -109,8 +109,9 @@ watch(
 );
 
 // 특정 값이 변경되면 emitAddressData 호출
-watch([postcode, address, detailAddress, extraAddress], () => {emitAddressData});
-
+watch([postcode, address, detailAddress, extraAddress], () => {
+  emitAddressData();
+});
 
 // 클라이언트에서만 실행되는 코드
 onMounted(() => {

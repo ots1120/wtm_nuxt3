@@ -2,7 +2,7 @@
   <div class="mt-2 w-full">
     <textarea
       v-model="commentContent"
-      class="h-20 w-full resize-none rounded-md border border-gray-300 p-2 text-xs focus:border-orange-400"
+      class="h-20 w-full bg-[#e2e8f0] resize-none rounded-md border border-gray-300 p-2 text-xs focus:border-orange-400"
       placeholder="답글을 입력해주세요."
       spellcheck="false"
     ></textarea>

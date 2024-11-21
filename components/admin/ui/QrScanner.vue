@@ -1,8 +1,9 @@
 <!-- QrScanner.vue -->
+<!-- QrScanner.vue -->
 <template>
-  <div>
-    <div :id="scannerId" style="width: 500px"></div>
-    <p v-if="decodedText">{{ decodedText }}</p>
+  <div class="w-full flex justify-center items-center">
+    <div :id="scannerId" class="w-full max-w-[500px]"></div>
+    <p v-if="decodedText" class="mt-2 text-center">{{ decodedText }}</p>
   </div>
 </template>
 

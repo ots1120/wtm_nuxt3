@@ -84,28 +84,27 @@
       </button>
     </div>
 
-    <!-- 리뷰 리스트 섹션 -->
-    <div>
+    <!-- Review list section -->
+    <div class="space-y-8 py-6">
       <div
         v-for="(review, index) in reviews"
         :key="index"
-        class="border-b border-gray-300 p-4"
+        class="bg-white rounded-2xl shadow-sm p-6 transition-all duration-300 ease-in-out hover:shadow-md"
       >
-        <!-- 리뷰 이미지 가로 스크롤 섹션 -->
+        <!-- Review images carousel -->
         <div
           v-if="review.reviewImages && review.reviewImages.length > 0"
-          class="relative mb-4"
+          class="relative mb-6 rounded-xl overflow-hidden"
         >
-          <!-- 이미지 컨테이너 -->
           <div
             :ref="setImageContainerRef(index)"
-            class="flex overflow-x-auto space-x-2"
+            class="flex overflow-x-auto space-x-4 pb-4 snap-x snap-mandatory"
             @scroll="checkScroll(index)"
           >
             <div
               v-for="(image, imgIndex) in review.reviewImages"
               :key="imgIndex"
-              class="flex-shrink-0 w-40 h-40 rounded-lg overflow-hidden"
+              class="flex-shrink-0 w-40 h-40 rounded-xl overflow-hidden snap-center"
             >
               <img
                 :src="image.url"
@@ -114,21 +113,17 @@
               />
             </div>
           </div>
-
-          <!-- 좌우 스크롤 버튼 -->
-          <!-- 왼쪽 버튼 -->
           <button
             v-if="showLeftButton[index]"
-            class="absolute left-0 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-white bg-opacity-75 text-gray-800 hover:bg-opacity-100 focus:outline-none transition-colors duration-200"
+            class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md text-gray-800 opacity-0 transition-opacity duration-200 hover:bg-white focus:outline-none group-hover:opacity-100"
             @click="scrollLeft(index)"
           >
             <ChevronLeft class="w-6 h-6" />
             <span class="sr-only">Left</span>
           </button>
-          <!-- 오른쪽 버튼 -->
           <button
             v-if="showRightButton[index]"
-            class="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-white bg-opacity-75 text-gray-800 hover:bg-opacity-100 focus:outline-none transition-colors duration-200"
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md text-gray-800 opacity-0 transition-opacity duration-200 hover:bg-white focus:outline-none group-hover:opacity-100"
             @click="scrollRight(index)"
           >
             <ChevronRight class="w-6 h-6" />
@@ -136,78 +131,69 @@
           </button>
         </div>
 
-        <!-- 리뷰 정보 섹션 -->
-        <div class="flex justify-between mb-2">
-          <div>
-            <!-- 별점 표시 -->
-            <div class="flex space-x-1 mb-2">
-              <span
-                v-for="n in 5"
-                :key="n"
-                class="text-gray-300 relative"
-                style="width: 24px; height: 24px"
-              >
-                <!-- 빈 별 -->
-                <span class="block absolute text-gray-300">★</span>
-                <!-- 채워진 부분 -->
-                <span
-                  class="block absolute top-0 left-0 text-yellow-500"
-                  :style="{
-                    width: getStarFillPercentage(review.reviewScore, n) + '%',
-                    overflow: 'hidden',
-                  }"
-                  >★</span
-                >
-              </span>
-            </div>
-            <!-- 사용자 정보와 작성 날짜 -->
-            <div class="text-sm text-gray-500">
-              <div class="flex items-center mb-2">
-                <!-- 사용자 프로필 이미지 -->
-                <img
-                  :src="review.userProfilePicture"
-                  alt="User Image"
-                  class="w-10 h-10 rounded-full mr-2"
-                />
-                <!-- 사용자 이름 -->
-                <span class="font-medium">{{ review.userName }}</span>
+        <!-- Review info section -->
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center space-x-4">
+            <img
+              :src="review.userProfilePicture"
+              :alt="review.userName"
+              class="w-12 h-12 rounded-full object-cover"
+            />
+            <div>
+              <h3 class="font-semibold text-gray-900">{{ review.userName }}</h3>
+              <div class="flex items-center mt-1">
+                <div class="flex">
+                  <span
+                    v-for="n in 5"
+                    :key="n"
+                    class="text-gray-300"
+                    :class="{
+                      'text-yellow-400': n <= Math.round(review.reviewScore),
+                    }"
+                  >
+                    ★
+                  </span>
+                </div>
+                <span class="ml-2 text-sm font-medium text-gray-600">
+                  {{ review.reviewScore.toFixed(1) }}
+                </span>
               </div>
-              <!-- 작성일 -->
-              {{ review.relativeDate }}
             </div>
           </div>
-          <!-- 신고 링크 -->
-          <a href="#" class="text-sm">신고</a>
+          <p class="text-sm text-gray-500">{{ review.relativeDate }}</p>
         </div>
 
-        <!-- 리뷰 내용 -->
-        <p class="mb-4 text-gray-700">{{ review.reviewContent }}</p>
+        <!-- Review content -->
+        <p class="text-gray-700 mb-4 leading-relaxed">
+          {{ review.reviewContent }}
+        </p>
 
-        <!-- 답글 섹션 -->
-        <div v-if="review.reviewComments && review.reviewComments.length">
-          <!-- 각 답글을 표시 -->
+        <!-- Review comments -->
+        <div
+          v-if="review.reviewComments && review.reviewComments.length"
+          class="mt-4 bg-gray-50 rounded-xl p-4"
+        >
+          <h4 class="text-sm font-semibold text-gray-500 mb-2">댓글</h4>
           <div
             v-for="(reply, replyIndex) in review.reviewComments"
             :key="replyIndex"
-            class="ml-6 p-3 bg-gray-100 rounded-lg mb-2"
+            class="bg-white rounded-lg p-3 mb-2 last:mb-0"
           >
-            <div class="flex items-center justify-between mb-1">
-              <div class="flex items-center mb-2">
-                <!-- 관리자 프로필 이미지 -->
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-2">
                 <img
                   :src="reply.adminProfilePicture"
-                  alt="Admin Image"
-                  class="w-10 h-10 rounded-full mr-2"
+                  :alt="reply.adminName"
+                  class="w-8 h-8 rounded-full object-cover"
                 />
-                <!-- 관리자 이름 -->
-                <span class="font-medium">{{ reply.adminName }}</span>
+                <span class="font-medium text-gray-900">{{
+                  reply.adminName
+                }}</span>
               </div>
-              <!-- 답글 작성일 -->
-              <span class="text-xs text-gray-400">
-                {{ reply.relativeDate }}
-              </span>
+              <span class="text-xs text-gray-400">{{
+                reply.relativeDate
+              }}</span>
             </div>
-            <!-- 답글 내용 -->
             <p class="text-sm text-gray-700">{{ reply.commentContent }}</p>
           </div>
         </div>
@@ -222,15 +208,21 @@
           @click="toggleHelpful(index, review)"
         >
           <svg
-            class="h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
+            stroke-width="1.5"
             stroke-linecap="round"
             stroke-linejoin="round"
+            class="lucide lucide-thumbs-up"
           >
-            <path d="M14 9l-6 6m0 0l6 6m-6-6h18" />
+            <path d="M7 10v12" />
+            <path
+              d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"
+            />
           </svg>
           <span>도움돼요</span>
           <span>{{ review.helpfulCount }}</span>
@@ -588,3 +580,23 @@ definePageMeta({
   layout: 'storedetail',
 });
 </script>
+<style scoped>
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-center {
+  scroll-snap-align: center;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.overflow-x-auto {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+</style>

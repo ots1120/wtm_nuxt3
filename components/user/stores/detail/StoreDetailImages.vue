@@ -1,15 +1,37 @@
 <template>
-  <div class="relative w-full aspect-square">
+  <div class="relative w-full aspect-square bg-slate-100">
+    <button type="button" class="z-50 ml-4 mt-2 absolute" @click="goBack">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-arrow-left w-7"
+      >
+        <path d="m12 19-7-7 7-7" />
+        <path d="M19 12H5" />
+      </svg>
+    </button>
     <img
       :src="currentImage"
       :alt="restaurantName"
-      class="w-full h-full object-cover"
+      class="w-full h-full object-contain"
     />
+
+    <!-- Image counter -->
+    <div
+      class="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-sm"
+    >
+      {{ currentImageIndex + 1 }} / {{ images.length }}
+    </div>
 
     <!-- Navigation Arrows -->
     <button
       v-if="hasImages"
-      class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full"
+      class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/70 text-gray-800 p-2 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500"
       aria-label="Previous image"
       @click="previousImage"
     >
@@ -30,7 +52,7 @@
     </button>
     <button
       v-if="hasImages"
-      class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full"
+      class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/70 text-gray-800 p-2 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500"
       aria-label="Next image"
       @click="nextImage"
     >
@@ -49,11 +71,29 @@
         />
       </svg>
     </button>
+
+    <!-- Thumbnail navigation -->
+    <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-3">
+      <button
+        v-for="(image, index) in images"
+        :key="index"
+        class="w-2.5 h-2.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white shadow-md"
+        :class="
+          index === currentImageIndex ? 'bg-white scale-125' : 'bg-white/70'
+        "
+        :aria-label="`View image ${index + 1}`"
+        @click="setCurrentImage(index)"
+      ></button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+
+const goBack = () => {
+  navigateTo('/');
+};
 
 const props = defineProps({
   images: {
@@ -92,4 +132,18 @@ const previousImage = () => {
         : currentImageIndex.value - 1;
   }
 };
+
+const setCurrentImage = (index) => {
+  currentImageIndex.value = index;
+};
 </script>
+
+<style scoped>
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+}
+</style>

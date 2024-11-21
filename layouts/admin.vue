@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-100 flex justify-center">
     <!-- Mobile container with fixed width -->
-    <div class="w-full max-w-md relative bg-white min-h-screen shadow-lg">
+    <div class="w-full max-w-md bg-white min-h-screen shadow-lg">
       <!-- Header -->
       <AdminHeader
         :title="pageTitle"

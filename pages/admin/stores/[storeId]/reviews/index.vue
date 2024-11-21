@@ -9,11 +9,13 @@
         <!-- 유저 프로필 사진 영역 -->
         <div class="flex items-start justify-center p-3">
           <div v-if="review.userProfilePicture">
-            <img
-              :src="review.userProfilePicture"
-              alt="profile"
-              class="h-14 w-14 rounded-full object-cover"
-            />
+            <div class="h-14 w-14 rounded-full overflow-hidden">
+              <img
+                :src="review.userProfilePicture"
+                alt="profile"
+                class="h-full w-full object-cover"
+              />
+            </div>
           </div>
           <div v-else>
             <svg
@@ -112,7 +114,7 @@
               <div v-if="isEditing[reviewIndex]?.[commentIndex]">
                 <textarea
                   v-model="editContent[reviewIndex][commentIndex]"
-                  class="w-full h-24 mt-2 border rounded-md resize-none focus:border-orange-400 focus:outline-none"
+                  class="h-20 w-full bg-[#e2e8f0] resize-none rounded-md border border-[#e2e8f0] p-2 text-xs focus:border-[#c8ced6]"
                   spellcheck="false"
                 ></textarea>
                 <div class="flex justify-end gap-4 mt-2">
@@ -303,7 +305,7 @@ const sentinel = ref<HTMLElement | null>(null); // 관찰할 엘리먼트
 let observer: IntersectionObserver;
 
 // storeId 가져오기
-const storeId = route.params.storeId as string;
+const storeId = route.params.storeId;
 
 // 등록일자 계산
 const formatDateDifference = (regDate: string): string => {
@@ -423,11 +425,11 @@ const submitComment = async (
         baseURL: baseUrl,
         method: 'POST',
         body: {
-          storeId,
-          userId: adminId,
-          reviewId,
+          storeId: Number(storeId), // storeId가 문자열일 경우 숫자로 변환
+          userId: Number(adminId.value), // adminId.value로 접근하여 숫자 값 사용
+          reviewId: Number(reviewId),
           content: commentContent,
-          userProfilePciture: null,
+          userProfilePicture: null, // 오타 수정
         },
       },
     );
