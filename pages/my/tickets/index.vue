@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <div>
+  <div class="max-w-lg mx-auto bg-white min-h-screen">
+  <div class="px-4">
+    <div v-if="tickets.length > 0">
       <MyTicketList
         v-for="(ticket, index) in tickets"
         :key="index"
@@ -8,6 +9,10 @@
         :ticket="ticket"
         @toggle-bookmark="handleBookmarkToggle(ticket)"
       />
+    </div>
+    <p v-else class="text-center py-12 text-gray-500">
+      소유한 식권이 없습니다.
+    </p>
     </div>
     <!-- Bookmark Modal -->
     <BookmarkModal
@@ -35,7 +40,7 @@ interface Ticket {
   ticketPrice: number;
   isBookmarked: boolean;
   ticketAmount: number;
-  storeImgUrl: string;
+  storeImgUrl: string | null;
 }
 
 const tickets = ref<Ticket[]>([]);
@@ -64,10 +69,7 @@ const addBookmark = async (storeId: number) => {
       `http://localhost:8080/api/v1/user/my/bookmarks`,
       {
         method: 'POST',
-        body: JSON.stringify({ storeId, username }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        body: JSON.stringify({ storeId, username })
       },
     );
 
@@ -154,26 +156,27 @@ const fetchUpdatedTickets = async () => {
       ...ticket,
       storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`,
     }));
-  } else if (error.value) {
-    console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
+  } else if (fetchError.value) {
+    console.error('식권 정보를 불러오는 데 실패했습니다', fetchError.value);
   }
 };
 
-const { data, error } = useFetch<Ticket[]>(
-  `http://localhost:8080/api/v1/user/my/tickets?username=${username}`,
-);
-
-if (data.value) {
-  tickets.value = data.value.map((ticket) => ({
-    ...ticket,
-    storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`,
-  }));
-} else if (error.value) {
-  console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
-}
-
 const route = useRoute();
-onBeforeMount(() => {
+onBeforeMount( async () => {
   route.meta.title = '내 식권';
+    const { data, error } = await useFetch<Ticket[]>(
+    `http://localhost:8080/api/v1/user/my/tickets?username=${username}`,
+  );
+
+  if (data.value) {
+    tickets.value = data.value.map((ticket) => ({
+      ...ticket,
+      storeImgUrl: ticket.storeImgUrl
+      ? `http://localhost:8080${ticket.storeImgUrl}`
+      : null,
+    }));
+  } else if (error.value) {
+    console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
+  }
 });
 </script>

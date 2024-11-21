@@ -13,8 +13,8 @@
             <!-- 프로필 사진이 없는 경우 SVG 아이콘을 보여줌 -->
             <svg
               v-else
-              width="20px"
-              height="20px"
+              width="80px"
+              height="80px"
               viewBox="0 0 64 64"
               xmlns="http://www.w3.org/2000/svg"
               stroke-width="3"
@@ -50,6 +50,6 @@
 defineProps({
   name: String,
   email: String,
-  profilePicture: String,
+  profilePicture: String | null
 });
 </script>
