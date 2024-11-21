@@ -31,7 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       // 로그인 후 인증 상태 초기화
-      await initializeAuth();
+      // await initializeAuth();
     } catch (error: any) {
       throw createError({
         statusCode: error.statusCode || 500,
