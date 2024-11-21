@@ -375,14 +375,14 @@ onMounted(() => {
   }
 });
 
-window.onload = function () {
+if (import.meta.client) {
   if (!localStorage.getItem('visited')) {
     // 모달 표시 함수 호출
     showModal();
     // 방문 여부 저장
     localStorage.setItem('visited', 'true');
   }
-};
+}
 
 function showModal() {
   isLandingVisible.value = true;
