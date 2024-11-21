@@ -22,7 +22,7 @@
         이 페이지를 보려면 로그인이 필요합니다.
       </p>
       <button
-        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        class="px-4 py-2 bg-[#db3d39] text-white rounded hover:bg-[#c22420] transition"
         @click="goToLogin"
       >
         로그인하기
@@ -91,7 +91,12 @@ onMounted(() => {
 
 // 로그인 페이지로 이동하는 함수
 function goToLogin() {
-  router.push(`/signIn`); // 라우터 설정에 따라 경로 또는 이름 변경
+  if (process.client) {
+    const currentPath = route.fullPath; // 현재 경로 가져오기
+    console.log('Current Path:', currentPath); // 디버깅 로그
+    localStorage.setItem('redirectPath', currentPath); // 경로 저장
+  }
+  router.push(`/signIn`); // 로그인 페이지로 이동
 }
 
 // 레이아웃 설정

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex-grow mt-14 mb-16 overflow-y-auto w-full max-w-lg mx-auto px-4"
+    class="flex-grow mt-4 mb-16 overflow-y-auto w-full max-w-lg mx-auto px-4"
   >
     <AdminNoticesNoticeRegistForm
       :initial-data="notice"
@@ -30,6 +30,9 @@ import ConfirmationModal from '~/components/modal/BasicModal.vue';
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
+const authstore = useAuthStore();
+const adminId = Number(authstore.user?.userId);
+
 onBeforeMount(() => {
   route.meta.title = '공지수정';
 });
@@ -57,7 +60,7 @@ const notice = ref<NoticeData>({
   title: '',
   content: '',
 });
-const userId = 1; // 등록 userId는 실제 로그인한 사용자의 id를 가져와야 함.
+const userId = adminId; // 등록 userId는 실제 로그인한 사용자의 id를 가져와야 함.
 
 // 공지 데이터 로드
 const loadNoticeData = async (): Promise<void> => {

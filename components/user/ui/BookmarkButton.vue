@@ -4,34 +4,37 @@
       class="w-6 h-6"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
-      fill="currentColor"
-      :class="isBookmarked ? 'text-red-500' : 'text-gray-500'"
+      :fill="isBookmarked ? 'red' : 'gray'"
     >
-      <path
-        v-if="isBookmarked"
-        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-      />
-      <path
-        v-else
-        d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"
-      />
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+      <g id="SVGRepo_iconCarrier">
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
+          stroke="currentColor"
+          stroke-width="0"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+      </g>
     </svg>
   </button>
 </template>
 
 <script setup lang="ts">
-
-const props = defineProps<{ isBookmarked: Boolean }>();
+const props = defineProps<{ isBookmarked: boolean }>();
 
 // 이벤트 정의
 const emit = defineEmits<{
-  (event: 'toggle-bookmark'): void;
+  (event: "toggle-bookmark"): void;
 }>();
 
 // 이벤트 호출 메서드
 const toggleBookmark = () => {
   console.log("Bookmark button clicked!");
-  emit('toggle-bookmark'); // 북마크 상태 변경 이벤트를 부모로 전달
+  emit("toggle-bookmark"); // 북마크 상태 변경 이벤트를 부모로 전달
 };
 </script>
 

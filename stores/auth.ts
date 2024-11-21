@@ -26,16 +26,16 @@ export const useAuthStore = defineStore('auth', () => {
         const errorData = await response.json();
         throw createError({
           statusCode: response.status,
-          statusMessage: errorData.message || 'Login failed',
+          statusMessage: errorData.message || '로그인 실패',
         });
       }
 
       // 로그인 후 인증 상태 초기화
-      await initializeAuth();
+      // await initializeAuth();
     } catch (error: any) {
       throw createError({
         statusCode: error.statusCode || 500,
-        statusMessage: error.statusMessage || 'Login failed',
+        statusMessage: error.statusMessage || '로그인 실패',
       });
     }
   };
@@ -52,6 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
           username: data.username,
           role: data.role,
           storeId: data.storeId,
+          userId: data.userId,
         });
       } else if (response.status === 401) {
         // 만료된 토큰 처리
@@ -79,11 +80,13 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const storeId = computed(() => authUser.value?.storeId || null);
+  const userId = computed(() => authUser.value?.userId || null);
 
   return {
     user: authUser,
     token: jwtToken,
     storeId,
+    userId,
     isAuthenticated: computed(() => !!authUser.value),
     isUser: computed(() => authUser.value?.role === 'USER'),
     isAdmin: computed(() => authUser.value?.role === 'ADMIN'),

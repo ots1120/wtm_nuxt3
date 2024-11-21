@@ -7,15 +7,16 @@
     <div
       class="flex flex-col items-center justify-center bg-white shadow-md rounded-lg p-6 mb-6"
     >
-      <h2 class="text-lg font-semibold text-gray-700 mb-4">날짜 선택</h2>
-      <Datepicker
-        v-model="selectedDate"
-        :auto-apply="true"
-        :enable-time-picker="false"
-        :inline="true"
-        :format="'yyyy-MM-dd'"
-        class=""
-      />
+      <div class="scale-110">
+        <Datepicker
+          v-model="selectedDate"
+          :auto-apply="true"
+          :enable-time-picker="false"
+          :inline="true"
+          :format="'yyyy-MM-dd'"
+          class="w-full"
+        />
+      </div>
     </div>
 
     <!-- 이미지 업로드 및 슬라이더 -->
@@ -50,7 +51,7 @@
                 <img
                   :src="image.url"
                   alt="Uploaded Image"
-                  class="object-cover w-full h-full"
+                  class="object-contain w-full h-full"
                 />
                 <!-- 삭제 버튼 -->
                 <button
@@ -153,8 +154,10 @@
         </colgroup>
         <thead>
           <tr>
-            <th class="border border-gray-200 px-4 py-2 text-left">메뉴</th>
-            <th class="border border-gray-200 px-4 py-2 text-left">카테고리</th>
+            <th class="border border-gray-200 px-4 py-2 text-center">메뉴</th>
+            <th class="border border-gray-200 px-4 py-2 text-center">
+              카테고리
+            </th>
             <th class="border border-gray-200 px-4 py-2 text-center"></th>
           </tr>
         </thead>
@@ -195,7 +198,7 @@
       <!-- 메뉴 추가 버튼 -->
       <button
         type="button"
-        class="w-full mt-4 px-4 py-2 bg-green-200 text-green-800 rounded-md hover:bg-gray-300"
+        class="w-full mt-4 px-4 py-2 bg-green-300 text-green-800 rounded-md hover:bg-gray-300"
         @click="addMenu"
       >
         메뉴 추가
@@ -253,6 +256,9 @@ import ConfirmModal from '~/components/modal/BasicModal.vue';
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
+const authstore = useAuthStore();
+const adminId = Number(authstore.user?.userId);
+
 onBeforeMount(() => {
   route.meta.title = '메뉴관리';
 });
@@ -292,7 +298,7 @@ interface ImageItem {
 const selectedDate = ref<Date>(new Date());
 const dailyMenus = ref<MenuItem[]>([]);
 const route = useRoute();
-const storeId = route.params.storeId as string;
+const storeId = route.params.storeId;
 
 // 이미지 삭제 모달 변수
 const isImgModalVisible = ref(false);
@@ -378,7 +384,7 @@ const allImages = ref<ImageItem[]>([]);
 const currentImageIndex = ref(0);
 
 // 현재 로그인된 사용자 ID (예시로 1을 사용, 실제로는 로그인한 사용자 정보에서 가져와야 함)
-const currentUserId = ref<number>(1);
+const currentUserId = ref<number>(adminId);
 
 // 메뉴 추가
 const addMenu = () => {

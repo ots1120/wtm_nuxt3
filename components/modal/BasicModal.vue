@@ -1,61 +1,81 @@
 <template>
-  <div
-    v-if="visible"
-    class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50"
-  >
-    <div class="w-full max-w-sm rounded-lg bg-white shadow-lg">
-      <div class="p-6">
-        <!-- 타이틀 -->
-        <h2 class="mb-4 text-center text-2xl font-semibold">
-          {{ messageTitle }}
-        </h2>
-        <!-- 메시지 -->
-        <p class="mb-6 text-gray-600 break-words">
-          {{ messageBody }}
-        </p>
-      </div>
-      <!-- 버튼 영역 -->
-      <div class="flex">
-        <button
-          class="w-full rounded-bl-lg bg-gray-200 px-4 py-3 text-gray-800"
-          @click="handleCancel"
-        >
-          {{ cancelMessage }}
-        </button>
-        <button
-          class="w-full rounded-br-lg bg-red-500 px-4 py-3 text-white"
-          @click="handleConfirm"
-        >
-          {{ confirmMessage }}
-        </button>
+  <Transition name="modal">
+    <div
+      v-if="visible"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+    >
+      <div
+        class="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"
+      ></div>
+      <div
+        class="w-full max-w-sm rounded-2xl bg-white shadow-lg overflow-hidden relative z-10"
+      >
+        <div class="p-6">
+          <!-- Title -->
+          <h2 class="mb-4 text-center text-xl font-semibold text-gray-800">
+            {{ messageTitle }}
+          </h2>
+          <!-- Message -->
+          <p class="my-3 pt-2 text-center text-base text-gray-600 break-words">
+            {{ messageBody }}
+          </p>
+        </div>
+        <!-- Button area -->
+        <div class="flex border-t border-gray-200">
+          <button
+            class="w-full py-3 text-base font-medium text-blue-500 transition duration-200 ease-in-out hover:bg-blue-50 active:bg-blue-100"
+            @click="handleCancel"
+          >
+            {{ cancelMessage }}
+          </button>
+          <div class="w-px bg-gray-200"></div>
+          <button
+            class="w-full py-3 text-base font-medium text-red-500 transition duration-200 ease-in-out hover:bg-red-50 active:bg-red-100"
+            @click="handleConfirm"
+          >
+            {{ confirmMessage }}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-// Props 정의
+// Props definition
 const props = defineProps<{
-  visible: boolean; // 모달 표시 여부
-  messageTitle: string; // 모달 타이틀
-  messageBody: string; // 모달 메시지 내용
+  visible: boolean;
+  messageTitle: string;
+  messageBody: string;
   cancelMessage: string;
   confirmMessage: string;
 }>();
 
-// Emit 정의
+// Emit definition
 const emit = defineEmits<{
-  (event: 'confirm'): void; // 확인 버튼 클릭 시
-  (event: 'cancel'): void; // 취소 버튼 클릭 시
+  (event: 'confirm'): void;
+  (event: 'cancel'): void;
 }>();
 
-// 확인 버튼 핸들러
+// Confirm button handler
 const handleConfirm = () => {
-  emit('confirm'); // 부모 컴포넌트로 'confirm' 이벤트 전송
+  emit('confirm');
 };
 
-// 취소 버튼 핸들러
+// Cancel button handler
 const handleCancel = () => {
-  emit('cancel'); // 부모 컴포넌트로 'cancel' 이벤트 전송
+  emit('cancel');
 };
 </script>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+</style>

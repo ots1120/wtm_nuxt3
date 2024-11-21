@@ -36,7 +36,9 @@ interface Review {
   reviewImgUrl: string;
 }
 const reviews = ref<Review[]>([]);
-const userId = 1;
+
+const authstore = useAuthStore();
+const username = authstore.user?.username;
 
 // 모달 상태 관리
 const visible = ref(false);
@@ -54,30 +56,13 @@ const closeModal = () => {
   selectedReviewId.value = null;
 };
 
-// 컴포넌트 생성 시 리뷰 데이터를 가져옴
-const { data, error } = useFetch<Review[]>(
-  `http://localhost:8080/api/v1/user/my/reviews?userId=${userId}`,
-  {},
-);
-
-if (data.value) {
-  reviews.value = data.value.map((review) => ({
-    ...review,
-    reviewImgUrl: `http://localhost:8080${review.reviewImgUrl}`,
-  }));
-} else if (error.value) {
-  console.error('유저 정보를 불러오는 데 실패했습니다', error.value);
-}
-
 const deleteCard = async (reviewId: number) => {
   try {
-    console.log(reviewId);
     // 백엔드에 DELETE 요청을 보내 북마크를 삭제
-    const userId = 1; // 실제로는 적절한 userId를 사용해야 합니다
     const { data, error } = await useFetch(
-      `http://localhost:8080/api/v1/user/my/reviews?reviewId=${reviewId}&userId=${userId}`,
+      `http://localhost:8080/api/v1/user/my/reviews/${reviewId}/usernames/${username}`,
       {
-        method: 'DELETE',
+        method: 'DELETE'
       },
     );
 
@@ -89,8 +74,7 @@ const deleteCard = async (reviewId: number) => {
 
     // 최신 북마크 데이터를 다시 가져오기
     const { data: updatedData, error: fetchError } = await useFetch<Review[]>(
-      `http://localhost:8080/api/v1/user/my/reviews?userId=${userId}`,
-      {},
+      `http://localhost:8080/api/v1/user/my/reviews?username=${username}`,
     );
 
     if (fetchError.value) {
@@ -108,8 +92,21 @@ const deleteCard = async (reviewId: number) => {
 };
 
 const route = useRoute();
-onBeforeMount(() => {
+onBeforeMount(async () => {
   route.meta.title = '내 리뷰';
+  // 컴포넌트 생성 시 리뷰 데이터를 가져옴
+  const { data, error } = await useFetch<Review[]>(
+    `http://localhost:8080/api/v1/user/my/reviews?username=${username}`,
+  );
+
+  if (data.value) {
+    reviews.value = data.value.map((review) => ({
+      ...review,
+      reviewImgUrl: `http://localhost:8080${review.reviewImgUrl}`,
+    }));
+  } else if (error.value) {
+    console.error('유저 정보를 불러오는 데 실패했습니다', error.value);
+  }
 });
 </script>
 

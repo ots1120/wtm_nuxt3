@@ -37,6 +37,7 @@ interface TicketData {
 }
 
 interface TicketHistory {
+  storeId: number;
   id: number;
   formattedRegDate: string;
   price: number;
@@ -52,6 +53,8 @@ const ticketData = ref<TicketData>({
   remainingCount: 0,
 });
 
+const authstore = useAuthStore();
+const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
 const selectedMonth = ref<number>(new Date().getMonth() + 1);
 const selectedYear = ref<number>(new Date().getFullYear());
@@ -62,7 +65,7 @@ const fetchItems = async () => {
   if (!hasMoreItems.value) return;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/tickets/history?userId=1&month=${selectedMonth.value}&year=${selectedYear.value}&page=${page.value}&size=7`,
+      `http://localhost:8080/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&page=${page.value}&size=7`,
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -115,5 +118,6 @@ onMounted(() => {
 const route = useRoute();
 onBeforeMount(() => {
   route.meta.title = '내 식권';
+  fetchItems();
 });
 </script>

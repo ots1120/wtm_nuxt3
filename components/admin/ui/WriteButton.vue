@@ -1,6 +1,6 @@
 <template>
   <button
-    class="absolute right-7 top-3/4 rounded-full border-2 bg-orange-500 p-3"
+    class="rounded-full border-2 bg-orange-500 p-3"
     @click="navigateToRegistForm"
   >
     <svg
