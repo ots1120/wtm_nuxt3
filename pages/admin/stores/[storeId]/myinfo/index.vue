@@ -105,7 +105,7 @@
           </div>
           <button
             type="button"
-            class="bg-blue-500 text-white px-3 py-1 mt-2 rounded"
+            class="bg-blue-600 text-white px-3 py-1 mt-2 rounded-lg"
             @click="addSnsAddress"
           >
             SNS 추가
@@ -323,7 +323,10 @@ const confirmSave = async () => {
       'dto',
       JSON.stringify({
         storeName: store.value.storeName,
-        storeAddress: store.value.storeAddress,
+        postcode: store.value.storeAddress.postcode,
+        address: store.value.storeAddress.address,
+        detailAddress: store.value.storeAddress.detailAddress,
+        extraAddress: store.value.storeAddress.extraAddress,
         snsAddress: store.value.snsAddress,
         phone: store.value.phone,
         openTime: formatTime(store.value.openTime),
@@ -346,6 +349,7 @@ const confirmSave = async () => {
     );
 
     if (response.ok) {
+      console.log(store.value.storeAddress);
       console.log('데이터가 성공적으로 저장되었습니다.');
       modal.value.visible = false;
       alert('저장 완료');

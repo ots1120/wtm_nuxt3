@@ -198,7 +198,7 @@
       <!-- 메뉴 추가 버튼 -->
       <button
         type="button"
-        class="w-full mt-4 px-4 py-2 bg-green-200 text-green-800 rounded-md hover:bg-gray-300"
+        class="w-full mt-4 px-4 py-2 bg-green-300 text-green-800 rounded-md hover:bg-gray-300"
         @click="addMenu"
       >
         메뉴 추가
@@ -298,7 +298,7 @@ interface ImageItem {
 const selectedDate = ref<Date>(new Date());
 const dailyMenus = ref<MenuItem[]>([]);
 const route = useRoute();
-const storeId = route.params.storeId as string;
+const storeId = route.params.storeId;
 
 // 이미지 삭제 모달 변수
 const isImgModalVisible = ref(false);

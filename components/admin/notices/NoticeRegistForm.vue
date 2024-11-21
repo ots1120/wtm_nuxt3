@@ -23,7 +23,7 @@
 
       <button
         type="submit"
-        class="w-full mt-4 h-12 bg-orange-400 text-white rounded-lg"
+        class="w-full mt-4 h-12 bg-[#db3d39] text-white rounded-lg"
       >
         등록
       </button>

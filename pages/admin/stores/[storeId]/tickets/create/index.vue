@@ -12,7 +12,7 @@
         >
         <select
           v-model="newItemCategory"
-          class="w-32 mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
+          class="w-20 mt-1 px-1 py-2 border rounded-md focus:ring focus:ring-blue-200"
         >
           <option :value="1">현금</option>
           <option :value="2">카드</option>
@@ -45,7 +45,7 @@
         />
       </div>
       <button
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 mt-auto"
+        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mt-auto"
         @click="addTicketItem"
       >
         등록

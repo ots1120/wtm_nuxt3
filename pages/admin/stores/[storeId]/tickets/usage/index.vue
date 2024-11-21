@@ -2,11 +2,11 @@
   <div class="container mx-auto p-4">
     <h1 class="text-3xl font-bold mb-6">식권 사용</h1>
 
-    <div class="bg-white shadow-md rounded-lg p-4">
+    <div class="bg-white shadow-md rounded-lg p-4 max-w-md mx-auto">
       <!-- QR 스캔 버튼 -->
       <div class="mb-4">
         <button
-          class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+          class="w-full px-4 py-2 bg-[#db3d39] text-white rounded-md hover:bg-[#c22420] focus:outline-none"
           @click="scanQRCode"
         >
           QR 코드 스캔
@@ -14,25 +14,29 @@
       </div>
 
       <!-- QrScanner 컴포넌트 -->
-      <QrScanner
+      <div
         v-if="isScanning"
-        :key="scannerKey"
-        :scanner-id="'scanner-usage-' + scannerKey"
-        :on-decode="handleQRCodeDecode"
-      />
+        class="w-full aspect-square max-h-64 relative overflow-hidden flex justify-center items-center"
+      >
+        <QrScanner
+          :key="scannerKey"
+          :scanner-id="'scanner-usage-' + scannerKey"
+          :on-decode="handleQRCodeDecode"
+          class="w-full h-full"
+        />
+      </div>
 
       <!-- 스캔된 정보 및 승인 상태 표시 -->
       <div
         v-if="decodedData"
         class="mt-4 p-4 bg-gray-100 border border-gray-300 rounded-md"
       >
-        <p class="text-gray-700 font-semibold">스캔된 정보 (Usage):</p>
+        <p class="text-gray-700 font-semibold">스캔된 정보 (Recharge):</p>
         <p class="text-gray-600">사용자 ID: {{ decodedData.userId }}</p>
         <p class="text-gray-600">
-          식권 금액: {{ decodedData.ticketQuantity }}원
+          사용 수량: {{ decodedData.ticketQuantity }}원
         </p>
       </div>
-
       <!-- 승인 상태 표시 -->
       <div
         v-if="approvalStatus === 'approved'"

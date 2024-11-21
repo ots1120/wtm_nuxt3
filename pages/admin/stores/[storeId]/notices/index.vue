@@ -1,6 +1,11 @@
 <template>
   <!-- 공지사항 리스트 -->
   <div>
+    <!-- Write Button -->
+    <WriteButton
+      :push-route="`/admin/stores/${storeId}/notices/regist`"
+      class="sticky"
+    />
     <div class="px-4">
       <div
         v-for="(notice, noticeIndex) in notices"
@@ -98,11 +103,6 @@
         @cancel="cancelDelete"
       />
     </div>
-    <!-- Write Button -->
-    <WriteButton
-      :push-route="`/admin/stores/${storeId}/notices/regist`"
-      class="fixed top-2/3 right-2 block"
-    />
   </div>
 </template>
 
@@ -155,7 +155,7 @@ const router = useRouter();
 const route = useRoute();
 
 // storeId 가져오기
-const storeId = route.params.storeId as string;
+const storeId = route.params.storeId;
 
 // Pagination 상태
 const page = ref(0);
