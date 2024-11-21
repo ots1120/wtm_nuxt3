@@ -4,7 +4,7 @@
       class="w-6 h-6"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
-      :fill="isBookmarked ? 'red' : 'gray'" <!-- 내부 색상 변경 -->
+      :fill="isBookmarked ? 'red' : 'gray'"
     >
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
       <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>

@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <div>
+  <div class="max-w-lg mx-auto bg-white min-h-screen">
+  <div class="px-4">
+    <div v-if="tickets.length > 0">
       <MyTicketList
         v-for="(ticket, index) in tickets"
         :key="index"
@@ -8,6 +9,10 @@
         :ticket="ticket"
         @toggle-bookmark="handleBookmarkToggle(ticket)"
       />
+    </div>
+    <p v-else class="text-center py-12 text-gray-500">
+      소유한 식권이 없습니다.
+    </p>
     </div>
     <!-- Bookmark Modal -->
     <BookmarkModal
@@ -35,7 +40,7 @@ interface Ticket {
   ticketPrice: number;
   isBookmarked: boolean;
   ticketAmount: number;
-  storeImgUrl: string;
+  storeImgUrl: string | null;
 }
 
 const tickets = ref<Ticket[]>([]);
@@ -166,7 +171,9 @@ onBeforeMount( async () => {
   if (data.value) {
     tickets.value = data.value.map((ticket) => ({
       ...ticket,
-      storeImgUrl: `http://localhost:8080${ticket.storeImgUrl}`,
+      storeImgUrl: ticket.storeImgUrl
+      ? `http://localhost:8080${ticket.storeImgUrl}`
+      : null,
     }));
   } else if (error.value) {
     console.error('식권 정보를 불러오는 데 실패했습니다', error.value);

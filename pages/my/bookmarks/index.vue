@@ -37,7 +37,7 @@ interface Bookmark {
   storeName: string;
   storeOpenTime: string | null;
   storeCloseTime: string | null;
-  reviewAverage: number;
+  reviewAverage: number | null;
   ticketPrice: number | null;
   isBookmarked: boolean;
   storeImgUrl: string | null;
@@ -112,6 +112,9 @@ onBeforeMount(async () => {
   if (data.value) {
     bookmarks.value = data.value.map((bookmark) => ({
       ...bookmark,
+      reviewAverage: bookmark.reviewAverage
+      ? bookmark.reviewAverage
+      :null,
       storeImgUrl: bookmark.storeImgUrl
       ? `http://localhost:8080${bookmark.storeImgUrl}`
       : null,

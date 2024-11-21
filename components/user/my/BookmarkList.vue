@@ -29,7 +29,7 @@
 
       <div class="flex-1 min-w-0 flex flex-col justify-between h-16">
         <div class="flex items-center space-x-1">
-          <h2 class="text-base font-medium text-gray-900 truncate">
+          <h2 class="text-base font-bold text-gray-900 truncate">
             {{ bookmark.storeName }}
           </h2>
           <div class="flex items-center space-x-1 text-yellow-400">
@@ -43,7 +43,10 @@
             >
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
-            <span class="text-sm text-gray-900">{{ bookmark.reviewAverage }}</span>
+            <span v-if="bookmark.reviewAverage" class="text-sm text-gray-900">
+              {{ bookmark.reviewAverage }}
+            </span>
+            <span v-else class="text-sm text-gray-900">--.--</span>
           </div>
         </div>
         <p class="text-sm text-gray-500">
@@ -80,7 +83,7 @@ interface Bookmark {
   storeName: string;
   storeOpenTime: string | null;
   storeCloseTime: string | null;
-  reviewAverage: number;
+  reviewAverage: number | null;
   ticketPrice: number | null;
   isBookmarked: boolean;
   storeImgUrl: string | null;
