@@ -33,13 +33,13 @@
     <div v-else class="flex flex-col items-center justify-center">
       <h3 class="text-lg font-bold mb-4">오늘의 메뉴</h3>
       <div
-        class="w-1/2 max-w-lg flex flex-col items-center bg-gray-100 rounded-lg p-4"
+        class="w-2/3 max-w-lg flex flex-col items-center bg-gray-100 rounded-lg p-4"
       >
         <p class="text-gray-500 mb-4">아직 메뉴 정보가 없어요 😢</p>
         <form action="#" method="post" class="w-full">
           <button
-            class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg w-full transition hover:bg-gray-400"
-            @click.prevent="RegAction"
+            class="bg-[#db3d39] text-white font-semibold py-2 px-4 rounded-lg w-full transition hover:bg-[#c22420]"
+            @click.prevent="goToMenuRegPage"
           >
             메뉴 등록하기
           </button>

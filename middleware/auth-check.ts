@@ -1,7 +1,7 @@
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware((to, from) => {
   const { isAuthenticated } = storeToRefs(useAuthStore());
 
-  if (process.client) {
+  if (import.meta.client) {
     if (isAuthenticated.value) {
       // 이미 로그인한 경우 경로 이동
       const redirectPath = localStorage.getItem('redirectPath') || '/';
@@ -11,8 +11,8 @@ export default defineNuxtRouteMiddleware((to) => {
 
     // 로그인되지 않은 경우 경로 저장
     if (!localStorage.getItem('redirectPath')) {
-      localStorage.setItem('redirectPath', to.fullPath);
-      console.log('Saved Redirect Path:', to.fullPath);
+      localStorage.setItem('redirectPath', from.fullPath); // /signin
+      console.log('Saved Redirect Path:', from.fullPath);
     }
   }
 });
