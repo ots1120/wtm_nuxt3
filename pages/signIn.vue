@@ -154,14 +154,20 @@ const handleSignIn = async () => {
   try {
     await authStore.signIn(username.value, password.value, role.value);
 
-    // 성공 후 페이지 이동
-    if (authStore.isUser) {
-      await navigateTo('/');
-    } else if (authStore.isAdmin) {
-      await navigateTo(`/admin/stores/${authStore.storeId}`);
+    let redirectPath = '/'; // 기본 경로
+
+    if (process.client) {
+      redirectPath =
+        localStorage.getItem('redirectPath') ||
+        (authStore.isUser ? '/' : `/admin/stores/${authStore.storeId}`);
+      console.log('Redirecting to:', redirectPath); // 디버깅 로그
+      localStorage.removeItem('redirectPath'); // 사용 후 삭제
     }
+
+    // 리디렉트 실행
+    await navigateTo(redirectPath);
   } catch (error) {
-    console.log(error);
+    console.error('Login Error:', error); // 디버깅 로그
     loginErrorMessage.value = error.statusMessage || '로그인에 실패했습니다.';
   }
 };

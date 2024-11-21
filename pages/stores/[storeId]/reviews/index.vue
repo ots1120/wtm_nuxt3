@@ -272,7 +272,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/solid';
 import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
 import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue'; // 모달 컴포넌트 임포트
@@ -576,6 +575,11 @@ const closeLoginModal = () => {
 
 // 로그인 페이지로 리디렉션 함수
 const redirectToLogin = () => {
+  if (process.client) {
+    const currentPath = route.fullPath; // 현재 경로 가져오기
+    console.log('Current Path:', currentPath); // 디버깅 로그
+    localStorage.setItem('redirectPath', currentPath); // 경로 저장
+  }
   router.push('/signIn'); // 라우터에 'login' 경로가 설정되어 있어야 합니다.
 };
 

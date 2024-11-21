@@ -1,33 +1,44 @@
 <template>
-  <div
-    v-if="visible"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50 p-0"
-  >
-    <div class="w-full max-w-sm rounded-lg bg-white p-0 shadow-lg">
-      <div class="-mb-6 p-6">
-        <h2 class="mb-4 text-center text-2xl font-semibold">
-          북마크를 삭제하시겠습니까?
-        </h2>
-        <p class="mb-6 break-words text-gray-600">
-          북마크를 삭제하시려면 확인을 눌러주세요.
-        </p>
-      </div>
-      <div class="flex w-full">
-        <button
-          @click="cancel"
-          class="w-full rounded-bl-lg bg-gray-200 px-4 py-3 text-gray-800"
-        >
-          취소
-        </button>
-        <button
-          @click="confirm"
-          class="w-full rounded-br-lg bg-red-500 px-4 py-3 text-white"
-        >
-          삭제
-        </button>
+  <Transition name="modal">
+    <div
+      v-if="visible"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+    >
+      <div
+        class="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"
+      ></div>
+      <div
+        class="w-full max-w-sm rounded-2xl bg-white shadow-lg overflow-hidden relative z-10"
+      >
+        <div class="p-6">
+          <!-- Title -->
+          <h2 class="mb-4 text-center text-xl font-semibold text-gray-800">
+            북마크를 삭제하시겠습니까?
+          </h2>
+          <!-- Message -->
+          <p class="mb-6 text-center text-base text-gray-600 break-words">
+            북마크를 삭제하시려면 확인을 눌러주세요.
+          </p>
+        </div>
+        <!-- Button area -->
+        <div class="flex border-t border-gray-200">
+          <button
+            class="w-full py-3 text-base font-medium text-blue-500 transition duration-200 ease-in-out hover:bg-blue-50 active:bg-blue-100"
+            @click="cancel"
+          >
+            취소
+          </button>
+          <div class="w-px bg-gray-200"></div>
+          <button
+            class="w-full py-3 text-base font-medium text-red-500 transition duration-200 ease-in-out hover:bg-red-50 active:bg-red-100"
+            @click="confirm"
+          >
+            삭제
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -51,3 +62,14 @@ const confirm = (): void => {
 };
 </script>
 
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+</style>

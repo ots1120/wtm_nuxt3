@@ -8,6 +8,7 @@
         aria-label="현재 위치로 이동"
         @click="goToCurrentLocation"
       >
+        <!-- SVG 아이콘 -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-6 w-6 text-blue-500 dark:text-blue-400"
@@ -60,7 +61,7 @@
           ></span>
         </div>
 
-        <!-- 선택된 식당이 있을 때 상세 정보 표시 -->
+        <!-- 선택된 식당 상세 정보 -->
         <div v-if="selectedStore" class="p-4 overflow-y-auto">
           <button
             class="mb-4 px-3 py-1.5 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-md shadow-md hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-in-out transform hover:scale-105"
@@ -68,6 +69,7 @@
           >
             전체 목록 보기
           </button>
+          <!-- 식당 상세 정보 표시 -->
           <div
             class="flex items-start space-x-4 border-b border-gray-200 dark:border-gray-700 pb-4"
           >
@@ -157,7 +159,7 @@
           </div>
         </div>
 
-        <!-- 식당 목록 섹션 -->
+        <!-- 식당 목록 -->
         <div
           v-else
           class="overflow-y-auto"
@@ -165,6 +167,7 @@
         >
           <!-- 로딩 스피너 -->
           <div v-if="isLoading" class="flex justify-center items-center h-full">
+            <!-- 스피너 아이콘 -->
             <svg
               class="animate-spin h-8 w-8 text-blue-500"
               xmlns="http://www.w3.org/2000/svg"
@@ -187,7 +190,7 @@
             </svg>
           </div>
 
-          <!-- 검색 결과가 없을 때 표시되는 메시지 -->
+          <!-- 검색 결과 없음 메시지 -->
           <div
             v-if="!isLoading && filteredStores.length === 0"
             class="m-4 text-center text-gray-500 dark:text-gray-400"
@@ -195,11 +198,11 @@
             검색 결과가 없습니다.
           </div>
 
-          <!-- `filteredStores` 배열을 순회하며 각 식당을 표시 -->
+          <!-- 식당 목록 표시 -->
           <div
             v-for="(store, index) in filteredStores"
             :key="store.storeId"
-            ref="el => storeRefs.value[store.storeId] = el"
+            :ref="(el) => (storeRefs[store.storeId] = el)"
             class="m-3 flex items-start space-x-4 border-b border-gray-200 dark:border-gray-700 pb-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
             :class="{
               'bg-gray-100 dark:bg-gray-700': store.storeId === selectedStoreId,
@@ -290,552 +293,468 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted, watch, nextTick, computed } from 'vue';
-import { useRouter } from 'vue-router';
+<script setup>
+// Vue와 Nuxt 관련 함수 및 컴포넌트 임포트
+import { ref, computed, watch, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useHead, useRuntimeConfig } from '#imports';
 import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
 import BookmarkModal from '~/components/user/modal/BookmarkModal.vue';
 import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
+import SearchBar from '~/components/SearchBar.vue'; // SearchBar 컴포넌트 임포트
 
-export default {
-  components: {
-    BookmarkModal,
-    LoginPromptModal,
-  },
-  setup() {
-    const authStore = useAuthStore();
-    const username = computed(() => authStore.user?.username);
-    const isAuthenticated = computed(() => authStore.isAuthenticated);
-    console.log(username.value);
+// 인증 관련 스토어 사용
+const authStore = useAuthStore();
+const username = computed(() => authStore.user?.username);
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 
-    const config = useRuntimeConfig();
-    const clientId = config.public.naverMapClientId;
+// 런타임 설정 가져오기 (네이버 지도 API 키 등)
+const config = useRuntimeConfig();
+const clientId = config.public.naverMapClientId;
 
-    const mapElement = ref(null);
-    const map = ref(null); // 지도 인스턴스를 저장할 ref
-    const markers = ref([]); // 마커 인스턴스를 저장할 ref
-    const stores = ref([]); // 식당 목록을 저장할 ref
-    const searchText = ref(''); // 검색어를 저장할 ref
-    const isSheetOpen = ref(true); // 시트의 열림 상태를 저장할 ref
-    const sheetHeight = ref('40%'); // 시트의 높이를 저장할 ref
-    const router = useRouter(); // 라우터 사용을 위한 변수
+// 상태 변수들 정의
+const mapElement = ref(null); // 지도 엘리먼트 참조
+const map = ref(null); // 지도 인스턴스
+const markers = ref([]); // 마커 목록
+const stores = ref([]); // 식당 목록
+const searchText = ref(''); // 검색어
+const isSheetOpen = ref(true); // 시트 열림 상태
+const sheetHeight = ref('40%'); // 시트 높이
+const router = useRouter(); // 라우터
+const route = useRoute(); // 현재 경로
 
-    let startY = 0;
-    let currentY = 0;
+let startY = 0;
+let currentY = 0;
 
-    const selectedStoreId = ref(null);
-    const selectedStore = ref(null);
-    const selectedStoreIndex = ref(null);
-    const infoWindow = ref(null);
+const selectedStoreId = ref(null); // 선택된 식당 ID
+const selectedStore = ref(null); // 선택된 식당 정보
+const selectedStoreIndex = ref(null); // 선택된 식당 인덱스
+const infoWindow = ref(null); // 정보 창
 
-    const storeRefs = ref({});
+const storeRefs = ref({}); // 식당 목록 엘리먼트 참조
 
-    const isLoading = ref(false);
+const isLoading = ref(false); // 로딩 상태
 
-    const filteredStores = computed(() => {
-      if (selectedStoreId.value) {
-        return stores.value.filter(
-          (store) => store.storeId === selectedStoreId.value,
-        );
-      }
-      return stores.value;
-    });
+// 필터링된 식당 목록
+const filteredStores = computed(() => {
+  if (selectedStoreId.value) {
+    return stores.value.filter(
+      (store) => store.storeId === selectedStoreId.value,
+    );
+  }
+  return stores.value;
+});
 
-    const currentPosition = ref(null); // 사용자의 현재 위치를 저장할 ref
-    const userMarker = ref(null); // 사용자의 위치를 표시할 마커
-    const userCircle = ref(null); // 사용자 위치 반경을 표시할 원
+const currentPosition = ref(null); // 현재 위치
+const userMarker = ref(null); // 사용자 위치 마커
+const userCircle = ref(null); // 사용자 위치 반경
 
-    // 북마크 모달 상태
-    const bookmarkModalVisible = ref(false);
-    const selectedStoreIdForBookmark = ref(null);
+// 북마크 모달 상태
+const bookmarkModalVisible = ref(false);
+const selectedStoreIdForBookmark = ref(null);
 
-    // 로그인 요청 모달 상태
-    const loginModalVisible = ref(false);
+// 로그인 요청 모달 상태
+const loginModalVisible = ref(false);
 
-    // 식당 데이터와 주소 데이터를 가져오는 함수
-    const fetchStores = async () => {
-      isLoading.value = true;
-      console.log(username.value);
-      try {
-        // 검색어가 있을 경우 쿼리 파라미터로 추가하여 식당 데이터를 가져옵니다.
-        const [storesResponse, addressesResponse] = await Promise.all([
-          fetch(
-            `http://localhost:8080/api/v1/stores${
-              searchText.value
-                ? `?query=${encodeURIComponent(searchText.value)}`
-                : ''
-            }`,
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Username': username.value || 'default-username', // 헤더에 username 추가
-              },
-            },
-          ),
-          fetch('http://localhost:8080/api/v1/stores/address'),
-        ]);
-
-        if (!storesResponse.ok) {
-          throw new Error('Failed to fetch stores');
-        }
-
-        if (!addressesResponse.ok) {
-          throw new Error('Failed to fetch store addresses');
-        }
-
-        const storeData = await storesResponse.json();
-        const addressData = await addressesResponse.json();
-        console.log('Address Data:', addressData);
-
-        // storeId를 기준으로 주소 데이터를 빠르게 조회할 수 있도록 맵을 생성합니다.
-        const addressMap = {};
-        addressData.forEach((address) => {
-          addressMap[address.storeId] = address;
-        });
-
-        // 식당 데이터와 주소 데이터를 병합합니다.
-        const mergedStores = storeData.map((store) => ({
-          ...store,
-          profilePicture: `http://localhost:8080${store.img}`,
-          latitude: addressMap[store.storeId]?.latitude || null,
-          longitude: addressMap[store.storeId]?.longitude || null,
-          isBookmarked: store.isBookmarked || false, // 북마크 상태 초기화
-        }));
-
-        stores.value = mergedStores;
-        console.log('Merged Stores:', stores.value);
-
-        // 지도의 마커를 업데이트합니다.
-        plotMarkers();
-      } catch (error) {
-        console.error('Failed to fetch stores or addresses:', error);
-        stores.value = [];
-        // 오류 발생 시 사용자에게 알릴 수 있습니다.
-        alert('식당 데이터를 불러오는 중 오류가 발생했습니다.');
-      } finally {
-        isLoading.value = false;
-      }
-    };
-
-    // 지도에 마커를 표시하고 지도의 중심을 조정하는 함수
-    const plotMarkers = () => {
-      if (!map.value) {
-        console.error('Map is not initialized.');
-        return;
-      }
-
-      // 기존 마커를 모두 제거합니다.
-      markers.value.forEach((marker) => marker.setMap(null));
-      markers.value = [];
-
-      // 기존 정보 창을 닫습니다.
-      if (infoWindow.value) {
-        infoWindow.value.close();
-        infoWindow.value = null;
-      }
-
-      // 지도 범위를 설정하기 위한 LatLngBounds 객체 생성
-      const bounds = new naver.maps.LatLngBounds();
-      let hasValidStore = false;
-
-      // 식당 목록을 순회하며 마커를 추가하고, 범위에 위치를 추가합니다.
-      stores.value.forEach((store, index) => {
-        if (store.latitude && store.longitude) {
-          console.log(
-            `Adding marker for store: ${store.name} at (${store.latitude}, ${store.longitude})`,
-          );
-          const position = new naver.maps.LatLng(
-            store.latitude,
-            store.longitude,
-          );
-          const marker = new naver.maps.Marker({
-            position,
-            map: map.value,
-            title: store.name,
-          });
-
-          // 마커 클릭 시 상세 정보 표시
-          naver.maps.Event.addListener(marker, 'click', () => {
-            console.log(`${store.name} 마커 클릭됨`);
-            selectedStoreId.value = store.storeId;
-            selectedStore.value = store;
-            selectedStoreIndex.value = index;
-
-            if (infoWindow.value) {
-              infoWindow.value.close();
-            }
-
-            infoWindow.value = new naver.maps.InfoWindow({
-              content: generateInfoWindowContent(store),
-              anchorSize: new naver.maps.Size(30, 30),
-              anchorSkew: true,
-              borderWidth: 1,
-              disableAnchor: true,
-              pixelOffset: new naver.maps.Point(0, -30),
-            });
-            infoWindow.value.open(map.value, marker);
-
-            if (!isSheetOpen.value) {
-              isSheetOpen.value = true;
-            }
-
-            scrollToStore(store.storeId);
-          });
-
-          markers.value.push(marker);
-          bounds.extend(position); // 범위에 위치 추가
-          hasValidStore = true;
-        }
-      });
-
-      // 지도의 중심을 조정합니다.
-      if (hasValidStore) {
-        const storeCount = markers.value.length;
-        if (storeCount === 1) {
-          // 식당이 하나인 경우 해당 위치로 중심 이동 및 줌 설정
-          map.value.setCenter(markers.value[0].getPosition());
-          map.value.setZoom(16);
-          console.log('Map centered to single store location.');
-        } else {
-          // 여러 식당이 있는 경우 모든 마커를 포함하는 범위로 지도 맞추기
-          map.value.fitBounds(bounds);
-          console.log('Map bounds adjusted to include all store locations.');
-        }
-      } else {
-        console.warn('No valid store locations to plot on the map.');
-      }
-    };
-
-    // InfoWindow의 콘텐츠를 생성하는 함수
-    const generateInfoWindowContent = (store) => {
-      return `
-        <div class="info-window p-2 rounded-lg shadow-lg bg-white dark:bg-gray-800" style="width: 200px;">
-          <div class="flex items-center space-x-2">
-            <img src="${store.profilePicture}" alt="${store.name}" class="w-12 h-12 rounded-full object-cover">
-            <div>
-              <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">${store.name}</h3>
-              <p class="text-xs text-yellow-500">⭐ ${store.rating}</p>
-            </div>
-          </div>
-          <div class="mt-2">
-            <p class="text-xs text-gray-600 dark:text-gray-400">운영시간: ${store.operatingHours}</p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">가격: ${store.price}원</p>
-          </div>
-        </div>
-      `;
-    };
-
-    // 선택된 식당을 목록에서 하이라이트하고 스크롤하는 함수
-    const scrollToStore = async (storeId) => {
-      await nextTick(); // DOM 업데이트를 기다립니다.
-      const storeElement = storeRefs.value[storeId];
-      if (storeElement) {
-        storeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    };
-
-    // 네이버 지도 API 스크립트를 헤드에 추가합니다.
-    useHead({
-      script: [
+// 식당 데이터 및 주소 데이터 가져오기
+const fetchStores = async () => {
+  isLoading.value = true;
+  try {
+    // 검색어에 따라 API 호출
+    const [storesResponse, addressesResponse] = await Promise.all([
+      fetch(
+        `http://localhost:8080/api/v1/stores${
+          searchText.value
+            ? `?query=${encodeURIComponent(searchText.value)}`
+            : ''
+        }`,
         {
-          src: `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}`,
-          async: true,
-          defer: true,
-          onload: () => {
-            console.log('네이버 지도 API 로드 완료');
-            getUserLocation();
-          },
-          onerror: () => {
-            console.error('네이버 지도 API 로드 실패');
-          },
-        },
-      ],
-    });
-
-    // 현재 위치로 이동하는 함수
-    const goToCurrentLocation = () => {
-      console.log('goToCurrentLocation 함수 호출됨');
-      if (!currentPosition.value || !map.value) {
-        alert('현재 위치를 찾을 수 없습니다.');
-        return;
-      }
-
-      const { latitude, longitude } = currentPosition.value;
-      const position = new naver.maps.LatLng(latitude, longitude);
-
-      // 지도 중심 이동
-      map.value.setCenter(position);
-      map.value.setZoom(16);
-
-      // 사용자 위치 마커 표시
-      if (userMarker.value) {
-        userMarker.value.setPosition(position);
-        console.log('기존 userMarker 업데이트');
-      } else {
-        userMarker.value = new naver.maps.Marker({
-          position,
-          map: map.value,
-          icon: {
-            content: '<div class="user-location-marker"></div>',
-            anchor: new naver.maps.Point(12, 12),
-          },
-        });
-        console.log('새로운 userMarker 생성');
-      }
-
-      // 사용자 위치 반경 표시
-      if (userCircle.value) {
-        userCircle.value.setCenter(position);
-        console.log('기존 userCircle 업데이트');
-      } else {
-        userCircle.value = new naver.maps.Circle({
-          map: map.value,
-          center: position,
-          radius: 100, // 반경 100m로 증가
-          fillColor: 'rgba(51, 136, 255, 0.3)', // 반투명 파란색
-          fillOpacity: 0.5,
-          strokeColor: '#3388ff',
-          strokeWeight: 2,
-        });
-        console.log('새로운 userCircle 생성');
-      }
-    };
-
-    // 현재 위치를 가져오는 함수
-    const getUserLocation = () => {
-      if (!navigator.geolocation) {
-        alert('GPS를 지원하지 않는 브라우저입니다.');
-        // 기본 위치로 지도를 초기화합니다.
-        initMap(37.498095, 127.02761);
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          currentPosition.value = { latitude, longitude };
-          console.log('사용자 위치 가져옴:', currentPosition.value);
-          initMap(latitude, longitude);
-        },
-        (error) => {
-          console.error('GPS 에러:', error);
-          // 위치를 가져오지 못할 경우 기본 위치로 지도를 초기화합니다.
-          initMap(37.498095, 127.02761);
-        },
-      );
-    };
-
-    // 지도를 초기화하는 함수
-    const initMap = (latitude, longitude) => {
-      if (!mapElement.value) return;
-
-      const center = new naver.maps.LatLng(latitude, longitude);
-
-      // 네이버 지도 인스턴스를 생성합니다.
-      map.value = new naver.maps.Map(mapElement.value, {
-        center,
-        zoom: 16,
-      });
-
-      console.log('지도 생성 완료:', map.value);
-
-      // 사용자 위치 마커 및 원 표시
-      if (currentPosition.value) {
-        goToCurrentLocation();
-      }
-
-      // 지도를 초기화한 후 식당 데이터를 가져옵니다.
-      fetchStores();
-    };
-
-    // 북마크 상태를 토글하는 함수
-    const toggleBookmark = async (store, index) => {
-      try {
-        console.log('Username being sent:', username.value);
-        const url = `http://localhost:8080/api/v1/stores/${store.storeId}/bookmark`;
-        const method = store.isBookmarked ? 'DELETE' : 'POST';
-
-        const response = await fetch(url, {
-          method,
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'X-Username': username.value || 'default-username', // Pinia에서 가져온 username을 헤더에 추가
+            'X-Username': username.value || 'default-username', // 헤더에 username 추가
           },
+        },
+      ),
+      fetch('http://localhost:8080/api/v1/stores/address'),
+    ]);
+
+    if (!storesResponse.ok) {
+      throw new Error('Failed to fetch stores');
+    }
+
+    if (!addressesResponse.ok) {
+      throw new Error('Failed to fetch store addresses');
+    }
+
+    const storeData = await storesResponse.json();
+    const addressData = await addressesResponse.json();
+
+    // 주소 데이터를 맵으로 변환
+    const addressMap = {};
+    addressData.forEach((address) => {
+      addressMap[address.storeId] = address;
+    });
+
+    // 식당 데이터와 주소 데이터 병합
+    const mergedStores = storeData.map((store) => ({
+      ...store,
+      profilePicture: `http://localhost:8080${store.img}`,
+      latitude: addressMap[store.storeId]?.latitude || null,
+      longitude: addressMap[store.storeId]?.longitude || null,
+      isBookmarked: store.isBookmarked || false,
+    }));
+
+    stores.value = mergedStores;
+
+    // 마커 표시
+    plotMarkers();
+  } catch (error) {
+    console.error('Failed to fetch stores or addresses:', error);
+    stores.value = [];
+    alert('식당 데이터를 불러오는 중 오류가 발생했습니다.');
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// 지도에 마커 표시 및 중심 조정
+const plotMarkers = () => {
+  if (!map.value) {
+    console.error('Map is not initialized.');
+    return;
+  }
+
+  // 기존 마커 제거
+  markers.value.forEach((marker) => marker.setMap(null));
+  markers.value = [];
+
+  // 기존 정보 창 닫기
+  if (infoWindow.value) {
+    infoWindow.value.close();
+    infoWindow.value = null;
+  }
+
+  // 지도 범위 설정
+  const bounds = new naver.maps.LatLngBounds();
+  let hasValidStore = false;
+
+  // 식당 목록 순회하여 마커 추가
+  stores.value.forEach((store, index) => {
+    if (store.latitude && store.longitude) {
+      const position = new naver.maps.LatLng(store.latitude, store.longitude);
+      const marker = new naver.maps.Marker({
+        position,
+        map: map.value,
+        title: store.name,
+      });
+
+      // 마커 클릭 이벤트
+      naver.maps.Event.addListener(marker, 'click', () => {
+        selectedStoreId.value = store.storeId;
+        selectedStore.value = store;
+        selectedStoreIndex.value = index;
+
+        if (infoWindow.value) {
+          infoWindow.value.close();
+        }
+
+        infoWindow.value = new naver.maps.InfoWindow({
+          content: generateInfoWindowContent(store),
+          anchorSize: new naver.maps.Size(30, 30),
+          anchorSkew: true,
+          borderWidth: 1,
+          disableAnchor: true,
+          pixelOffset: new naver.maps.Point(0, -30),
         });
+        infoWindow.value.open(map.value, marker);
 
-        if (!response.ok) {
-          throw new Error('Failed to toggle bookmark');
+        if (!isSheetOpen.value) {
+          isSheetOpen.value = true;
         }
 
-        // 북마크 상태를 반전시킵니다.
-        stores.value[index].isBookmarked = !store.isBookmarked;
-        console.log(
-          store.isBookmarked
-            ? '북마크가 삭제되었습니다.'
-            : '북마크가 추가되었습니다.',
-        );
+        scrollToStore(store.storeId);
+      });
 
-        // 선택된 식당일 경우 업데이트
-        if (selectedStoreId.value === store.storeId) {
-          selectedStore.value.isBookmarked = stores.value[index].isBookmarked;
-        }
-      } catch (error) {
-        console.error('북마크 요청 중 오류가 발생했습니다:', error);
-        alert('북마크를 토글하는 데 실패했습니다.');
-      }
-    };
+      markers.value.push(marker);
+      bounds.extend(position);
+      hasValidStore = true;
+    }
+  });
 
-    // 새로운 함수: 북마크 시도 및 인증 확인
-    const attemptToggleBookmark = (store, index) => {
-      if (isAuthenticated.value) {
-        // 인증된 사용자라면 북마크 토글 처리
-        toggleBookmark(store, index);
-      } else {
-        // 인증되지 않은 사용자라면 로그인 요청 모달 열기
-        selectedStoreIdForBookmark.value = store.storeId;
-        loginModalVisible.value = true;
-      }
-    };
+  // 지도 중심 조정
+  if (hasValidStore) {
+    const storeCount = markers.value.length;
+    if (storeCount === 1) {
+      map.value.setCenter(markers.value[0].getPosition());
+      map.value.setZoom(16);
+    } else {
+      map.value.fitBounds(bounds);
+    }
+  } else {
+    console.warn('No valid store locations to plot on the map.');
+  }
+};
 
-    // 식당 상세 페이지로 이동하는 함수
-    const goToStoreDetail = (storeId) => {
-      router.push(`/stores/${storeId}/home`);
-    };
+// InfoWindow 내용 생성
+const generateInfoWindowContent = (store) => {
+  return `
+    <div class="info-window p-2 rounded-lg shadow-lg bg-white dark:bg-gray-800" style="width: 200px;">
+      <div class="flex items-center space-x-2">
+        <img src="${store.profilePicture}" alt="${store.name}" class="w-12 h-12 rounded-full object-cover">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">${store.name}</h3>
+          <p class="text-xs text-yellow-500">⭐ ${store.rating}</p>
+        </div>
+      </div>
+      <div class="mt-2">
+        <p class="text-xs text-gray-600 dark:text-gray-400">운영시간: ${store.operatingHours}</p>
+        <p class="text-xs text-gray-600 dark:text-gray-400">가격: ${store.price}원</p>
+      </div>
+    </div>
+  `;
+};
 
-    // 터치 시작 시 호출되는 함수
-    const startTouch = (event) => {
-      startY = event.touches[0].clientY;
-      currentY = startY;
-    };
+// 선택된 식당으로 스크롤
+const scrollToStore = async (storeId) => {
+  await nextTick();
+  const storeElement = storeRefs.value[storeId];
+  if (storeElement) {
+    storeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+};
 
-    // 터치 이동 시 호출되는 함수
-    const onTouchMove = (event) => {
-      currentY = event.touches[0].clientY;
-      const diffY = startY - currentY;
+// 네이버 지도 API 스크립트 추가
+useHead({
+  script: [
+    {
+      src: `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}`,
+      async: true,
+      defer: true,
+      onload: () => {
+        getUserLocation();
+      },
+      onerror: () => {
+        console.error('네이버 지도 API 로드 실패');
+      },
+    },
+  ],
+});
 
-      if (diffY > 0) {
-        // 시트를 확장합니다. 최대 90%
-        sheetHeight.value = Math.min(90, 40 + diffY / 5) + '%';
-      } else {
-        // 시트를 축소합니다. 최소 20%
-        sheetHeight.value = Math.max(20, 40 + diffY / 5) + '%';
-      }
-    };
+// 현재 위치로 이동
+const goToCurrentLocation = () => {
+  if (!currentPosition.value || !map.value) {
+    alert('현재 위치를 찾을 수 없습니다.');
+    return;
+  }
 
-    // 터치 종료 시 호출되는 함수
-    const endTouch = () => {
-      const diffY = startY - currentY;
-      if (diffY > 50) {
-        // 시트를 최대화
-        sheetHeight.value = '90%';
-      } else if (diffY < -50) {
-        // 시트를 최소화
-        sheetHeight.value = '20%';
-      } else {
-        // 시트를 기본 크기로 되돌림
-        sheetHeight.value = '40%';
-      }
-    };
+  const { latitude, longitude } = currentPosition.value;
+  const position = new naver.maps.LatLng(latitude, longitude);
 
-    // 시트의 열림 상태를 토글하는 함수
-    const toggleSheet = () => {
-      isSheetOpen.value = !isSheetOpen.value;
-    };
+  map.value.setCenter(position);
+  map.value.setZoom(16);
 
-    // 선택된 식당을 초기화하는 함수
-    const clearSelection = () => {
-      selectedStoreId.value = null;
-      selectedStore.value = null;
-      selectedStoreIndex.value = null;
-    };
+  // 사용자 위치 마커 및 원 표시
+  if (userMarker.value) {
+    userMarker.value.setPosition(position);
+  } else {
+    userMarker.value = new naver.maps.Marker({
+      position,
+      map: map.value,
+      icon: {
+        content: '<div class="user-location-marker"></div>',
+        anchor: new naver.maps.Point(12, 12),
+      },
+    });
+  }
 
-    // 페이지 메타 데이터를 정의합니다.
-    useHead({
-      title: 'Your Page Title',
-      // Add other meta tags as needed
+  if (userCircle.value) {
+    userCircle.value.setCenter(position);
+  } else {
+    userCircle.value = new naver.maps.Circle({
+      map: map.value,
+      center: position,
+      radius: 100,
+      fillColor: 'rgba(51, 136, 255, 0.3)',
+      fillOpacity: 0.5,
+      strokeColor: '#3388ff',
+      strokeWeight: 2,
+    });
+  }
+};
+
+// 사용자 위치 가져오기
+const getUserLocation = () => {
+  if (!navigator.geolocation) {
+    alert('GPS를 지원하지 않는 브라우저입니다.');
+    initMap(37.498095, 127.02761);
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      currentPosition.value = { latitude, longitude };
+      initMap(latitude, longitude);
+    },
+    (error) => {
+      console.error('GPS 에러:', error);
+      initMap(37.498095, 127.02761);
+    },
+  );
+};
+
+// 지도 초기화
+const initMap = (latitude, longitude) => {
+  if (!mapElement.value) return;
+
+  const center = new naver.maps.LatLng(latitude, longitude);
+
+  map.value = new naver.maps.Map(mapElement.value, {
+    center,
+    zoom: 16,
+  });
+
+  if (currentPosition.value) {
+    goToCurrentLocation();
+  }
+
+  fetchStores();
+};
+
+// 북마크 토글
+const toggleBookmark = async (store, index) => {
+  try {
+    const url = `http://localhost:8080/api/v1/stores/${store.storeId}/bookmark`;
+    const method = store.isBookmarked ? 'DELETE' : 'POST';
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Username': username.value || 'default-username',
+      },
     });
 
-    // Watcher: 선택된 식당 ID가 변경되면 목록에서 해당 식당을 하이라이트하고 스크롤합니다.
-    watch(selectedStoreId, (newStoreId) => {
-      if (newStoreId) {
-        scrollToStore(newStoreId);
-      }
-    });
+    if (!response.ok) {
+      throw new Error('Failed to toggle bookmark');
+    }
 
-    // --- Bookmark Modal Functions ---
+    stores.value[index].isBookmarked = !store.isBookmarked;
 
-    // 북마크 모달 열기 함수
-    const openBookmarkModal = (storeId) => {
-      selectedStoreIdForBookmark.value = storeId;
-      bookmarkModalVisible.value = true;
-    };
+    if (selectedStoreId.value === store.storeId) {
+      selectedStore.value.isBookmarked = stores.value[index].isBookmarked;
+    }
+  } catch (error) {
+    console.error('북마크 요청 중 오류가 발생했습니다:', error);
+    alert('북마크를 토글하는 데 실패했습니다.');
+  }
+};
 
-    // 북마크 모달 닫기 함수
-    const closeBookmarkModal = () => {
-      bookmarkModalVisible.value = false;
-      selectedStoreIdForBookmark.value = null;
-    };
+// 북마크 시도 및 인증 확인
+const attemptToggleBookmark = (store, index) => {
+  if (isAuthenticated.value) {
+    toggleBookmark(store, index);
+  } else {
+    selectedStoreIdForBookmark.value = store.storeId;
+    loginModalVisible.value = true;
+  }
+};
 
-    // 북마크 모달에서 삭제 확인 시 동작
-    const confirmDelete = async () => {
-      if (selectedStoreIdForBookmark.value !== null) {
-        const storeIndex = stores.value.findIndex(
-          (store) => store.storeId === selectedStoreIdForBookmark.value,
-        );
-        if (storeIndex !== -1) {
-          await toggleBookmark(stores.value[storeIndex], storeIndex);
-        }
-      }
-    };
+// 식당 상세 페이지로 이동
+const goToStoreDetail = (storeId) => {
+  router.push(`/stores/${storeId}/home`);
+};
 
-    // --- Login Prompt Modal Functions ---
+// 터치 이벤트 핸들러
+const startTouch = (event) => {
+  startY = event.touches[0].clientY;
+  currentY = startY;
+};
 
-    // 로그인 요청 모달 닫기 함수
-    const closeLoginModal = () => {
-      loginModalVisible.value = false;
-      selectedStoreIdForBookmark.value = null;
-    };
+const onTouchMove = (event) => {
+  currentY = event.touches[0].clientY;
+  const diffY = startY - currentY;
 
-    // 로그인 페이지로 리디렉션 함수
-    const redirectToLogin = () => {
-      router.push(`/signIn`); // 라우터에 'login' 경로가 설정되어 있어야 합니다.
-    };
+  if (diffY > 0) {
+    sheetHeight.value = Math.min(90, 40 + diffY / 5) + '%';
+  } else {
+    sheetHeight.value = Math.max(20, 40 + diffY / 5) + '%';
+  }
+};
 
-    return {
-      mapElement,
-      isSheetOpen,
-      sheetHeight,
-      searchText,
-      isLoading,
-      filteredStores,
-      selectedStoreId,
-      selectedStore,
-      selectedStoreIndex,
-      storeRefs,
-      goToCurrentLocation,
-      fetchStores,
-      plotMarkers,
-      generateInfoWindowContent,
-      scrollToStore,
-      toggleBookmark,
-      attemptToggleBookmark,
-      goToStoreDetail,
-      startTouch,
-      onTouchMove,
-      endTouch,
-      toggleSheet,
-      clearSelection,
-      bookmarkModalVisible,
-      selectedStoreIdForBookmark,
-      closeBookmarkModal,
-      confirmDelete,
-      loginModalVisible,
-      closeLoginModal,
-      redirectToLogin,
-    };
-  },
+const endTouch = () => {
+  const diffY = startY - currentY;
+  if (diffY > 50) {
+    sheetHeight.value = '90%';
+  } else if (diffY < -50) {
+    sheetHeight.value = '20%';
+  } else {
+    sheetHeight.value = '40%';
+  }
+};
+
+// 시트 토글
+const toggleSheet = () => {
+  isSheetOpen.value = !isSheetOpen.value;
+};
+
+// 선택된 식당 초기화
+const clearSelection = () => {
+  selectedStoreId.value = null;
+  selectedStore.value = null;
+  selectedStoreIndex.value = null;
+};
+
+// 페이지 메타 데이터 설정
+useHead({
+  title: 'Your Page Title',
+});
+
+// 선택된 식당 ID 변경 시 스크롤
+watch(selectedStoreId, (newStoreId) => {
+  if (newStoreId) {
+    scrollToStore(newStoreId);
+  }
+});
+
+// 북마크 모달 열기
+const openBookmarkModal = (storeId) => {
+  selectedStoreIdForBookmark.value = storeId;
+  bookmarkModalVisible.value = true;
+};
+
+// 북마크 모달 닫기
+const closeBookmarkModal = () => {
+  bookmarkModalVisible.value = false;
+  selectedStoreIdForBookmark.value = null;
+};
+
+// 북마크 삭제 확인
+const confirmDelete = async () => {
+  if (selectedStoreIdForBookmark.value !== null) {
+    const storeIndex = stores.value.findIndex(
+      (store) => store.storeId === selectedStoreIdForBookmark.value,
+    );
+    if (storeIndex !== -1) {
+      await toggleBookmark(stores.value[storeIndex], storeIndex);
+    }
+  }
+};
+
+// 로그인 모달 닫기
+const closeLoginModal = () => {
+  loginModalVisible.value = false;
+  selectedStoreIdForBookmark.value = null;
+};
+
+// 로그인 페이지로 리디렉션
+const redirectToLogin = () => {
+  if (process.client) {
+    const currentPath = route.fullPath;
+    localStorage.setItem('redirectPath', currentPath);
+  }
+  router.push('/signIn');
 };
 </script>
 
@@ -849,6 +768,7 @@ export default {
   background-color: #374151; /* Tailwind의 gray-700 색상 */
 }
 
+/* 정보 창 스타일 */
 .info-window {
   font-family: 'Arial', sans-serif;
 }
@@ -919,18 +839,5 @@ export default {
   border: 2px solid white;
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* 추가 스타일 */
-.info-window {
-  font-family: 'Arial', sans-serif;
-}
-
-.info-window h3 {
-  margin: 0;
-}
-
-.info-window p {
-  margin: 2px 0;
 }
 </style>
