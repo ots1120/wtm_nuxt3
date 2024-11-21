@@ -1,34 +1,12 @@
-<!-- TicketUsage.vue -->
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-3xl font-bold mb-6">식권 사용</h1>
 
-    <div class="bg-white shadow-md rounded-lg p-4">
-      <!-- 식권 종류 선택 드롭다운 -->
-      <div class="mb-4">
-        <label for="usageTicket" class="block text-sm font-medium text-gray-600"
-          >식권 종류</label
-        >
-        <select
-          v-model="selectedTicketId"
-          class="w-full mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-blue-200"
-        >
-          <option disabled hidden :value="null">식권 선택</option>
-          <option
-            v-for="ticket in ticketItems"
-            :key="ticket.id"
-            :value="ticket.id"
-          >
-            {{ ticket.name }}
-          </option>
-        </select>
-      </div>
-
+    <div class="bg-white shadow-md rounded-lg p-4 max-w-md mx-auto">
       <!-- QR 스캔 버튼 -->
       <div class="mb-4">
         <button
-          class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
-          :disabled="!selectedTicketId"
+          class="w-full px-4 py-2 bg-[#db3d39] text-white rounded-md hover:bg-[#c22420] focus:outline-none"
           @click="scanQRCode"
         >
           QR 코드 스캔
@@ -36,25 +14,29 @@
       </div>
 
       <!-- QrScanner 컴포넌트 -->
-      <QrScanner
+      <div
         v-if="isScanning"
-        :key="scannerKey"
-        :scanner-id="'scanner-usage-' + scannerKey"
-        :on-decode="handleQRCodeDecode"
-      />
+        class="w-full aspect-square max-h-64 relative overflow-hidden flex justify-center items-center"
+      >
+        <QrScanner
+          :key="scannerKey"
+          :scanner-id="'scanner-usage-' + scannerKey"
+          :on-decode="handleQRCodeDecode"
+          class="w-full h-full"
+        />
+      </div>
 
       <!-- 스캔된 정보 및 승인 상태 표시 -->
       <div
         v-if="decodedData"
         class="mt-4 p-4 bg-gray-100 border border-gray-300 rounded-md"
       >
-        <p class="text-gray-700 font-semibold">스캔된 정보 (Usage):</p>
+        <p class="text-gray-700 font-semibold">스캔된 정보 (Recharge):</p>
         <p class="text-gray-600">사용자 ID: {{ decodedData.userId }}</p>
         <p class="text-gray-600">
-          식권 금액: {{ decodedData.ticketQuantity }}원
+          사용 수량: {{ decodedData.ticketQuantity }}원
         </p>
       </div>
-
       <!-- 승인 상태 표시 -->
       <div
         v-if="approvalStatus === 'approved'"
@@ -90,13 +72,6 @@ definePageMeta({
   layout: 'admin',
 });
 
-interface TicketItem {
-  id: number;
-  name: string;
-  price: number;
-  categoryId: number;
-}
-
 interface DecodedData {
   userId: string;
   ticketQuantity: number;
@@ -107,35 +82,14 @@ interface DecodedData {
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
-const ticketItems = ref<TicketItem[]>([]);
-const selectedTicketId = ref<number | null>(null);
 const isScanning = ref(false);
 const scannerKey = ref(0);
 
 const decodedData = ref<DecodedData | null>(null);
 const approvalStatus = ref<'idle' | 'approved' | 'rejected'>('idle');
 const errorMessage = ref<string | null>(null);
-const storeId = 1;
 
-// 티켓 데이터 가져오기
-const fetchTickets = async () => {
-  try {
-    const response = await fetch(
-      `${baseUrl}/api/v1/admin/stores/${storeId}/tickets`,
-    );
-    if (!response.ok) {
-      throw new Error('Failed to fetch tickets');
-    }
-    ticketItems.value = await response.json();
-    console.log(ticketItems.value);
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    } else {
-      console.error('Unknown error:', error);
-    }
-  }
-};
+const storeId = Number(route.params.storeId);
 
 // QR 코드 스캔 시작 함수
 const scanQRCode = () => {
@@ -187,19 +141,10 @@ const handleQRCodeDecode = async (decodedText: string) => {
     return;
   }
 
-  // 선택된 식권 ID 확인
-  if (!selectedTicketId.value) {
-    console.error('식권이 선택되지 않았습니다. (Usage)');
-    approvalStatus.value = 'rejected';
-    errorMessage.value = '식권이 선택되지 않았습니다.';
-    return;
-  }
-
   // API 요청 데이터 구성
   const requestData = {
     userId: decodedData.value.userId,
     storeId: decodedData.value.storeId,
-    ticketId: selectedTicketId.value,
     ticketQuantity: decodedData.value.ticketQuantity,
     type: decodedData.value.type,
   };
@@ -227,9 +172,6 @@ const handleQRCodeDecode = async (decodedText: string) => {
     scannerKey.value += 1;
   }
 };
-
-// 초기 데이터 로드
-fetchTickets();
 </script>
 
 <style scoped>

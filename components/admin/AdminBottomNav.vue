@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full bg-white pt-2 pb-6 flex justify-evenly shadow-md fixed bottom-0 left-0 right-0"
+    class="w-full bg-white pt-2 pb-4 flex justify-evenly shadow-md fixed bottom-0 left-0 right-0"
   >
     <NuxtLink
       :to="`/admin/stores/${storeId}`"
