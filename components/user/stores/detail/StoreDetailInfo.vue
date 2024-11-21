@@ -1,30 +1,31 @@
 <template>
-  <div>
-    <section>
-      <h1 class="hidden">Store Detail</h1>
-      <div class="h-30 border-b-2 p-2">
-        <h2 class="text-xl font-medium">{{ reviewStats.storeName }}</h2>
+  <div class="bg-white border-b pb-4">
+    <h1 class="sr-only">Store Detail</h1>
+    <div class="space-y-2">
+      <h2 class="text-xl font-semibold text-gray-800">
+        {{ reviewStats.storeName }}
+      </h2>
+      <div class="flex items-center space-x-2">
         <div class="flex items-center">
-          <!-- 별 아이콘 -->
           <svg
-            class="inline w-5"
-            viewBox="0 0 24 24"
-            fill="none"
+            class="w-5 h-5 text-yellow-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <!-- 별 모양 경로 -->
             <path
-              d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
-              fill="#ffd500"
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
             />
           </svg>
-          <span class="text-sm">{{ reviewStats.averageReviewScore }}</span>
-          <span class="ml-2 text-sm text-blue-300"
-            >리뷰 {{ reviewStats.reviewCount }}개</span
-          >
+          <span class="ml-1 text-sm font-medium text-gray-700">{{
+            reviewStats.averageReviewScore.toFixed(1)
+          }}</span>
         </div>
+        <span class="text-sm font-medium text-gray-500">
+          리뷰 {{ reviewStats.reviewCount.toLocaleString() }}개
+        </span>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
@@ -36,7 +37,3 @@ defineProps({
   },
 });
 </script>
-
-<style scoped>
-/* Tailwind CSS만 사용하므로 별도의 CSS 스타일은 없습니다 */
-</style>
