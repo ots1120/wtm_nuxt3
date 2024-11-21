@@ -1,10 +1,10 @@
 <template>
   <!-- 공지사항 리스트 -->
-  <div>
+  <div class="relative">
     <!-- Write Button -->
     <WriteButton
       :push-route="`/admin/stores/${storeId}/notices/regist`"
-      class="sticky"
+      class="fixed top-[80%] left-[80%] transform -translate-x-1/2 -translate-y-1/2 md:top-[80%] md:left-[64%] sm:top-[80%] sm:left-[75%]"
     />
     <div class="px-4">
       <div
