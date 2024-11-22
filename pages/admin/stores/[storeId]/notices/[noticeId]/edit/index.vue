@@ -67,6 +67,9 @@ const loadNoticeData = async (): Promise<void> => {
   try {
     const response = await fetch(
       `${baseUrl}/api/v1/admin/stores/${storeId}/notices/${noticeId}`,
+      {
+        credentials: 'include',
+      },
     );
 
     if (response.ok) {
@@ -113,6 +116,7 @@ const handleConfirm = async (): Promise<void> => {
           content: notice.value.content,
           userId: notice.value.userId,
         }),
+        credentials: 'include',
       },
     );
 

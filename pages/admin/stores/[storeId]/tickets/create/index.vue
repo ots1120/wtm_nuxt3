@@ -208,6 +208,9 @@ const fetchTickets = async () => {
   try {
     const response = await fetch(
       `${baseUrl}/api/v1/admin/stores/${storeId}/tickets`,
+      {
+        credentials: 'include',
+      },
     );
     if (!response.ok) {
       throw new Error('Failed to fetch tickets');
@@ -244,6 +247,7 @@ const addTicketItem = async () => {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         },
       );
       if (!response.ok) throw new Error('Failed to add ticket');
@@ -316,6 +320,7 @@ const saveEdit = async (id: number) => {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         },
       );
       if (!response.ok) throw new Error('Failed to update ticket');
@@ -383,6 +388,7 @@ const confirmDelete = async () => {
         `${baseUrl}/api/v1/admin/stores/${storeId}/tickets/${selectedItemId.value}`,
         {
           method: 'DELETE',
+          credentials: 'include',
         },
       );
       if (!response.ok) throw new Error('Failed to delete ticket');
