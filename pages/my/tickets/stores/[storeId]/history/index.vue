@@ -100,6 +100,12 @@ const ticketData = ref<TicketData>({
   remainingCount: 0,
 });
 
+const typeOptions = [
+  { label: "전체", value: "all" },
+  { label: "구매", value: "purchase" },
+  { label: "사용", value: "usage" },
+];
+
 const authstore = useAuthStore();
 const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
@@ -114,12 +120,6 @@ const storeId = route.params.storeId;
 
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
-
-const typeOptions = [
-  { label: "전체", value: "all" },
-  { label: "구매", value: "purchase" },
-  { label: "사용", value: "usage" },
-];
 
 const fetchItems = async () => {
   console.log("Fetching items..."); // 디버깅용 로그

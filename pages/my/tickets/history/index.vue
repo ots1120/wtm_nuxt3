@@ -11,6 +11,21 @@
           :selected-year="selectedYear"
           @dateChanged="handleDateChanged"
         />
+        <!-- 타입 선택 버튼 그룹: index.vue에서 직접 관리 -->
+        <div class="flex justify-start p-4">
+          <button
+            v-for="option in typeOptions"
+            :key="option.value"
+            class="px-4 py-2 border rounded-md mx-1"
+            :class="{
+              'bg-blue-100 text-blue-500': selectedType === option.value,
+              'bg-gray-100 text-gray-500': selectedType !== option.value,
+            }"
+            @click="handleTypeChanged(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
         <div v-if="myHistory.length > 0" class="mt-2">
           <TicketHistoryList
             :my-history="myHistory"
@@ -20,9 +35,9 @@
             :has-more-items="hasMoreItems"
             @load-more-items="loadMoreItems"
             @reset-load-items="resetLoadItems"
-            @typeChanged="handleTypeChanged"
           />
         </div>
+        
         <div v-else ref="containerRef" class="h-[70vh] overflow-hidden">
           <div ref="scrollContainer" class="h-full overflow-y-auto pr-4 space-y-4">
             <div class="flex flex-col items-center mt-6">
@@ -85,6 +100,12 @@ const ticketData = ref<TicketData>({
   remainingCount: 0,
 });
 
+const typeOptions = [
+  { label: "전체", value: "all" },
+  { label: "구매", value: "purchase" },
+  { label: "사용", value: "usage" },
+];
+
 const authstore = useAuthStore();
 const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
@@ -96,6 +117,7 @@ const hasMoreItems = ref(true);
 const isLoading = ref(false);
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
+
 
 const fetchItems = async () => {
   console.log("Fetching items..."); // 디버깅용 로그
