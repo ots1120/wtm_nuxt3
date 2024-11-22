@@ -227,7 +227,7 @@
 
         <!-- 도움돼요 버튼 -->
         <button
-          class="flex items-center space-x-2 border border-gray-300 px-3 py-2 rounded-full"
+          class="flex items-center space-x-2 border border-gray-300 mt-3 px-3 py-2 rounded-full"
           :class="{
             'bg-gradient-to-r from-rose-500 to-rose-600 text-white':
               review.liked,
