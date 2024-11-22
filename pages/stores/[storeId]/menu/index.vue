@@ -63,6 +63,9 @@ import { useFetch } from '#app'; // 필요에 따라 경로를 조정하세요.
 import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
 import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 const authStore = useAuthStore();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
@@ -123,7 +126,7 @@ const RegAction = () => {
 
 // useFetch를 setup 함수의 최상위 레벨에서 사용합니다.
 const { data: menuData, error: menuError } = useFetch<MenuResponse>(
-  `http://localhost:8080/api/v1/stores/${storeId}/menus/today`,
+  `${baseUrl}/api/v1/stores/${storeId}/menus/today`,
   {
     credentials: 'include',
   },

@@ -36,6 +36,8 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import StoreDetailTicket from '~/components/user/stores/detail/StoreDetailTicket.vue';
 import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 const route = useRoute();
 const router = useRouter();
@@ -61,7 +63,7 @@ const fetchTicketData = async () => {
     try {
       console.log(username.value);
       const { data: ticketData, error: ticketError } = await useFetch(
-        `http://localhost:8080/api/v1/stores/${storeId}/tickets`,
+        `${baseUrl}/api/v1/stores/${storeId}/tickets`,
         {
           headers: {
             'Content-Type': 'application/json',

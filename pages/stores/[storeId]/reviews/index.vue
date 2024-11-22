@@ -227,7 +227,7 @@
 
         <!-- 도움돼요 버튼 -->
         <button
-          class="flex items-center space-x-2 border border-gray-300 px-3 py-2 rounded-full"
+          class="flex items-center space-x-2 border border-gray-300 mt-3 px-3 py-2 rounded-full"
           :class="{
             'bg-gradient-to-r from-rose-500 to-rose-600 text-white':
               review.liked,
@@ -280,7 +280,7 @@
       @cancel="closeLoginModal"
       @confirm="redirectToLogin"
     />
-    <WriteButton :push-route="`/my/tickets/history`" class="btn-write" />
+    <WriteButton :push-route="`/my/tickets/stores/${storeId}/history`" class="btn-write" />
   </div>
 </template>
 
@@ -291,6 +291,9 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '~/stores/auth';
 import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 // 라우터 설정
 const router = useRouter();
@@ -352,7 +355,7 @@ const sortReviews = (criteria) => {
 
 // 리뷰 개수 가져오기
 const { data: reviewCountData, error: reviewCountError } = useFetch(
-  `http://localhost:8080/api/v1/stores/${storeId}/review-count`,
+  `${baseUrl}/api/v1/stores/${storeId}/review-count`,
   {
     credentials: 'include',
   },
@@ -367,7 +370,7 @@ watch(reviewCountData, (newData) => {
 
 // 리뷰 통계 가져오기
 const { data: reviewStatsData, error: reviewStatsError } = useFetch(
-  `http://localhost:8080/api/v1/stores/${storeId}/review-stats`,
+  `${baseUrl}/api/v1/stores/${storeId}/review-stats`,
   {
     credentials: 'include',
   },
@@ -393,7 +396,7 @@ const reviewScaleAverages = computed(
 );
 
 // 이미지 URL을 구성하는 헬퍼 함수
-const constructImageUrl = (path) => `http://localhost:8080${path}`;
+const constructImageUrl = (path) => `${baseUrl}${path}`;
 
 // 리뷰 데이터 가져오기 함수
 const fetchReviews = async () => {
@@ -401,7 +404,7 @@ const fetchReviews = async () => {
   isLoading.value = true;
 
   try {
-    const url = `http://localhost:8080/api/v1/stores/${storeId}/reviews?sortOption=${sortBy.value}&page=${page.value}&size=${size.value}`;
+    const url = `${baseUrl}/api/v1/stores/${storeId}/reviews?sortOption=${sortBy.value}&page=${page.value}&size=${size.value}`;
     const response = await $fetch(url, {
       method: 'GET',
       headers: {
@@ -508,7 +511,7 @@ const toggleHelpful = async (index, review) => {
     if (review.liked) {
       // liked가 true인 경우 DELETE API 호출
       await $fetch(
-        `http://localhost:8080/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
+        `${baseUrl}/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
         {
           method: 'DELETE',
           headers: {
@@ -523,7 +526,7 @@ const toggleHelpful = async (index, review) => {
     } else {
       // liked가 false인 경우 POST API 호출
       await $fetch(
-        `http://localhost:8080/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
+        `${baseUrl}/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
         {
           method: 'POST',
           headers: {
