@@ -97,6 +97,7 @@
             :extra-address="user.userAddress.extraAddress"
             :show-modal="showModal"
             @update-address="updateAddress"
+            titleClass="font-extrabold text-lg text-gray-700 block"
           />
         </div>
 
@@ -219,15 +220,6 @@ const updateAddress = (addressData: {
 const onSubmitForm = async (): Promise<void> => {
   try {
     const formData = new FormData();
-
-    // // user 객체 데이터를 FormData에 추가
-    // Object.entries(user.value).forEach(([key, value]) => {
-    //   if (key === "profilePicture" && profileImage.value) {
-    //     formData.append(key, profileImage.value); // File 객체로 추가
-    //   } else if (key !== "profilePicture") {
-    //     formData.append(key, value as string);
-    //   }
-    // });
     // user 객체의 데이터를 FormData에 추가
     formData.append('email', user.value.email);
     formData.append('name', user.value.name);
