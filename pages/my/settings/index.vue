@@ -96,8 +96,8 @@
             :detail-address="user.userAddress.detailAddress"
             :extra-address="user.userAddress.extraAddress"
             :show-modal="showModal"
+            title-class="font-extrabold text-lg text-gray-700 block"
             @update-address="updateAddress"
-            titleClass="font-extrabold text-lg text-gray-700 block"
           />
         </div>
 
@@ -262,7 +262,7 @@ const onSubmitForm = async (): Promise<void> => {
       `/api/v1/user/my/settings?username=${username}`,
       {
         baseURL: baseUrl,
-      }
+      },
     );
 
     if (fetchError.value) {
@@ -283,8 +283,8 @@ onBeforeMount(async () => {
   const { data, error } = await useFetch(
     `/api/v1/user/my/settings?username=${username}`,
     {
-      baseURL: baseUrl
-    }
+      baseURL: baseUrl,
+    },
   );
 
   if (data.value) {
