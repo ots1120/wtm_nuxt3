@@ -182,6 +182,9 @@ const user = ref<User>({
   profilePicture: null,
 });
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 // 비밀번호 유효성 상태
 const isPasswordValid = ref(true);
 
@@ -299,7 +302,8 @@ const confirmSave = async (): Promise<void> => {
     }
 
     // API 요청 (PUT 메서드)
-    await useFetch(`${baseUrl}/api/v1/user/my/settings`, {
+    await useFetch(`/api/v1/user/my/settings`, {
+      baseURL: baseUrl,
       method: 'PUT',
       body: formData,
       credentials: 'include',
@@ -307,8 +311,9 @@ const confirmSave = async (): Promise<void> => {
 
     // 유저 정보 다시 가져오기
     const { data: updatedData, error: fetchError } = await useFetch<User>(
-      `${baseUrl}/api/v1/user/my/settings?username=${username}`,
+      `/api/v1/user/my/settings?username=${username}`,
       {
+        baseURL: baseUrl,
         credentials: 'include',
       },
     );
@@ -320,6 +325,7 @@ const confirmSave = async (): Promise<void> => {
     if (updatedData.value) {
       modal.value.visible = false;
       userFormData(updatedData.value); // PUT 요청 이후 받은 데이터로 상태 업데이트
+      alert('저장 완료');
     }
   } catch (error) {
     console.error('프로필 업데이트에 실패했습니다:', error);
@@ -330,14 +336,16 @@ const confirmSave = async (): Promise<void> => {
 onBeforeMount(async () => {
   route.meta.title = '내 정보 수정'; // 페이지 타이틀 설정
   const { data, error } = await useFetch(
-    `${baseUrl}/api/v1/user/my/settings?username=${username}`,
+    `/api/v1/user/my/settings?username=${username}`,
     {
+      baseURL: baseUrl,
       credentials: 'include',
     },
   );
 
   if (data.value) {
     userFormData(data.value); // GET 요청 결과로 상태 초기화
+    console.log(data.value);
   } else if (error.value) {
     console.error('유저정보를 불러오는 중 실패하였습니다', error.value);
   }

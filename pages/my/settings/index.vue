@@ -99,6 +99,7 @@
             :detail-address="user.userAddress.detailAddress"
             :extra-address="user.userAddress.extraAddress"
             :show-modal="showModal"
+            title-class="font-extrabold text-lg text-gray-700 block"
             @update-address="updateAddress"
           />
         </div>
@@ -300,8 +301,7 @@ const confirmSave = async (): Promise<void> => {
     }
 
     // API 요청 (PUT 메서드)
-    await useFetch(`/api/v1/user/my/settings`, 
-    {
+    await useFetch(`/api/v1/user/my/settings`, {
       baseURL: baseUrl,
       method: 'PUT',
       body: formData,
