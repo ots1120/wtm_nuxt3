@@ -1,5 +1,9 @@
 <template>
   <div>
+    <label 
+      :class="titleClass"
+      >주소
+    </label>
     <div class="flex space-x-2">
       <input
         v-model="postcode"
@@ -58,6 +62,13 @@
 
 <script setup>
 import { ref, nextTick } from 'vue';
+
+defineProps({
+  titleClass: {
+    type: String,
+    default: 'block text-sm font-medium text-gray-700',
+  },
+});
 
 const postcode = ref('');
 const address = ref('');

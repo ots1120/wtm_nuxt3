@@ -1,149 +1,192 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-lg mx-auto bg-white shadow-sm">
-      <div v-if="myHistory.length > 0">
+  <div class="container px-4">
+    <div class="max-w-lg mx-auto">
+      <div>
+        <!-- TicketSummary 컴포넌트에 typeChanged 이벤트 핸들링 추가 -->
         <TicketSummary
-          :purchasePrice="defaultTicketData.purchasePrice"
-          :usedPrice="defaultTicketData.usedPrice"
-          :remainingCount="defaultTicketData.remainingCount"
-          :selectedMonth.sync="selectedMonth"
-          :selectedYear.sync="selectedYear"
-          @dateChanged="fetchUserTicketHistory"
-        />
-        <TicketHistoryList
-          :my-history="myHistory"
+          :purchase-price="ticketData.purchasePrice"
+          :used-price="ticketData.usedPrice"
+          :remaining-count="ticketData.remainingCount"
           :selected-month="selectedMonth"
           :selected-year="selectedYear"
-          :has-more-items="hasMoreItems"
-          @load-more-items="loadMoreItems"
-          @reset-load-items="resetLoadItems"
+          @dateChanged="handleDateChanged"
         />
+        <!-- 타입 선택 버튼 그룹: index.vue에서 직접 관리 -->
+        <div class="flex justify-start p-4">
+          <button
+            v-for="option in typeOptions"
+            :key="option.value"
+            class="px-4 py-2 border rounded-md mx-1"
+            :class="{
+              'bg-blue-100 text-blue-500': selectedType === option.value,
+              'bg-gray-100 text-gray-500': selectedType !== option.value,
+            }"
+            @click="handleTypeChanged(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+        <div v-if="myHistory.length > 0" class="mt-2">
+          <TicketHistoryList
+            :my-history="myHistory"
+            :selected-month="selectedMonth"
+            :selected-year="selectedYear"
+            :selected-type="selectedType"
+            :has-more-items="hasMoreItems"
+            @load-more-items="loadMoreItems"
+            @reset-load-items="resetLoadItems"
+          />
+        </div>
+        
+        <div v-else ref="containerRef" class="h-[70vh] overflow-hidden">
+          <div ref="scrollContainer" class="h-full overflow-y-auto pr-4 space-y-4">
+            <div class="flex flex-col items-center mt-6">
+              <!-- 텍스트와 아이콘 꾸미기 -->
+              <div class="text-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-12 w-12 mx-auto text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.75 9.75h4.5m-4.5 4.5h4.5M6.75 3h10.5c1.242 0 2.25 1.008 2.25 2.25v13.5c0 1.242-1.008 2.25-2.25 2.25H6.75C5.508 21 4.5 19.992 4.5 18.75V5.25C4.5 4.008 5.508 3 6.75 3z"
+                  />
+                </svg>
+                <p class="mt-4 text-lg text-gray-600 font-semibold">
+                  구매 및 사용 이력이 없습니다.
+                </p>
+                <p class="text-gray-500">
+                  선택한 기간 내에 거래 기록이 표시되지 않습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <p v-else class="text-center mt-4">티켓 구입 및 사용 내역이 없습니다.</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue';
+import { ref, onMounted } from 'vue';
 import TicketSummary from '~/components/user/my/TicketSummary.vue';
 import TicketHistoryList from '~/components/user/my/TicketHistoryList.vue';
 
 interface TicketData {
-  purchasePrice: Number;
-  usedPrice: Number;
-  remainingCount: Number;
+  purchasePrice: number;
+  usedPrice: number;
+  remainingCount: number;
 }
 
 interface TicketHistory {
   storeId: number;
   id: number;
-  userId: number;
-  price: number;
-  ticketId: number;
-  amount: number;
-  type: string;
-  regDate: string;
   formattedRegDate: string;
-  formattedTime: string;
+  price: number;
   storeName: string;
+  formattedTime: string;
+  type: string;
   hasReview: boolean;
 }
 
-interface TicketAllHistoryDto{
-  storeId: number;
-  id: number;
-  userId: number;
-  price: number;
-  ticketId: number;
-  amount: number;
-  type: string;
-  regDate: string;
-  formattedRegDate: string;
-  formattedTime: string;
-  storeName: string;
-  hasReview: boolean;
-}
+const ticketData = ref<TicketData>({
+  purchasePrice: 0,
+  usedPrice: 0,
+  remainingCount: 0,
+});
 
-interface TicketHistoryResponseDto {
-  combinedHistory: TicketAllHistoryDto[];
-  totalPurchasedPrice: number;
-  totalUsedPrice: number;
-  totalAmount: number;
-}
-
-const ticketData = ref<TicketData>();
+const authstore = useAuthStore();
+const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
-const selectedMonth = ref<number>(new Date().getMonth() + 1); // 현재 월로 초기화
-const selectedYear = ref<number>(new Date().getFullYear()); // 현재 연도로 초기화
-const page = ref(1);
+const selectedMonth = ref<number>(new Date().getMonth() + 1);
+const selectedYear = ref<number>(new Date().getFullYear());
+const selectedType = ref("all"); // selectedType 상태 관리
+const page = ref(0);
 const hasMoreItems = ref(true);
+const isLoading = ref(false);
+const route = useRoute();
+const storeId = route.params.storeId;
 
-const fetchUserTicketHistory = async (): Promise<void> => {
-  const userId = 1;
-  const storeId = 1;
+const typeOptions = [
+  { label: "전체", value: "all" },
+  { label: "구매", value: "purchase" },
+  { label: "사용", value: "usage" },
+];
 
-  const { data, error } = await useFetch<TicketHistoryResponseDto>(
-    `http://localhost:8080/api/v1/user/my/tickets/stores/history?userId=${userId}&storeId=${storeId}&month=${selectedMonth.value}&year=${selectedYear.value}`);
+const fetchItems = async () => {
+  console.log("Fetching items..."); // 디버깅용 로그
+  console.log(`Type: ${selectedType.value}, Page: ${page.value}`); // 현재 type과 페이지 정보 확인
+  if (!hasMoreItems.value || isLoading.value) return;
+  isLoading.value = true;
+  try {
+    const response = await fetch(
+      `http://localhost:8080/api/v1/user/my/tickets/stores/history?username=${username}&storeId=${storeId}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`
+    );
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const fetchedData = await response.json();
 
-  if (error.value) {
-    console.error('사용자의 특정 가게 티켓 히스토리를 불러오는 중 오류가 발생했습니다:', error.value);
-    return;
-  }
+    if (fetchedData?.combinedHistory?.length) {
+      ticketData.value = {
+        purchasePrice: fetchedData.totalPurchasedPrice,
+        usedPrice: fetchedData.totalUsedPrice,
+        remainingCount: fetchedData.totalAmount,
+      };
 
-  if (data.value) {
-    const fetchedData = data.value;
-    // fetchedData와 combinedHistory의 유효성 검사
-  if (fetchedData && fetchedData.combinedHistory && Array.isArray(fetchedData.combinedHistory)) {
-    ticketData.value = {
-      purchasePrice: fetchedData.totalPurchasedPrice,
-      usedPrice: fetchedData.totalUsedPrice,
-      remainingCount: fetchedData.totalAmount,
-    };
-    
-    if (page.value === 1) {
+      if (page.value === 0) {
         myHistory.value = fetchedData.combinedHistory;
       } else {
         myHistory.value = [...myHistory.value, ...fetchedData.combinedHistory];
       }
 
       page.value++;
-
-      if (fetchedData.combinedHistory.length < 7) {
-        hasMoreItems.value = false;
-      }
-    
-    // myHistory.value = fetchedData.combinedHistory.map((item: any) => ({
-    //   formattedRegDate: item.formattedRegDate,
-    //   price: item.price,
-    //   storeName: item.storeName,
-    //   formattedTime: item.formattedTime,
-    //   type: item.type,
-    // }));
-  }
+      hasMoreItems.value = page.value <= fetchedData.totalPages;
+    } else {
+      hasMoreItems.value = false;
+    }
+  } catch (error) {
+    console.error('데이터 로드 오류:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
-const defaultTicketData = computed(() => ({
-  purchasePrice: ticketData.value?.purchasePrice ?? 0,
-  usedPrice: ticketData.value?.usedPrice ?? 0,
-  remainingCount: ticketData.value?.remainingCount ?? 0,
-}));
-
 const loadMoreItems = () => {
-  fetchUserTicketHistory();
+  fetchItems();
 };
 
 const resetLoadItems = () => {
-  page.value = 1;
+  console.log("Resetting items..."); // 디버깅용 로그
+  page.value = 0;
   myHistory.value = [];
   hasMoreItems.value = true;
-  fetchUserTicketHistory();
+  fetchItems();
 };
- 
-watchEffect(() => {
-  fetchUserTicketHistory();
+
+const handleDateChanged = ({ month, year }: { month: number; year: number }) => {
+  selectedMonth.value = month;
+  selectedYear.value = year;
+  resetLoadItems();
+};
+
+const handleTypeChanged = (newType: string) => {
+  console.log(`Type changed to: ${newType}`); // 디버깅용 로그
+  if (selectedType.value !== newType) {
+    selectedType.value = newType;
+    resetLoadItems();
+  }
+};
+
+onMounted(() => {
+  route.meta.title = '가게 식권 내역';
+  fetchItems();
 });
 </script>
 
-<style scoped></style>
+

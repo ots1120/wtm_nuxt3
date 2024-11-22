@@ -1,6 +1,6 @@
 <template>
   <div v-if="storeInfo">
-    <section class="bg-white p-5 text-center">
+    <section class="bg-white p-5 text-center rounded-lg">
       <div class="inline-block rounded-lg bg-gray-100 p-4">
         <!-- QR 코드 생성 (275x275 해상도 설정) -->
         <qrcode-vue :value="qrCodeUrl" :size="275" />
@@ -50,9 +50,10 @@ const qrCodeUrl = computed(() => {
     ticketQuantity: props.ticketQuantity,
     type: props.type
   }
-  const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), config.public.qrSecretKey).toString();
+  const jsonData = JSON.stringify(data); // just json Data JJD
+  // const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), config.public.qrSecretKey).toString();
 
-  return encryptedData;
+  return jsonData;
 
 });
 
