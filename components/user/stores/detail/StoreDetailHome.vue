@@ -1,60 +1,113 @@
 <template>
   <div class="mt-4">
     <!-- 주소 정보 -->
-    <div class="flex items-center gap-3 py-4 border-gray-200">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="lucide lucide-map-pin"
-      >
-        <path
-          d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
-        />
-        <circle cx="12" cy="10" r="3" />
-      </svg>
-      <span class="text-gray-800">
-        {{ store.address.address || '주소 정보 없음' }}
-        {{ store.address.detailAddress }}
-        {{ store.address.extraAddress }}
-      </span>
+    <div class="flex flex-col py-4 border-gray-200 relative">
+      <div class="flex items-center gap-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-map-pin"
+        >
+          <path
+            d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+          />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <div
+          ref="addressContent"
+          :class="{ 'line-clamp-1': !isAddressExpanded }"
+          class="text-gray-800 break-words whitespace-normal flex-1"
+        >
+          {{ store.address.address || '주소 정보 없음' }}
+          {{ store.address.detailAddress }}
+          {{ store.address.extraAddress }}
+        </div>
+        <button
+          v-if="isAddressClamped"
+          class="text-blue-600 hover:underline flex items-center"
+          @click="toggleAddressExpand"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-down"
+            :class="{ 'rotate-180': isAddressExpanded }"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- SNS 링크 -->
-    <div
-      v-if="store.storeSns?.url"
-      class="flex items-center gap-3 py-4 border-gray-200"
-    >
-      <svg
-        class="w-6 h-6 text-gray-600 flex-shrink-0"
-        viewBox="0 0 100 100"
-        fill="currentColor"
-      >
-        <text
-          x="50%"
-          y="50%"
-          dominant-baseline="middle"
-          text-anchor="middle"
-          font-family="Arial, sans-serif"
-          font-size="50"
-          font-weight="bold"
+    <div class="flex flex-col py-4 border-gray-200 relative">
+      <div class="flex items-center gap-3">
+        <svg
+          class="w-6 h-6 text-gray-600 flex-shrink-0"
+          viewBox="0 0 100 100"
           fill="currentColor"
         >
-          SNS
-        </text>
-      </svg>
-      <a :href="store.storeSns.url" target="_blank" class="text-blue-600">
-        {{ store.storeSns.url }}
-      </a>
+          <text
+            x="50%"
+            y="50%"
+            dominant-baseline="middle"
+            text-anchor="middle"
+            font-family="Arial, sans-serif"
+            font-size="50"
+            font-weight="bold"
+            fill="currentColor"
+          >
+            SNS
+          </text>
+        </svg>
+        <div
+          ref="snsContent"
+          :class="{ 'line-clamp-1': !isSnsExpanded }"
+          class="text-blue-600 break-all whitespace-normal flex-1"
+        >
+          <a :href="store.storeSns.url" target="_blank">{{
+            store.storeSns.url
+          }}</a>
+        </div>
+        <button
+          v-if="isSnsClamped"
+          class="text-blue-600 hover:underline flex items-center"
+          @click="toggleSnsExpand"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-down"
+            :class="{ 'rotate-180': isSnsExpanded }"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <!-- 연락처 정보 (복사 버튼 포함) -->
+    <!-- 연락처 정보 -->
     <div class="flex items-center gap-3 py-4 border-gray-200">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -100,9 +153,13 @@
         <circle cx="12" cy="12" r="10" />
         <polyline points="12 6 12 12 16 14" />
       </svg>
-      <span class="text-gray-800">{{
-        store.operatingHours || '운영 시간 정보 없음'
-      }}</span>
+      <span class="text-gray-800">
+        {{
+          store.operatingHours && store.operatingHours.trim() !== 'null - null'
+            ? store.operatingHours
+            : '운영 시간 정보 없음'
+        }}
+      </span>
     </div>
 
     <!-- 가격 정보 -->
@@ -127,25 +184,12 @@
         store.ticket?.price ? `${store.ticket.price}원` : '가격 정보 없음'
       }}</span>
     </div>
-
-    <!-- 모달 알림 (전화번호 복사) -->
-    <transition name="fade">
-      <div
-        v-if="showModal"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50"
-      >
-        <div class="bg-white px-6 py-4 rounded-lg shadow-lg text-center">
-          <p class="text-gray-800">전화번호가 복사되었습니다.</p>
-        </div>
-      </div>
-    </transition>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
-// Props로 store 데이터를 전달받음
 const props = defineProps({
   store: {
     type: Object,
@@ -153,38 +197,56 @@ const props = defineProps({
   },
 });
 
-// 모달 창 상태
+// 상태 관리
+const isAddressExpanded = ref(false);
+const isAddressClamped = ref(false);
+const addressContent = ref(null);
+
+const isSnsExpanded = ref(false);
+const isSnsClamped = ref(false);
+const snsContent = ref(null);
+
 const showModal = ref(false);
 
-// 전화번호 복사 함수
-function copyPhoneNumber() {
-  if (store.contact) {
-    navigator.clipboard
-      .writeText(store.contact)
-      .then(() => {
-        showModal.value = true; // 모달 창 표시
-        setTimeout(() => {
-          showModal.value = false; // 1초 후 모달 창 숨기기
-        }, 1000);
-      })
-      .catch((err) => {
-        console.error('복사에 실패했습니다:', err);
-      });
+// 잘림 여부 확인
+onMounted(() => {
+  if (addressContent.value) {
+    const contentHeight = addressContent.value.scrollHeight;
+    const lineHeight = parseFloat(
+      getComputedStyle(addressContent.value).lineHeight,
+    );
+    if (contentHeight > lineHeight * 1) isAddressClamped.value = true;
   }
-}
 
-// store를 직접 사용할 수 있도록 설정
-const { store } = props;
+  if (snsContent.value) {
+    const contentHeight = snsContent.value.scrollHeight;
+    const lineHeight = parseFloat(
+      getComputedStyle(snsContent.value).lineHeight,
+    );
+    if (contentHeight > lineHeight * 1) isSnsClamped.value = true;
+  }
+});
+
+// 토글 기능
+function toggleAddressExpand() {
+  isAddressExpanded.value = !isAddressExpanded.value;
+}
+function toggleSnsExpand() {
+  isSnsExpanded.value = !isSnsExpanded.value;
+}
 </script>
 
 <style scoped>
-/* 애플 스타일을 위한 추가 스타일 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
 }
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.rotate-180 {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
 }
 </style>

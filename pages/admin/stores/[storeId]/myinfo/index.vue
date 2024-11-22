@@ -148,6 +148,9 @@ import PostAddressForm from '~/components/user/PostAddressForm.vue';
 import { useAuthStore } from '~/stores/auth'; // AuthStore 경로에 맞게 수정 필요
 import BasicModal from '~/components/modal/BasicModal.vue';
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 interface Address {
   postcode: string;
   address: string;
@@ -222,7 +225,7 @@ const userFormData = (data: any) => {
   user.value.password = data.password;
   user.value.phone = data.phone;
   user.value.profilePicture = data.profilePicture
-    ? `http://localhost:8080${data.profilePicture}`
+    ? `${baseUrl}${data.profilePicture}`
     : null;
 };
 
@@ -296,7 +299,7 @@ const confirmSave = async (): Promise<void> => {
     }
 
     // API 요청 (PUT 메서드)
-    await useFetch(`http://localhost:8080/api/v1/user/my/settings`, {
+    await useFetch(`${baseUrl}/api/v1/user/my/settings`, {
       method: 'PUT',
       body: formData,
       credentials: 'include',
@@ -304,7 +307,7 @@ const confirmSave = async (): Promise<void> => {
 
     // 유저 정보 다시 가져오기
     const { data: updatedData, error: fetchError } = await useFetch<User>(
-      `http://localhost:8080/api/v1/user/my/settings?username=${username}`,
+      `${baseUrl}/api/v1/user/my/settings?username=${username}`,
       {
         credentials: 'include',
       },
@@ -327,7 +330,7 @@ const confirmSave = async (): Promise<void> => {
 onBeforeMount(async () => {
   route.meta.title = '내 정보 수정'; // 페이지 타이틀 설정
   const { data, error } = await useFetch(
-    `http://localhost:8080/api/v1/user/my/settings?username=${username}`,
+    `${baseUrl}/api/v1/user/my/settings?username=${username}`,
     {
       credentials: 'include',
     },
