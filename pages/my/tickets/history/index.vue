@@ -9,7 +9,7 @@
           :remaining-count="ticketData.remainingCount"
           :selected-month="selectedMonth"
           :selected-year="selectedYear"
-          @dateChanged="handleDateChanged"
+          @date-changed="handleDateChanged"
         />
         <div v-if="myHistory.length > 0" class="mt-2">
           <TicketHistoryList
@@ -20,11 +20,14 @@
             :has-more-items="hasMoreItems"
             @load-more-items="loadMoreItems"
             @reset-load-items="resetLoadItems"
-            @typeChanged="handleTypeChanged"
+            @type-changed="handleTypeChanged"
           />
         </div>
         <div v-else ref="containerRef" class="h-[70vh] overflow-hidden">
-          <div ref="scrollContainer" class="h-full overflow-y-auto pr-4 space-y-4">
+          <div
+            ref="scrollContainer"
+            class="h-full overflow-y-auto pr-4 space-y-4"
+          >
             <div class="flex flex-col items-center mt-6">
               <!-- 텍스트와 아이콘 꾸미기 -->
               <div class="text-center">
@@ -90,19 +93,19 @@ const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
 const selectedMonth = ref<number>(new Date().getMonth() + 1);
 const selectedYear = ref<number>(new Date().getFullYear());
-const selectedType = ref("all"); // selectedType 상태 관리
+const selectedType = ref('all'); // selectedType 상태 관리
 const page = ref(0);
 const hasMoreItems = ref(true);
 const isLoading = ref(false);
 
 const fetchItems = async () => {
-  console.log("Fetching items..."); // 디버깅용 로그
+  console.log('Fetching items...'); // 디버깅용 로그
   console.log(`Type: ${selectedType.value}, Page: ${page.value}`); // 현재 type과 페이지 정보 확인
   if (!hasMoreItems.value || isLoading.value) return;
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`
+      `http://localhost:8080/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`,
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -139,14 +142,20 @@ const loadMoreItems = () => {
 };
 
 const resetLoadItems = () => {
-  console.log("Resetting items..."); // 디버깅용 로그
+  console.log('Resetting items...'); // 디버깅용 로그
   page.value = 0;
   myHistory.value = [];
   hasMoreItems.value = true;
   fetchItems();
 };
 
-const handleDateChanged = ({ month, year }: { month: number; year: number }) => {
+const handleDateChanged = ({
+  month,
+  year,
+}: {
+  month: number;
+  year: number;
+}) => {
   selectedMonth.value = month;
   selectedYear.value = year;
   resetLoadItems();
@@ -166,5 +175,3 @@ onMounted(() => {
   fetchItems();
 });
 </script>
-
-

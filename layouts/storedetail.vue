@@ -8,7 +8,7 @@
       <StoreDetailImages :images="images" :restaurant-name="restaurantName" />
 
       <!-- 식당 정보 섹션 -->
-      <div class="mt-4">
+      <div class="mt-4 ml-4">
         <StoreDetailInfo
           v-if="reviewStats.storeName"
           :review-stats="reviewStats"
