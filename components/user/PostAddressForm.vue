@@ -1,6 +1,5 @@
 <template>
   <div>
-    <label class="block text-sm font-medium text-gray-700">주소</label>
     <div class="flex space-x-2">
       <input
         v-model="postcode"
@@ -80,7 +79,9 @@ const emitAddressData = () => {
 };
 
 // 특정 값이 변경되면 emitAddressData 호출
-watch([postcode, address, detailAddress, extraAddress], () => {emitAddressData});
+watch([postcode, address, detailAddress, extraAddress], () => {
+  emitAddressData;
+});
 
 // 클라이언트에서만 실행되는 코드
 onMounted(() => {
@@ -104,41 +105,41 @@ const execDaumPostcode = () => {
   nextTick(() => {
     if (typeof window !== 'undefined' && window.daum) {
       new window.daum.Postcode({
-      oncomplete: (data) => {
-        let addr = '';
-        let extraAddr = '';
+        oncomplete: (data) => {
+          let addr = '';
+          let extraAddr = '';
 
-        if (data.userSelectedType === 'R') {
-          addr = data.roadAddress;
-        } else {
-          addr = data.jibunAddress;
-        }
-
-        if (data.userSelectedType === 'R') {
-          if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-            extraAddr += data.bname;
+          if (data.userSelectedType === 'R') {
+            addr = data.roadAddress;
+          } else {
+            addr = data.jibunAddress;
           }
-          if (data.buildingName !== '' && data.apartment === 'Y') {
-            extraAddr +=
-              extraAddr !== '' ? ', ' + data.buildingName : data.buildingName;
-          }
-          if (extraAddr !== '') {
-            extraAddr = ' (' + extraAddr + ')';
-          }
-          extraAddress.value = extraAddr;
-        } else {
-          extraAddress.value = '';
-        }
 
-        postcode.value = data.zonecode;
-        address.value = addr;
-        detailAddress.value = '';
+          if (data.userSelectedType === 'R') {
+            if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+              extraAddr += data.bname;
+            }
+            if (data.buildingName !== '' && data.apartment === 'Y') {
+              extraAddr +=
+                extraAddr !== '' ? ', ' + data.buildingName : data.buildingName;
+            }
+            if (extraAddr !== '') {
+              extraAddr = ' (' + extraAddr + ')';
+            }
+            extraAddress.value = extraAddr;
+          } else {
+            extraAddress.value = '';
+          }
 
-        closeDaumPostcode();
-      },
-      width: '100%',
-      height: '100%',
-    }).embed(daumPostcodeContainer.value);
+          postcode.value = data.zonecode;
+          address.value = addr;
+          detailAddress.value = '';
+
+          closeDaumPostcode();
+        },
+        width: '100%',
+        height: '100%',
+      }).embed(daumPostcodeContainer.value);
     }
   });
 };
