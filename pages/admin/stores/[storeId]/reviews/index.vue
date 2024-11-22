@@ -347,6 +347,7 @@ const loadReviews = async (): Promise<void> => {
           page: currentPage.value,
           size: pageSize.value,
         },
+        credentials: 'include',
       },
     );
 
@@ -431,6 +432,7 @@ const submitComment = async (
           content: commentContent,
           userProfilePicture: null, // 오타 수정
         },
+        credentials: 'include',
       },
     );
     // 서버 응답 데이터를 ReviewComment 형식으로 변환
@@ -495,6 +497,7 @@ const submitUpdatedComment = async (
         body: JSON.stringify({
           content: editContent.value[reviewIndex][commentIndex],
         }),
+        credentials: 'include',
       },
     );
 
@@ -542,6 +545,7 @@ const deleteComment = async (
       {
         baseURL: baseUrl,
         method: 'DELETE',
+        credentials: 'include',
       },
     );
     // 로컬 상태에서 댓글 삭제

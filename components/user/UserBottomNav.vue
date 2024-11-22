@@ -24,7 +24,11 @@
       </span>
       <span class="text-xs font-medium text-gray-600">홈</span>
     </NuxtLink>
-    <NuxtLink to="/my/tickets" class="flex flex-col items-center">
+    <NuxtLink
+      v-if="authStore.user?.role == 'USER' || authStore.isUser == false"
+      to="/my/tickets"
+      class="flex flex-col items-center"
+    >
       <span class="p-2 mb-1">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +49,11 @@
       </span>
       <span class="text-xs font-medium text-gray-600">식권</span>
     </NuxtLink>
-    <NuxtLink to="/my/bookmarks" class="flex flex-col items-center">
+    <NuxtLink
+      v-if="authStore.user?.role == 'USER' || authStore.isUser == false"
+      to="/my/bookmarks"
+      class="flex flex-col items-center"
+    >
       <span class="p-2 mb-1">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +70,11 @@
       </span>
       <span class="text-xs font-medium text-gray-600">북마크</span>
     </NuxtLink>
-    <NuxtLink to="/my" class="flex flex-col items-center">
+    <NuxtLink
+      v-if="authStore.user?.role == 'USER'"
+      to="/my"
+      class="flex flex-col items-center"
+    >
       <span class="p-2 mb-1">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -80,10 +92,62 @@
       </span>
       <span class="text-xs font-medium text-gray-600">내정보</span>
     </NuxtLink>
+    <NuxtLink
+      v-else-if="authStore.userId == null"
+      to="/signIn"
+      class="flex flex-col items-center"
+    >
+      <span class="p-2 mb-1">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-log-in w-6 h-6"
+        >
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+          <polyline points="10 17 15 12 10 7" />
+          <line x1="15" x2="3" y1="12" y2="12" />
+        </svg>
+      </span>
+      <span class="text-xs font-medium text-gray-600">로그인</span>
+    </NuxtLink>
+    <NuxtLink
+      v-if="authStore.user?.role == 'ADMIN'"
+      to="/admin/stores/${storeId}"
+      class="flex flex-col items-center"
+    >
+      <span class="p-2 mb-1">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-chart-candlestick w-6 h-6"
+        >
+          <path d="M9 5v4" />
+          <rect width="4" height="6" x="7" y="9" rx="1" />
+          <path d="M9 15v2" />
+          <path d="M17 3v2" />
+          <rect width="4" height="8" x="15" y="5" rx="1" />
+          <path d="M17 13v3" />
+          <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+        </svg>
+      </span>
+      <span class="text-xs font-medium text-gray-600">관리자 페이지</span>
+    </NuxtLink>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const authStore = useAuthStore(); // Pinia 스토어 가져오기
+</script>
 
 <style scoped>
 /* 필요한 스타일이 있으면 여기에 작성하세요 */

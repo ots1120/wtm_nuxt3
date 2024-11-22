@@ -169,6 +169,9 @@ const username = authstore.user?.username;
 const user = ref<User | null>(null);
 const isAuthenticated = computed(() => authstore.isAuthenticated);
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 const navigateTo = (path: string) => {
   router.push(path);
 };
@@ -177,7 +180,10 @@ onBeforeMount(async () => {
   route.meta.title = '내 정보';
   // useFetch에서 User 타입을 지정
   const { data, error } = await useFetch<User>(
-    `http://localhost:8080/api/v1/user/my?username=${username}`,
+    `/api/v1/user/my?username=${username}`,
+    {
+      baseURL: baseUrl,
+    }
   );
 
   if (data.value) {
@@ -185,7 +191,7 @@ onBeforeMount(async () => {
       email: data.value.email,
       name: data.value.name,
       profilePicture: data.value.profilePicture
-      ? `http://localhost:8080${data.value.profilePicture}`
+      ? `${baseUrl}${data.value.profilePicture}`
       : null, // null일 경우 null 유지
     };
   } else if (error.value) {

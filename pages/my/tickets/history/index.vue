@@ -11,6 +11,21 @@
           :selected-year="selectedYear"
           @date-changed="handleDateChanged"
         />
+        <!-- 타입 선택 버튼 그룹: index.vue에서 직접 관리 -->
+        <div class="flex justify-start p-4">
+          <button
+            v-for="option in typeOptions"
+            :key="option.value"
+            class="px-4 py-2 border rounded-md mx-1"
+            :class="{
+              'bg-blue-100 text-blue-500': selectedType === option.value,
+              'bg-gray-100 text-gray-500': selectedType !== option.value,
+            }"
+            @click="handleTypeChanged(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
         <div v-if="myHistory.length > 0" class="mt-2">
           <TicketHistoryList
             :my-history="myHistory"
@@ -20,9 +35,9 @@
             :has-more-items="hasMoreItems"
             @load-more-items="loadMoreItems"
             @reset-load-items="resetLoadItems"
-            @type-changed="handleTypeChanged"
           />
         </div>
+
         <div v-else ref="containerRef" class="h-[70vh] overflow-hidden">
           <div
             ref="scrollContainer"
@@ -88,6 +103,12 @@ const ticketData = ref<TicketData>({
   remainingCount: 0,
 });
 
+const typeOptions = [
+  { label: '전체', value: 'all' },
+  { label: '구매', value: 'purchase' },
+  { label: '사용', value: 'usage' },
+];
+
 const authstore = useAuthStore();
 const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
@@ -97,15 +118,16 @@ const selectedType = ref('all'); // selectedType 상태 관리
 const page = ref(0);
 const hasMoreItems = ref(true);
 const isLoading = ref(false);
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 const fetchItems = async () => {
   console.log('Fetching items...'); // 디버깅용 로그
-  console.log(`Type: ${selectedType.value}, Page: ${page.value}`); // 현재 type과 페이지 정보 확인
   if (!hasMoreItems.value || isLoading.value) return;
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`,
+      `${baseUrl}/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`,
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -163,10 +185,8 @@ const handleDateChanged = ({
 
 const handleTypeChanged = (newType: string) => {
   console.log(`Type changed to: ${newType}`); // 디버깅용 로그
-  if (selectedType.value !== newType) {
-    selectedType.value = newType;
-    resetLoadItems();
-  }
+  selectedType.value = newType; // 자식 컴포넌트로부터 받은 타입 값 설정
+  resetLoadItems(); // 타입 변경 시 데이터 리셋 후 새로 로드
 };
 
 const route = useRoute();

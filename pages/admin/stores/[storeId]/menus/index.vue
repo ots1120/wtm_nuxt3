@@ -411,6 +411,7 @@ const deleteMenu = async (menuId: number) => {
     {
       baseURL: baseUrl,
       method: 'DELETE',
+      credentials: 'include',
     },
   );
   if (error.value) {
@@ -454,6 +455,7 @@ const saveMenus = async () => {
           mealDate,
           menuDtos,
         },
+        credentials: 'include',
       });
 
       console.log('신규 메뉴 등록 성공');
@@ -481,6 +483,7 @@ const saveMenus = async () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
+        credentials: 'include',
       });
 
       console.log(`메뉴 수정 성공: ${menu.name}`);
@@ -513,6 +516,7 @@ const saveImages = async () => {
         baseURL: baseUrl,
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
 
       console.log('이미지 업로드 성공:', response);
@@ -552,6 +556,7 @@ const deleteImage = async (imageImgId: number | undefined, index: number) => {
       await $fetch(`api/v1/admin/stores/${storeId}/menuImgs/${imageImgId}`, {
         baseURL: baseUrl,
         method: 'DELETE',
+        credentials: 'include',
       });
       console.log('이미지 삭제 성공');
 
@@ -597,6 +602,7 @@ const fetchMenus = async () => {
       {
         baseURL: baseUrl,
         params: { date: selectedDate.value.toISOString().split('T')[0] },
+        credentials: 'include',
       },
     );
 
@@ -620,6 +626,7 @@ const fetchImages = async () => {
       {
         baseURL: baseUrl,
         params: { date: selectedDate.value.toISOString().split('T')[0] },
+        credentials: 'include',
       },
     );
 

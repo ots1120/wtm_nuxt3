@@ -103,6 +103,12 @@ const ticketData = ref<TicketData>({
   remainingCount: 0,
 });
 
+const typeOptions = [
+  { label: '전체', value: 'all' },
+  { label: '구매', value: 'purchase' },
+  { label: '사용', value: 'usage' },
+];
+
 const authstore = useAuthStore();
 const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
@@ -115,11 +121,8 @@ const isLoading = ref(false);
 const route = useRoute();
 const storeId = route.params.storeId;
 
-const typeOptions = [
-  { label: '전체', value: 'all' },
-  { label: '구매', value: 'purchase' },
-  { label: '사용', value: 'usage' },
-];
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 const fetchItems = async () => {
   console.log('Fetching items...'); // 디버깅용 로그
@@ -128,7 +131,7 @@ const fetchItems = async () => {
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/tickets/stores/history?username=${username}&storeId=${storeId}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`,
+      `${baseUrl}/api/v1/user/my/tickets/stores/history?username=${username}&storeId=${storeId}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`,
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');
