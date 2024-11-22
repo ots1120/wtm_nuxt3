@@ -113,16 +113,6 @@ const isDesktop = ref(device.device?.type === 'desktop');
 const route = useRoute();
 const storeId = route.params.storeId;
 
-const { data, error } = await useFetch<storeInfo>(
-  `http://localhost:8080/api/v1/user/my/tickets/stores?username=${username}&storeId=${storeId}`,
-);
-
-if (data.value) {
-  storeInfo.value = data.value;
-} else if (error.value) {
-  console.error('자세한 티켓 정보를 불러오는 데 실패했습니다', error.value);
-}
-
 const decreaseQuantity = () => {
   if (ticketQuantity.value > 1) {
     ticketQuantity.value--;
@@ -153,8 +143,17 @@ const goToMyTicketHistoryPage = () => {
   router.push('/my/tickets/history');
 };
 
-onBeforeMount(() => {
+onBeforeMount( async () => {
   route.meta.title = '내 식권';
+    const { data, error } = await useFetch<storeInfo>(
+    `http://localhost:8080/api/v1/user/my/tickets/stores?username=${username}&storeId=${storeId}`,
+  );
+
+  if (data.value) {
+    storeInfo.value = data.value;
+  } else if (error.value) {
+    console.error('자세한 티켓 정보를 불러오는 데 실패했습니다', error.value);
+  }
 });
 </script>
 

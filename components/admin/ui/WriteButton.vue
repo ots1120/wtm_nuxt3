@@ -1,6 +1,6 @@
 <template>
   <button
-    class="rounded-full border-2 bg-orange-500 p-3"
+    class="rounded-full border-2 bg-[#db3d39] p-3"
     @click="navigateToRegistForm"
   >
     <svg
@@ -42,4 +42,10 @@ const navigateToRegistForm = () => {
   navigateTo(props.pushRoute);
 };
 </script>
-<style></style>
+<style>
+.btn-write {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+}
+</style>

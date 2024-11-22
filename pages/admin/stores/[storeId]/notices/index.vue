@@ -1,10 +1,9 @@
 <template>
   <!-- 공지사항 리스트 -->
   <div class="relative">
-    <!-- Write Button -->
     <WriteButton
       :push-route="`/admin/stores/${storeId}/notices/regist`"
-      class="fixed top-[80%] left-[80%] transform -translate-x-1/2 -translate-y-1/2 md:top-[80%] md:left-[64%] sm:top-[80%] sm:left-[75%]"
+      class="btn-write"
     />
     <div class="px-4">
       <div
@@ -113,6 +112,22 @@ import { useRouter, useRoute } from 'vue-router';
 import { differenceInDays } from 'date-fns';
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
 import Modal from '~/components/modal/BasicModal.vue';
+
+onMounted(() => {
+  const quickBar = document.querySelector('.quick-bar');
+  if (quickBar == null) return;
+  const btnWrite = document.querySelector('.btn-write');
+  if (btnWrite == null) return;
+  quickBar.appendChild(btnWrite);
+});
+
+onUnmounted(() => {
+  const quickBar = document.querySelector('.quick-bar');
+  if (quickBar == null) return;
+  const btnWrite = document.querySelector('.btn-write');
+  if (btnWrite == null) return;
+  quickBar.removeChild(btnWrite);
+});
 
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
