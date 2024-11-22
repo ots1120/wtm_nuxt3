@@ -3,29 +3,24 @@
   <a class="flex space-x-4 flex-1 cursor-pointer"
     @click.prevent="navigateTo(`/my/tickets/stores/${ticket.storeId}`)"
   >
-    <div class="w-16 h-16 bg-gray-200 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center">
+  <div class="bg-gray-200 w-16 h-16 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center">
         <img
           v-if="ticket.storeImgUrl"
           :src="ticket.storeImgUrl"
           :alt="ticket.storeName"
           class="w-full h-full object-cover"
         />
+        <!-- 기본 SVG 이미지를 표시 -->
         <svg
           v-else
           xmlns="http://www.w3.org/2000/svg"
-          width="48"
-          height="48"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-utensils w-12 h-12 text-gray-400"
+          class="h-16 w-16 text-gray-400"
+          viewBox="0 0 16 16"
         >
-          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-          <path d="M7 2v20" />
-          <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+          <path
+            fill="#BDBDBD"
+            d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
+          />
         </svg>
     </div>
     <div class="flex-1 min-w-0 flex flex-col justify-between h-16">

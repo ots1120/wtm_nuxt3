@@ -37,7 +37,7 @@
             @reset-load-items="resetLoadItems"
           />
         </div>
-        
+
         <div v-else ref="containerRef" class="h-[70vh] overflow-hidden">
           <div ref="scrollContainer" class="h-full overflow-y-auto pr-4 space-y-4">
             <div class="flex flex-col items-center mt-6">
@@ -183,7 +183,7 @@ const handleTypeChanged = (newType: string) => {
 
 const route = useRoute();
 onMounted(() => {
-  route.meta.title = '가게 식권 내역';
+  route.meta.title = '전체 식권 내역';
   fetchItems();
 });
 </script>

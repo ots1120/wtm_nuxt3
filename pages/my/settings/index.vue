@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen">
     <section class="flex overflow-y-auto justify-center px-4 pb-10">
-      <form enctype="multipart/form-data" @submit.prevent="onSubmitForm">
+      <form enctype="multipart/form-data" @submit.prevent="openModal">
         <!-- 프로필 사진 -->
         <div class="items-center justify-center text-center border-b pb-4">
           <div
@@ -90,6 +90,9 @@
 
         <!-- 주소 -->
         <div class="pt-4 border-b">
+          <label for="" class="font-extrabold text-lg text-gray-700 block"
+            >주소</label
+          >
           <PostAddressForm
             :postcode="user.userAddress.postcode"
             :address="user.userAddress.address"
@@ -97,7 +100,6 @@
             :extra-address="user.userAddress.extraAddress"
             :show-modal="showModal"
             @update-address="updateAddress"
-            titleClass="font-extrabold text-lg text-gray-700 block"
           />
         </div>
 
@@ -119,11 +121,23 @@
         <button
           type="submit"
           class="w-full bg-blue-500 text-white py-2 rounded-lg text-lg font-medium mt-4"
+          onclick="submitForm"
+          :disabled="!isPasswordValid"
         >
           완료
         </button>
       </form>
     </section>
+    <BasicModal
+      v-if="modal.visible"
+      :visible="modal.visible"
+      :message-title="'정보 수정'"
+      :message-body="'내 정보를 수정하시겠습니까?'"
+      :cancel-message="'취소'"
+      :confirm-message="'저장'"
+      @confirm="confirmSave"
+      @cancel="cancelSave"
+    />
   </div>
 </template>
 
@@ -132,6 +146,7 @@ import { ref, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import PostAddressForm from '~/components/user/PostAddressForm.vue';
 import { useAuthStore } from '~/stores/auth'; // AuthStore 경로에 맞게 수정 필요
+import BasicModal from '~/components/modal/BasicModal.vue';
 
 interface Address {
   postcode: string;
@@ -164,11 +179,40 @@ const user = ref<User>({
   profilePicture: null,
 });
 
+// 비밀번호 유효성 상태
+const isPasswordValid = ref(true);
+
+// 비밀번호 검증 로직
+const validatePassword = () => {
+  isPasswordValid.value = !!user.value.password; // 비밀번호가 입력되어 있는지 확인
+};
+
 // 주소 상태 관리
 const showModal = ref(false);
 
 // 프로필 이미지 상태
 const profileImage = ref<File | null>(null);
+
+const openModal = () => {
+  modal.value.visible = true;
+};
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
+// Modal 관리 로직
+const modal = ref<{
+  visible: boolean;
+}>({
+  visible: false,
+});
+
+const cancelSave = (): void => {
+  // Simply hide the modal and reset the state
+  modal.value = {
+    visible: false,
+  };
+};
 
 // 유저 정보 업데이트 함수
 const userFormData = (data: any) => {
@@ -189,9 +233,7 @@ const userFormData = (data: any) => {
 const authstore = useAuthStore();
 const username = authstore.user?.username;
 const route = useRoute();
-
-const config = useRuntimeConfig();
-const baseUrl = config.public.baseApiUrl;
+const router = useRouter(); // 라우터
 
 // 프로필 이미지 변경 핸들러
 const handleImageChange = (event: Event): void => {
@@ -220,10 +262,17 @@ const updateAddress = (addressData: {
 };
 
 // 폼 제출 핸들러
-const onSubmitForm = async (): Promise<void> => {
+const confirmSave = async (): Promise<void> => {
+  validatePassword(); // 비밀번호 검증
+  if (!isPasswordValid.value) {
+    alert('비밀번호를 입력해주세요.');
+    modal.value.visible = false;
+
+    return; // 검증 실패 시 제출 중단
+  }
   try {
     const formData = new FormData();
-    // user 객체의 데이터를 FormData에 추가
+
     formData.append('email', user.value.email);
     formData.append('name', user.value.name);
     formData.append('password', user.value.password);
@@ -251,27 +300,31 @@ const onSubmitForm = async (): Promise<void> => {
     }
 
     // API 요청 (PUT 메서드)
-    await useFetch(`/api/v1/user/my/settings`, {
+    await useFetch(`/api/v1/user/my/settings`, 
+    {
       baseURL: baseUrl,
       method: 'PUT',
       body: formData,
+      credentials: 'include',
     });
-
+    router.push('/my');
     // 유저 정보 다시 가져오기
-    const { data: updatedData, error: fetchError } = await useFetch<User>(
-      `/api/v1/user/my/settings?username=${username}`,
-      {
-        baseURL: baseUrl,
-      }
-    );
+    // const { data: updatedData, error: fetchError } = await useFetch<User>(
+    //   `/api/v1/user/my/settings?username=${username}`,
+    //   {
+    //     baseURL: baseUrl,
+    //     credentials: 'include',
+    //   },
+    // );
 
-    if (fetchError.value) {
-      throw new Error('Failed to fetch updated user data');
-    }
+    // if (fetchError.value) {
+    //   throw new Error('Failed to fetch updated user data');
+    // }
 
-    if (updatedData.value) {
-      userFormData(updatedData.value); // PUT 요청 이후 받은 데이터로 상태 업데이트
-    }
+    // if (updatedData.value) {
+    //   modal.value.visible = false;
+    //   userFormData(updatedData.value); // PUT 요청 이후 받은 데이터로 상태 업데이트
+    // }
   } catch (error) {
     console.error('프로필 업데이트에 실패했습니다:', error);
   }
@@ -283,8 +336,9 @@ onBeforeMount(async () => {
   const { data, error } = await useFetch(
     `/api/v1/user/my/settings?username=${username}`,
     {
-      baseURL: baseUrl
-    }
+      baseURL: baseUrl,
+      credentials: 'include',
+    },
   );
 
   if (data.value) {
