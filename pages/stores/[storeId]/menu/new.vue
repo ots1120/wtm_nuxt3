@@ -198,6 +198,9 @@ import { ref, reactive, onBeforeMount, computed } from 'vue';
 import { useRoute, useRouter } from '#app';
 import MenuRegModal from '~/components/user/modal/MenuRegModal.vue';
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 const formData = ref({
   mainMenu: '',
   soupMenu: '',
@@ -344,14 +347,11 @@ const submitToServer = async (storeId) => {
   });
 
   try {
-    const response = await $fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/menus`,
-      {
-        method: 'POST',
-        body: form,
-        credentials: 'include',
-      },
-    );
+    const response = await $fetch(`${baseUrl}/api/v1/stores/${storeId}/menus`, {
+      method: 'POST',
+      body: form,
+      credentials: 'include',
+    });
     console.log('서버 응답:', response);
     router.push(`/stores/${storeId}/menu`);
   } catch (error) {

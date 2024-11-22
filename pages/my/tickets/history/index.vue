@@ -9,7 +9,7 @@
           :remaining-count="ticketData.remainingCount"
           :selected-month="selectedMonth"
           :selected-year="selectedYear"
-          @dateChanged="handleDateChanged"
+          @date-changed="handleDateChanged"
         />
         <!-- 타입 선택 버튼 그룹: index.vue에서 직접 관리 -->
         <div class="flex justify-start p-4">
@@ -37,9 +37,12 @@
             @reset-load-items="resetLoadItems"
           />
         </div>
-        
+
         <div v-else ref="containerRef" class="h-[70vh] overflow-hidden">
-          <div ref="scrollContainer" class="h-full overflow-y-auto pr-4 space-y-4">
+          <div
+            ref="scrollContainer"
+            class="h-full overflow-y-auto pr-4 space-y-4"
+          >
             <div class="flex flex-col items-center mt-6">
               <!-- 텍스트와 아이콘 꾸미기 -->
               <div class="text-center">
@@ -101,9 +104,9 @@ const ticketData = ref<TicketData>({
 });
 
 const typeOptions = [
-  { label: "전체", value: "all" },
-  { label: "구매", value: "purchase" },
-  { label: "사용", value: "usage" },
+  { label: '전체', value: 'all' },
+  { label: '구매', value: 'purchase' },
+  { label: '사용', value: 'usage' },
 ];
 
 const authstore = useAuthStore();
@@ -111,21 +114,20 @@ const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
 const selectedMonth = ref<number>(new Date().getMonth() + 1);
 const selectedYear = ref<number>(new Date().getFullYear());
-const selectedType = ref("all"); // selectedType 상태 관리
+const selectedType = ref('all'); // selectedType 상태 관리
 const page = ref(0);
 const hasMoreItems = ref(true);
 const isLoading = ref(false);
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
-
 const fetchItems = async () => {
-  console.log("Fetching items..."); // 디버깅용 로그
+  console.log('Fetching items...'); // 디버깅용 로그
   if (!hasMoreItems.value || isLoading.value) return;
   isLoading.value = true;
   try {
     const response = await fetch(
-      `${baseUrl}/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`
+      `${baseUrl}/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`,
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -162,14 +164,20 @@ const loadMoreItems = () => {
 };
 
 const resetLoadItems = () => {
-  console.log("Resetting items..."); // 디버깅용 로그
+  console.log('Resetting items...'); // 디버깅용 로그
   page.value = 0;
   myHistory.value = [];
   hasMoreItems.value = true;
   fetchItems();
 };
 
-const handleDateChanged = ({ month, year }: { month: number; year: number }) => {
+const handleDateChanged = ({
+  month,
+  year,
+}: {
+  month: number;
+  year: number;
+}) => {
   selectedMonth.value = month;
   selectedYear.value = year;
   resetLoadItems();
@@ -187,5 +195,3 @@ onMounted(() => {
   fetchItems();
 });
 </script>
-
-

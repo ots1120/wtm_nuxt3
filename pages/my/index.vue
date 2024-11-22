@@ -20,19 +20,20 @@
                 >내 정보 수정</span
               >
               <span>
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                stroke-width="1.5" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-chevron-right">
-                <path d="m9 18 6-6-6-6"/>
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </span>
             </a>
           </li>
@@ -45,19 +46,20 @@
                 >내 식권 관리</span
               >
               <span>
-                <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                stroke-width="1.5" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-chevron-right">
-                <path d="m9 18 6-6-6-6"/>
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </span>
             </a>
           </li>
@@ -70,19 +72,20 @@
                 >식권 구매 · 사용내역</span
               >
               <span>
-                <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                stroke-width="1.5" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-chevron-right">
-                <path d="m9 18 6-6-6-6"/>
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </span>
             </a>
           </li>
@@ -95,19 +98,20 @@
                 >내 북마크 관리</span
               >
               <span>
-                <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                stroke-width="1.5" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-chevron-right">
-                <path d="m9 18 6-6-6-6"/>
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </span>
             </a>
           </li>
@@ -120,19 +124,20 @@
                 >내 리뷰 관리</span
               >
               <span>
-                <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                stroke-width="1.5" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-chevron-right">
-                <path d="m9 18 6-6-6-6"/>
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </span>
             </a>
           </li>
@@ -183,7 +188,7 @@ onBeforeMount(async () => {
     `/api/v1/user/my?username=${username}`,
     {
       baseURL: baseUrl,
-    }
+    },
   );
 
   if (data.value) {
@@ -191,8 +196,8 @@ onBeforeMount(async () => {
       email: data.value.email,
       name: data.value.name,
       profilePicture: data.value.profilePicture
-      ? `${baseUrl}${data.value.profilePicture}`
-      : null, // null일 경우 null 유지
+        ? `${baseUrl}${data.value.profilePicture}`
+        : null, // null일 경우 null 유지
     };
   } else if (error.value) {
     console.error('유저 정보를 불러오는 데 실패했습니다1', error.value);
