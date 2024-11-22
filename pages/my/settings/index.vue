@@ -181,7 +181,7 @@ const userFormData = (data: any) => {
   user.value.password = data.password;
   user.value.phone = data.phone;
   user.value.profilePicture = data.profilePicture
-    ? `http://localhost:8080${data.profilePicture}`
+    ? `${baseUrl}${data.profilePicture}`
     : null;
 };
 
@@ -189,6 +189,9 @@ const userFormData = (data: any) => {
 const authstore = useAuthStore();
 const username = authstore.user?.username;
 const route = useRoute();
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 // 프로필 이미지 변경 핸들러
 const handleImageChange = (event: Event): void => {
@@ -248,14 +251,18 @@ const onSubmitForm = async (): Promise<void> => {
     }
 
     // API 요청 (PUT 메서드)
-    await useFetch(`http://localhost:8080/api/v1/user/my/settings`, {
+    await useFetch(`/api/v1/user/my/settings`, {
+      baseURL: baseUrl,
       method: 'PUT',
       body: formData,
     });
 
     // 유저 정보 다시 가져오기
     const { data: updatedData, error: fetchError } = await useFetch<User>(
-      `http://localhost:8080/api/v1/user/my/settings?username=${username}`,
+      `/api/v1/user/my/settings?username=${username}`,
+      {
+        baseURL: baseUrl,
+      }
     );
 
     if (fetchError.value) {
@@ -274,7 +281,10 @@ const onSubmitForm = async (): Promise<void> => {
 onBeforeMount(async () => {
   route.meta.title = '내 정보 수정'; // 페이지 타이틀 설정
   const { data, error } = await useFetch(
-    `http://localhost:8080/api/v1/user/my/settings?username=${username}`,
+    `/api/v1/user/my/settings?username=${username}`,
+    {
+      baseURL: baseUrl
+    }
   );
 
   if (data.value) {

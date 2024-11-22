@@ -11,9 +11,7 @@
           @toggle-bookmark="openModal(bookmark.storeId)"
         />
       </div>
-      <p v-else class="text-center py-12 text-gray-500">
-        북마크된 가게가 없습니다.
-      </p>
+      <p v-else class="text-center py-12 text-gray-500">북마크된 가게가 없습니다.</p>
     </div>
 
     <!-- Bookmark Modal -->
@@ -53,6 +51,9 @@ const bookmarks = ref<Bookmark[]>([]);
 const visible = ref(false);
 const selectedStoreId = ref<number | null>(null);
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 // 모달 열기
 const openModal = (storeId: number) => {
   selectedStoreId.value = storeId;
@@ -70,8 +71,9 @@ const confirmDelete = async (storeId: number) => {
   try {
     // 백엔드에 DELETE 요청을 보내 북마크를 삭제
     const { data, error } = await useFetch(
-      `http://localhost:8080/api/v1/user/my/bookmarks/stores/${storeId}/users/${username}`,
+      `/api/v1/user/my/bookmarks/stores/${storeId}/users/${username}`,
       {
+        baseURL: baseUrl,
         method: "DELETE"
       }
     );
@@ -84,7 +86,10 @@ const confirmDelete = async (storeId: number) => {
 
     // 최신 북마크 데이터를 다시 가져오기
     const { data: updatedData, error: fetchError } = await useFetch<Bookmark[]>(
-      `http://localhost:8080/api/v1/user/my/bookmarks?username=${username}`,
+      `/api/v1/user/my/bookmarks?username=${username}`,
+      {
+        baseURL: baseUrl,
+      }
     );
 
     if (fetchError.value) {
@@ -106,9 +111,12 @@ onBeforeMount(async () => {
   route.meta.title = "내 북마크";
   // 북마크 데이터를 불러오는 함수
   const { data, error } = await useFetch<Bookmark[]>(
-    `http://localhost:8080/api/v1/user/my/bookmarks?username=${username}`,
+    `/api/v1/user/my/bookmarks?username=${username}`,
+    {
+      baseURL: baseUrl,
+    }
   );
-  
+
   if (data.value) {
     bookmarks.value = data.value.map((bookmark) => ({
       ...bookmark,
@@ -116,7 +124,7 @@ onBeforeMount(async () => {
       ? bookmark.reviewAverage
       :null,
       storeImgUrl: bookmark.storeImgUrl
-      ? `http://localhost:8080${bookmark.storeImgUrl}`
+      ? `${baseUrl}${bookmark.storeImgUrl}`
       : null,
     }));
   } else if (error.value) {

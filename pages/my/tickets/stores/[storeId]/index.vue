@@ -118,6 +118,9 @@ const isDesktop = ref(device.device?.type === 'desktop');
 const route = useRoute();
 const storeId = route.params.storeId;
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 const decreaseQuantity = () => {
   if (ticketQuantity.value > 1) {
     ticketQuantity.value--;
@@ -151,7 +154,10 @@ const goToMyTicketHistoryPage = () => {
 onBeforeMount( async () => {
   route.meta.title = '내 식권';
     const { data, error } = await useFetch<storeInfo>(
-    `http://localhost:8080/api/v1/user/my/tickets/stores?username=${username}&storeId=${storeId}`,
+    `/api/v1/user/my/tickets/stores?username=${username}&storeId=${storeId}`,
+    {
+      baseURL: baseUrl,
+    }
   );
 
   if (data.value) {

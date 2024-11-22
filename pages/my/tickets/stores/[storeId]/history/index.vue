@@ -112,6 +112,9 @@ const isLoading = ref(false);
 const route = useRoute();
 const storeId = route.params.storeId;
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 const typeOptions = [
   { label: "전체", value: "all" },
   { label: "구매", value: "purchase" },
@@ -125,7 +128,7 @@ const fetchItems = async () => {
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/tickets/stores/history?username=${username}&storeId=${storeId}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`
+      `${baseUrl}/api/v1/user/my/tickets/stores/history?username=${username}&storeId=${storeId}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');

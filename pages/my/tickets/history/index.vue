@@ -94,15 +94,16 @@ const selectedType = ref("all"); // selectedType 상태 관리
 const page = ref(0);
 const hasMoreItems = ref(true);
 const isLoading = ref(false);
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 const fetchItems = async () => {
   console.log("Fetching items..."); // 디버깅용 로그
-  console.log(`Type: ${selectedType.value}, Page: ${page.value}`); // 현재 type과 페이지 정보 확인
   if (!hasMoreItems.value || isLoading.value) return;
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`
+      `${baseUrl}/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -154,10 +155,8 @@ const handleDateChanged = ({ month, year }: { month: number; year: number }) => 
 
 const handleTypeChanged = (newType: string) => {
   console.log(`Type changed to: ${newType}`); // 디버깅용 로그
-  if (selectedType.value !== newType) {
-    selectedType.value = newType;
-    resetLoadItems();
-  }
+  selectedType.value = newType; // 자식 컴포넌트로부터 받은 타입 값 설정
+  resetLoadItems(); // 타입 변경 시 데이터 리셋 후 새로 로드
 };
 
 const route = useRoute();
