@@ -242,9 +242,8 @@ const loadReviews = async (): Promise<void> => {
 
   try {
     const response = await $fetch<ReviewPageResponse>(
-      `/api/v1/user/my/reviews/${userId}`,
+      `${baseUrl}/api/v1/user/my/reviews/${userId}`,
       {
-        baseURL: baseUrl,
         params: {
           page: currentPage.value,
           size: pageSize.value,
@@ -327,9 +326,8 @@ const deleteReview = async (
 ): Promise<void> => {
   try {
     await $fetch(
-      `/api/v1/user/my/reviews/${reviewId}/userIds/${userId}`,
+      `${baseUrl}/api/v1/user/my/reviews/${reviewId}/userIds/${userId}`,
       {
-        baseURL: baseUrl,
         method: 'DELETE',
       },
     );
