@@ -28,7 +28,11 @@ async function fetchAdditionalData() {
   try {
     const response = await fetch(
       `http://localhost:8080/api/v1/stores/${storeId}`,
+      {
+        credentials: 'include',
+      },
     );
+
     if (!response.ok) {
       throw new Error(`서버 오류: ${response.status}`);
     }

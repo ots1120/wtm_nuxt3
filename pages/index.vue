@@ -498,9 +498,13 @@ const fetchStores = async () => {
             'Content-Type': 'application/json',
             'X-Username': username.value || 'default-username', // 헤더에 username 추가
           },
+          credentials: 'include',
         },
       ),
       fetch('http://localhost:8080/api/v1/stores/address'),
+      {
+        credentials: 'include',
+      },
     ]);
 
     if (!storesResponse.ok) {
@@ -791,6 +795,7 @@ const toggleBookmark = async (store, index) => {
         'Content-Type': 'application/json',
         'X-Username': username.value || 'default-username',
       },
+      credentials: 'include',
     });
 
     if (!response.ok) {

@@ -301,6 +301,7 @@ const submitReview = async () => {
         headers: {
           'X-Username': username.value,
         },
+        credentials: 'include',
       },
     );
     console.log('리뷰가 성공적으로 등록되었습니다.', response);

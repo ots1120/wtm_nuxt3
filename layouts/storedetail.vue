@@ -39,12 +39,6 @@
         class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
       />
     </div>
-
-    <WriteButton
-      v-if="isAuthenticated && route.path === '/stores/' + storeId + '/reviews'"
-      :push-route="`/my/tickets/history`"
-      class="fixed top-[80%] left-[90%] transform -translate-x-1/2 -translate-y-1/2 md:left-[75%] sm:left-[80%]"
-    />
   </div>
 </template>
 

@@ -56,6 +56,7 @@ const fetchNotices = async () => {
       `http://localhost:8080/api/v1/stores/${storeId}/notices`,
       {
         params: { page: page.value, size },
+        credentials: 'include',
       },
     );
 

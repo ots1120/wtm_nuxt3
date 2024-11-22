@@ -280,11 +280,7 @@
       @cancel="closeLoginModal"
       @confirm="redirectToLogin"
     />
-    <WriteButton
-      v-if="isAuthenticated"
-      :push-route="`/my/tickets/history`"
-      class="btn-write"
-    />
+    <WriteButton :push-route="`/my/tickets/history`" class="btn-write" />
   </div>
 </template>
 
@@ -294,6 +290,7 @@ import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '~/stores/auth';
 import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
+import WriteButton from '~/components/admin/ui/WriteButton.vue';
 
 // 라우터 설정
 const router = useRouter();
@@ -356,6 +353,9 @@ const sortReviews = (criteria) => {
 // 리뷰 개수 가져오기
 const { data: reviewCountData, error: reviewCountError } = useFetch(
   `http://localhost:8080/api/v1/stores/${storeId}/review-count`,
+  {
+    credentials: 'include',
+  },
 );
 
 // 추가된 watch 블록
@@ -368,6 +368,9 @@ watch(reviewCountData, (newData) => {
 // 리뷰 통계 가져오기
 const { data: reviewStatsData, error: reviewStatsError } = useFetch(
   `http://localhost:8080/api/v1/stores/${storeId}/review-stats`,
+  {
+    credentials: 'include',
+  },
 );
 
 // 리뷰 통계 데이터가 변경될 때마다 상태 업데이트
@@ -405,6 +408,7 @@ const fetchReviews = async () => {
         'Content-Type': 'application/json',
         'X-Username': username.value,
       },
+      credentials: 'include',
     });
 
     if (response && response.content) {
@@ -511,6 +515,7 @@ const toggleHelpful = async (index, review) => {
             'Content-Type': 'application/json',
             'X-Username': username.value,
           },
+          credentials: 'include',
         },
       );
       review.liked = false;
@@ -525,6 +530,7 @@ const toggleHelpful = async (index, review) => {
             'Content-Type': 'application/json',
             'X-Username': username.value,
           },
+          credentials: 'include',
         },
       );
       review.liked = true;
@@ -591,6 +597,22 @@ const redirectToLogin = () => {
   }
   router.push('/signIn');
 };
+
+onMounted(() => {
+  const quickBar = document.querySelector('.quick-bar');
+  if (quickBar == null) return;
+  const btnWrite = document.querySelector('.btn-write');
+  if (btnWrite == null) return;
+  quickBar.appendChild(btnWrite);
+});
+
+onUnmounted(() => {
+  const quickBar = document.querySelector('.quick-bar');
+  if (quickBar == null) return;
+  const btnWrite = document.querySelector('.btn-write');
+  if (btnWrite == null) return;
+  quickBar.removeChild(btnWrite);
+});
 
 // 레이아웃 설정
 definePageMeta({
