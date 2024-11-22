@@ -9,7 +9,9 @@ export default defineNuxtRouteMiddleware(() => {
     return navigateTo('/signIn');
   }
 
-  if (!isUser.value) {
-    return navigateTo('/signIn');
-  }
+  // user 가 들어갈수 있는 페이지는 모두 admin도 들어갈수 있어야해서 아래 조건 삭제함
+
+  // if (!isUser.value) {
+  //   return navigateTo('/signIn');
+  // }
 });
