@@ -90,6 +90,9 @@
 
         <!-- 주소 -->
         <div class="pt-4 border-b">
+          <label for="" class="font-extrabold text-lg text-gray-700 block"
+            >주소</label
+          >
           <PostAddressForm
             :postcode="user.userAddress.postcode"
             :address="user.userAddress.address"
