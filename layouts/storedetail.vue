@@ -49,6 +49,12 @@ import StoreDetailImages from '~/components/user/stores/detail/StoreDetailImages
 import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
 import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import WriteButton from '~/components/admin/ui/WriteButton.vue';
+import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
+
+// Auth Store 사용
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated); // 인증 상태 확인
 
 const route = useRoute();
 const storeId = route.params.storeId ? String(route.params.storeId) : '';

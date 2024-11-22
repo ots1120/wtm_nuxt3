@@ -23,6 +23,7 @@
 
     <!-- Image counter -->
     <div
+      v-if="hasImages"
       class="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-sm"
     >
       {{ currentImageIndex + 1 }} / {{ images.length }}

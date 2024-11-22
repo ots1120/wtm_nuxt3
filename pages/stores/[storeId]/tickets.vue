@@ -67,6 +67,7 @@ const fetchTicketData = async () => {
             'Content-Type': 'application/json',
             'X-Username': username.value, // Pinia에서 가져온 username을 헤더에 추가
           },
+          credentials: 'include',
         },
       );
 
