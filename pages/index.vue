@@ -47,14 +47,13 @@
       <div
         v-if="isSheetOpen"
         class="overflow-hidden fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white rounded-t-lg shadow-lg transition-all duration-300 w-full max-w-md z-30"
-        :style="{ height: selectedStore ? '30%' : sheetHeight }"
+        :style="{ height: selectedStore ? '23%' : sheetHeight }"
       >
         <!-- 드래그 핸들 영역 -->
         <div
           class="h-8 bg-gray-200 flex justify-center items-center cursor-pointer"
-          @touchstart="startTouch"
-          @touchmove="onTouchMove"
-          @touchend="endTouch"
+          @touchstart="startDrag"
+          @mousedown="startDrag"
         >
           <span class="w-12 h-1 bg-gray-400 rounded-full"></span>
         </div>
@@ -63,24 +62,50 @@
         <div class="overflow-y-auto h-full">
           <!-- 선택된 식당 상세 정보 -->
           <div v-if="selectedStore" class="p-4">
-            <button
-              class="mb-4 px-3 py-1.5 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-md shadow-md hover:from-blue-600 hover:to-blue-700 transition-all duration-200 ease-in-out transform hover:scale-105"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-arrow-left cursor-pointer"
               @click="clearSelection"
             >
-              전체 목록 보기
-            </button>
+              <path d="m12 19-7-7 7-7" />
+              <path d="M19 12H5" />
+            </svg>
             <!-- 식당 상세 정보 표시 -->
             <div
               class="flex items-start space-x-4 border-b border-gray-200 pb-4"
             >
               <!-- 식당 이미지 섹션 -->
-              <div class="bg-gray-200 w-24 h-24 rounded-lg overflow-hidden">
+              <div
+                class="bg-gray-200 w-24 h-24 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center"
+              >
+                <!-- 식당 이미지 표시 -->
                 <img
+                  v-if="selectedStore.profilePicture"
                   :src="selectedStore.profilePicture"
                   alt="Store Image"
                   class="w-full h-full object-cover"
                   loading="lazy"
                 />
+                <!-- 기본 SVG 이미지 표시 -->
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-24 w-24 text-gray-400"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill="#BDBDBD"
+                    d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
+                  />
+                </svg>
               </div>
 
               <!-- 식당 정보 섹션 -->
@@ -122,8 +147,52 @@
                       : '미등록'
                   }}
                 </p>
+              </div>
+
+              <!-- 북마크와 상세보기 버튼 -->
+              <div class="relative flex flex-col items-end space-y-4">
+                <!-- 북마크 버튼 -->
                 <button
-                  class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200 flex items-center space-x-2"
+                  class="p-2 text-gray-500 hover:text-red-500 transition-colors duration-200 rounded-full"
+                  aria-label="북마크 토글"
+                  @click.stop="
+                    attemptToggleBookmark(selectedStore, selectedStoreIndex)
+                  "
+                >
+                  <svg
+                    v-if="selectedStore.isBookmarked"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6 text-red-500"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+                    />
+                  </svg>
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6 text-gray-400"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+                    />
+                  </svg>
+                </button>
+                <!-- 상세보기 버튼 -->
+                <button
+                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200 flex items-center space-x-2"
                   @click="goToStoreDetail(selectedStore.storeId)"
                 >
                   <svg
@@ -143,46 +212,6 @@
                   <span>상세 보기</span>
                 </button>
               </div>
-
-              <!-- 북마크 버튼 -->
-              <button
-                class="p-2 text-gray-500 hover:text-red-500 transition-colors duration-200 rounded-full"
-                aria-label="북마크 토글"
-                @click.stop="
-                  attemptToggleBookmark(selectedStore, selectedStoreIndex)
-                "
-              >
-                <svg
-                  v-if="selectedStore.isBookmarked"
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6 text-red-500"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6 text-gray-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
-                  />
-                </svg>
-              </button>
             </div>
           </div>
 
@@ -233,7 +262,7 @@
               v-for="(store, index) in filteredStores"
               :key="store.storeId"
               :ref="(el) => (storeRefs[store.storeId] = el)"
-              class="m-3 flex items-start space-x-4 border-b border-gray-200 pb-4 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+              class="m-3 flex items-start space-x-4 border-b border-gray-200 pb-4 cursor-pointer"
               :class="{
                 'bg-gray-100 ': store.storeId === selectedStoreId,
               }"
@@ -242,13 +271,28 @@
               @keyup.enter="goToStoreDetail(store.storeId)"
             >
               <!-- 식당 이미지 섹션 -->
-              <div class="bg-gray-200 w-16 h-16 rounded-lg overflow-hidden">
+              <div
+                class="bg-gray-200 w-16 h-16 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center"
+              >
                 <img
+                  v-if="store.profilePicture"
                   :src="store.profilePicture"
                   alt="Store Image"
                   class="w-full h-full object-cover"
                   loading="lazy"
                 />
+                <!-- 기본 SVG 이미지를 표시 -->
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-16 w-16 text-gray-400"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill="#BDBDBD"
+                    d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
+                  />
+                </svg>
               </div>
 
               <!-- 식당 정보 섹션 -->
@@ -355,8 +399,7 @@
 </template>
 
 <script setup>
-// Vue와 Nuxt 관련 함수 및 컴포넌트 임포트
-import { ref, computed, watch, nextTick, onMounted } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import TheLanding from '~/components/landing/TheLanding.vue';
 import { useHead, useRuntimeConfig } from '#imports';
@@ -374,15 +417,6 @@ onMounted(() => {
     localStorage.setItem('visited', 'true');
   }
 });
-
-if (import.meta.client) {
-  if (!localStorage.getItem('visited')) {
-    // 모달 표시 함수 호출
-    showModal();
-    // 방문 여부 저장
-    localStorage.setItem('visited', 'true');
-  }
-}
 
 function showModal() {
   isLandingVisible.value = true;
@@ -408,8 +442,13 @@ const sheetHeight = ref('40%'); // 시트 높이
 const router = useRouter(); // 라우터
 const route = useRoute(); // 현재 경로
 
-let startY = 0;
-let currentY = 0;
+// 드래그 상태 관리
+const dragState = reactive({
+  startY: 0,
+  currentY: 0,
+  isDragging: false,
+  moved: false, // 움직임 여부 추가
+});
 
 const selectedStoreId = ref(null); // 선택된 식당 ID
 const selectedStore = ref(null); // 선택된 식당 정보
@@ -484,7 +523,8 @@ const fetchStores = async () => {
     // 식당 데이터와 주소 데이터 병합
     const mergedStores = storeData.map((store) => ({
       ...store,
-      profilePicture: `http://localhost:8080${store.img}`,
+      profilePicture: store.img ? `http://localhost:8080${store.img}` : null,
+
       latitude: addressMap[store.storeId]?.latitude || null,
       longitude: addressMap[store.storeId]?.longitude || null,
       isBookmarked: store.isBookmarked || false,
@@ -546,11 +586,10 @@ const plotMarkers = () => {
 
         infoWindow.value = new naver.maps.InfoWindow({
           content: generateInfoWindowContent(store),
-          anchorSize: new naver.maps.Size(30, 30),
-          anchorSkew: true,
-          borderWidth: 1,
+          borderWidth: 0,
           disableAnchor: true,
-          pixelOffset: new naver.maps.Point(0, -30),
+          backgroundColor: 'transparent',
+          pixelOffset: new naver.maps.Point(0, -5),
         });
         infoWindow.value.open(map.value, marker);
 
@@ -586,15 +625,16 @@ const generateInfoWindowContent = (store) => {
   const imageContent = store.profilePicture
     ? `<img src="${store.profilePicture}" alt="${store.name || '미등록'}" class="w-12 h-12 rounded-full object-cover">`
     : `<svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="w-12 h-12 text-gray-400"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-      >
-        <!-- 기본 이미지로 사용할 SVG 아이콘 -->
-        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/>
-        <path d="M12 14c-4.97 0-9 2.17-9 4.85V21h18v-2.15C21 16.17 16.97 14 12 14z"/>
-      </svg>`;
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-10"
+            viewBox="0 0 16 16"
+          >
+            <path
+              fill="#BDBDBD"
+              d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
+            />
+          </svg>`;
 
   return `
     <div class="info-window p-2 rounded-lg shadow-lg bg-white" style="width: 200px;">
@@ -602,7 +642,26 @@ const generateInfoWindowContent = (store) => {
         ${imageContent}
         <div>
           <h3 class="text-sm font-semibold text-gray-800">${store.name || '미등록'}</h3>
-          <p class="text-xs text-yellow-500">⭐ ${store.rating !== null ? store.rating : '미등록'}</p>
+
+          <span class="text-yellow-500 flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-star mr-1"
+            >
+              <path
+                d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"
+              />
+            </svg>
+            ${store.rating !== null ? store.rating : '미등록'}
+          </span>
         </div>
       </div>
       <div class="mt-2">
@@ -764,32 +823,70 @@ const goToStoreDetail = (storeId) => {
   router.push(`/stores/${storeId}/home`);
 };
 
-// 터치 이벤트 핸들러
-const startTouch = (event) => {
-  startY = event.touches[0].clientY;
-  currentY = startY;
-};
+// 드래그 상태 관리
+const startDrag = (event) => {
+  event.preventDefault(); // 기본 동작 방지
+  dragState.isDragging = true;
+  dragState.moved = false; // 움직임 여부 초기화
 
-const onTouchMove = (event) => {
-  currentY = event.touches[0].clientY;
-  const diffY = startY - currentY;
-
-  if (diffY > 0) {
-    sheetHeight.value = Math.min(90, 40 + diffY / 5) + '%';
-  } else {
-    sheetHeight.value = Math.max(20, 40 + diffY / 5) + '%';
+  if (event.type === 'touchstart') {
+    dragState.startY = event.touches[0].clientY;
+    document.addEventListener('touchmove', onDragMove);
+    document.addEventListener('touchend', endDrag);
+  } else if (event.type === 'mousedown') {
+    dragState.startY = event.clientY;
+    document.addEventListener('mousemove', onDragMove);
+    document.addEventListener('mouseup', endDrag);
   }
 };
 
-const endTouch = () => {
-  const diffY = startY - currentY;
-  if (diffY > 50) {
-    sheetHeight.value = '90%';
-  } else if (diffY < -50) {
-    sheetHeight.value = '20%';
-  } else {
-    sheetHeight.value = '40%';
+const onDragMove = (event) => {
+  if (!dragState.isDragging) return;
+
+  if (event.type === 'touchmove') {
+    dragState.currentY = event.touches[0].clientY;
+  } else if (event.type === 'mousemove') {
+    dragState.currentY = event.clientY;
   }
+
+  const diffY = dragState.startY - dragState.currentY;
+
+  // 움직임이 일정 수준 이상일 때만 moved를 true로 설정
+  if (Math.abs(diffY) > 5) {
+    dragState.moved = true;
+  }
+
+  if (dragState.moved) {
+    if (diffY > 0) {
+      sheetHeight.value = Math.min(90, 40 + diffY / 5) + '%';
+    } else {
+      sheetHeight.value = Math.max(20, 40 + diffY / 5) + '%';
+    }
+  }
+};
+
+const endDrag = (event) => {
+  if (event.type === 'mouseup') {
+    document.removeEventListener('mousemove', onDragMove);
+    document.removeEventListener('mouseup', endDrag);
+  } else if (event.type === 'touchend') {
+    document.removeEventListener('touchmove', onDragMove);
+    document.removeEventListener('touchend', endDrag);
+  }
+
+  // 움직임이 있었을 때만 시트 높이 변경
+  if (dragState.moved) {
+    const diffY = dragState.startY - dragState.currentY;
+    if (diffY > 50) {
+      sheetHeight.value = '90%';
+    } else if (diffY < -50) {
+      sheetHeight.value = '20%';
+    } else {
+      sheetHeight.value = '40%';
+    }
+  }
+
+  dragState.isDragging = false;
 };
 
 // 선택된 식당 초기화

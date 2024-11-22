@@ -39,6 +39,12 @@
         class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
       />
     </div>
+
+    <WriteButton
+      v-if="isAuthenticated && route.path === '/stores/' + storeId + '/reviews'"
+      :push-route="`/my/tickets/history`"
+      class="fixed top-[80%] left-[90%] transform -translate-x-1/2 -translate-y-1/2 md:left-[75%] sm:left-[80%]"
+    />
   </div>
 </template>
 
@@ -49,6 +55,12 @@ import StoreDetailImages from '~/components/user/stores/detail/StoreDetailImages
 import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
 import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import WriteButton from '~/components/admin/ui/WriteButton.vue';
+import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
+
+// Auth Store 사용
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated); // 인증 상태 확인
 
 const route = useRoute();
 const storeId = route.params.storeId ? String(route.params.storeId) : '';
