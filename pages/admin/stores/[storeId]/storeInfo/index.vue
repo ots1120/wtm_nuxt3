@@ -220,6 +220,9 @@ const fetchStoreData = async () => {
   try {
     const response = await fetch(
       `${baseUrl}/api/v1/admin/stores/${storeId}/info`,
+      {
+        credentials: 'include',
+      },
     );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -337,6 +340,7 @@ const confirmSave = async () => {
       {
         method: 'PUT',
         body: formData,
+        credentials: 'include',
       },
     );
 

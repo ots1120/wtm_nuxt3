@@ -299,11 +299,15 @@ const confirmSave = async (): Promise<void> => {
     await useFetch(`http://localhost:8080/api/v1/user/my/settings`, {
       method: 'PUT',
       body: formData,
+      credentials: 'include',
     });
 
     // 유저 정보 다시 가져오기
     const { data: updatedData, error: fetchError } = await useFetch<User>(
       `http://localhost:8080/api/v1/user/my/settings?username=${username}`,
+      {
+        credentials: 'include',
+      },
     );
 
     if (fetchError.value) {
@@ -324,6 +328,9 @@ onBeforeMount(async () => {
   route.meta.title = '내 정보 수정'; // 페이지 타이틀 설정
   const { data, error } = await useFetch(
     `http://localhost:8080/api/v1/user/my/settings?username=${username}`,
+    {
+      credentials: 'include',
+    },
   );
 
   if (data.value) {

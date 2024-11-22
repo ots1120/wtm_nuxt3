@@ -195,6 +195,7 @@ interface StoreData {
 // useFetch로 API 호출
 const { data, error } = useFetch<StoreData>(`/api/v1/admin/stores/${storeId}`, {
   baseURL: baseUrl,
+  credentials: 'include',
 });
 
 watchEffect(() => {

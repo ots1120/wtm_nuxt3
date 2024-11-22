@@ -209,6 +209,7 @@ const fetchNotices = async () => {
           page: page.value,
           size: size.value,
         },
+        credentials: 'include',
       },
     );
 
@@ -283,6 +284,7 @@ const confirmDelete = async () => {
       {
         baseURL: baseUrl,
         method: 'DELETE',
+        credentials: 'include',
       },
     );
 

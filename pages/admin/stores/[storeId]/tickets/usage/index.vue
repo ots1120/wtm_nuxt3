@@ -157,6 +157,7 @@ const handleQRCodeDecode = async (decodedText: string) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     });
 
     if (!response.ok) throw new Error('API 요청 실패');

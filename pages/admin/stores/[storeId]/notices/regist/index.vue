@@ -87,6 +87,7 @@ const handleConfirm = async (): Promise<void> => {
           content: notice.value.content,
           userId: notice.value.userId,
         }),
+        credentials: 'include',
       },
     );
 
