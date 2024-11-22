@@ -142,11 +142,13 @@
 </template>
 
 <script setup lang="ts">
+// import { ref, onBeforeMount } from 'vue';
+// import { useRoute } from 'vue-router';
+// import PostAddressForm from '~/components/user/PostAddressForm.vue';
+// import { useAuthStore } from '~/stores/auth'; // AuthStore 경로에 맞게 수정 필요
+// import BasicModal from '~/components/modal/BasicModal.vue';
+
 import { ref, onBeforeMount } from 'vue';
-import { useRoute } from 'vue-router';
-import PostAddressForm from '~/components/user/PostAddressForm.vue';
-import { useAuthStore } from '~/stores/auth'; // AuthStore 경로에 맞게 수정 필요
-import BasicModal from '~/components/modal/BasicModal.vue';
 
 interface Address {
   postcode: string;
