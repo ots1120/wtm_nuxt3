@@ -12,9 +12,6 @@
 import { ref, inject, onMounted } from 'vue';
 import StoreDetailHome from '~/components/user/stores/detail/StoreDetailHome.vue';
 
-const config = useRuntimeConfig();
-const baseUrl = config.public.baseApiUrl;
-
 // 레이아웃에서 제공된 storeId를 inject로 받아옵니다.
 const storeId = inject('storeId', '');
 
@@ -29,9 +26,12 @@ async function fetchAdditionalData() {
   }
 
   try {
-    const response = await fetch(`${baseUrl}/api/v1/stores/${storeId}`, {
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `http://localhost:8080/api/v1/stores/${storeId}`,
+      {
+        credentials: 'include',
+      },
+    );
 
     if (!response.ok) {
       throw new Error(`서버 오류: ${response.status}`);
