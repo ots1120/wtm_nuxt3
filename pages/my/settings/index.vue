@@ -97,6 +97,7 @@
             :extraAddress="user.userAddress.extraAddress"
             :showModal="showModal"
             @updateAddress="updateAddress"
+            titleClass="font-extrabold text-lg text-gray-700 block"
           />
         </div>
 
