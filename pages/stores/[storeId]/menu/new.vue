@@ -349,6 +349,7 @@ const submitToServer = async (storeId) => {
       {
         method: 'POST',
         body: form,
+        credentials: 'include',
       },
     );
     console.log('서버 응답:', response);
