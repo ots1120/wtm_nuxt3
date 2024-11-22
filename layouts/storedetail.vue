@@ -36,7 +36,7 @@
       class="fixed bottom-0 w-full bg-white border-t border-gray-200 rounded-t-2xl shadow-lg"
     >
       <UserBottomNav
-        class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
+        class="quick-bar fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
       />
     </div>
   </div>

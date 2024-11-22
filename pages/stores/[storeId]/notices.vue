@@ -30,6 +30,9 @@
 import { ref, inject, onMounted, onUnmounted } from 'vue';
 import StoreDetailNoticeList from '~/components/user/stores/detail/StoreDetailNoticeList.vue';
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
 // 레이아웃에서 제공된 데이터를 inject로 받아옵니다.
 const storeId = inject('storeId');
 
@@ -52,13 +55,10 @@ const fetchNotices = async () => {
   loading.value = true;
 
   try {
-    const data = await $fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/notices`,
-      {
-        params: { page: page.value, size },
-        credentials: 'include',
-      },
-    );
+    const data = await $fetch(`${baseUrl}/api/v1/stores/${storeId}/notices`, {
+      params: { page: page.value, size },
+      credentials: 'include',
+    });
 
     if (data && data.content) {
       // 서버에서 응답한 데이터가 있으면 notices 배열에 추가
@@ -66,7 +66,7 @@ const fetchNotices = async () => {
         ...data.content.map((notice) => ({
           ...notice,
           profilePicture: notice.profilePicture
-            ? `http://localhost:8080${notice.profilePicture}`
+            ? `${baseUrl}${notice.profilePicture}`
             : null,
         })),
       );
