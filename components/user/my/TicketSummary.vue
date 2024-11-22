@@ -1,6 +1,7 @@
 <template>
   <div class="w-full bg-white shadow-sm">
     <div class="flex px-4 py-6 justify-between">
+      <!-- 날짜 선택기 -->
       <div class="relative">
         <button
           @click="toggleDatePicker"
@@ -8,14 +9,43 @@
         >
           {{ formattedDate }}
         </button>
-        <div v-if="showDatePicker" class="absolute z-10 mt-1 bg-white shadow-lg rounded-md p-4">
+        <div
+          v-if="showDatePicker"
+          class="w-96 absolute z-10 mt-1 bg-white shadow-lg rounded-md p-4"
+        >
           <div class="flex justify-between items-center mb-4">
             <button @click="changeYear(-1)" class="p-1">
-              <span class="material-icons">chevron_left</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
             </button>
-            <span class="font-bold">{{ selectedYear }}년</span>
+            <span class="font-bold">{{ selectedYearRef }}년</span>
             <button @click="changeYear(1)" class="p-1">
-              <span class="material-icons">chevron_right</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                />
+              </svg>
             </button>
           </div>
           <div class="grid grid-cols-3 gap-2">
@@ -24,38 +54,40 @@
               :key="month"
               @click="selectMonth(month)"
               class="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              :class="{ 'bg-blue-100': selectedMonth === month }"
+              :class="{ 'bg-blue-100': selectedMonthRef === month }"
             >
               {{ month }}월
             </button>
           </div>
         </div>
       </div>
-      
+
+      <!-- 요약 정보 -->
       <div class="space-y-2 w-40 text-right">
         <div class="flex justify-between">
           <span class="text-gray-600">구매</span>
-          <span>{{ props.purchasePrice }} 원</span>
+          <span class="text-blue-500">{{ props.purchasePrice }} 원</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-600">사용</span>
-          <span class="text-blue-500">{{ props.usedPrice }} 원</span>
+          <span class="text-red-500">{{ props.usedPrice }} 원</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-600">잔여수량</span>
-          <span class="text-red-500">{{ props.remainingCount }}개</span>
+          <span>{{ props.remainingCount }} 개</span>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from "vue";
 
 interface TicketData {
-  purchasePrice: Number;
-  usedPrice: Number;
-  remainingCount: Number;
+  purchasePrice: number;
+  usedPrice: number;
+  remainingCount: number;
   selectedMonth: number;
   selectedYear: number;
 }
@@ -63,15 +95,15 @@ interface TicketData {
 const props = defineProps<TicketData>();
 
 const emit = defineEmits<{
-  (e: 'dateChanged', payload: { month: number; year: number }): void;
+  (e: "dateChanged", payload: { month: number; year: number }): void;
 }>();
 
-const selectedYear = ref(props.selectedYear);
-const selectedMonth = ref(props.selectedMonth);
+const selectedYearRef = ref(props.selectedYear);
+const selectedMonthRef = ref(props.selectedMonth);
 const showDatePicker = ref(false);
 
 const formattedDate = computed(() => {
-  return `${selectedYear.value}년 ${selectedMonth.value}월`;
+  return `${selectedYearRef.value}년 ${selectedMonthRef.value}월`;
 });
 
 const toggleDatePicker = () => {
@@ -79,19 +111,13 @@ const toggleDatePicker = () => {
 };
 
 const changeYear = (delta: number) => {
-  selectedYear.value += delta;
+  selectedYearRef.value += delta;
+  emit("dateChanged", { month: selectedMonthRef.value, year: selectedYearRef.value });
 };
 
 const selectMonth = (month: number) => {
-  selectedMonth.value = month;
+  selectedMonthRef.value = month;
   showDatePicker.value = false;
-  emit('dateChanged', { month: selectedMonth.value, year: selectedYear.value });
+  emit("dateChanged", { month: selectedMonthRef.value, year: selectedYearRef.value });
 };
-
-// watch to emit changes to parent
-watch([selectedMonth, selectedYear], () => {
-  emit('dateChanged', { month: selectedMonth.value, year: selectedYear.value });
-});
 </script>
-
-<style scoped></style>

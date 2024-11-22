@@ -1,72 +1,77 @@
 <template>
-  <div>
-    <div>
-      <section class="mx-auto w-60 rounded-lg bg-white p-5 text-center">
-        <h1 class="text-lg font-semibold">{{ storeInfo.storeName }}</h1>
-        <div class="mt-5 rounded-lg bg-gray-100 p-5">
-          <div class="mb-4">
-            <span class="text-sm font-semibold">잔여개수</span><br />
-            <span id="remainingCount" class="text-xl font-bold">
-              {{ storeInfo.ticketAmount }}
-            </span>
-          </div>
-          <div class="mb-4 flex items-center justify-center">
-            <button
-              class="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200"
-              @click="decreaseQuantity"
-            >
-              -
-            </button>
-            <div id="ticketQuantity" class="mx-4 text-lg font-semibold">
-              {{ ticketQuantity }}
-            </div>
-            <button
-              class="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200"
-              @click="increaseQuantity"
-            >
-              +
-            </button>
-          </div>
-          <div class="h-14 flex justify-between">
-            <form class="mr-1 w-1/2" @submit.prevent="openModal('usage')">
-              <button
-                type="submit"
-                class="h-full w-full rounded-lg bg-blue-500 py-2 text-white"
-              >
-                사용하기
-              </button>
-            </form>
-            <form class="ml-1 w-1/2" @submit.prevent="openModal('purchase')">
-              <button
-                type="submit"
-                class="h-full w-full rounded-lg bg-red-500 py-2 text-white"
-              >
-                충전하기
-              </button>
-            </form>
-          </div>
-          <form class="mt-4 h-10" @submit.prevent="goToMyTicketHistoryPage">
-            <button
-              type="submit"
-              class="h-full w-full rounded-lg border border-gray-300 bg-white py-2"
-            >
-              사용내역 확인
-            </button>
-          </form>
+  <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+      <header class="bg-white p-4 flex items-center">
+        <h1 class="text-3xl font-semibold text-center flex-1 text-gray-700">{{ storeInfo.storeName }}</h1>
+      </header>
+      
+      <main class="p-6">
+        <div class="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-3xl p-6 mb-8 shadow-lg transform transition-transform duration-300 flex items-center justify-between">
+          <h2 class="text-2xl font-medium text-emerald-50">잔여 쿠폰</h2>
+          <p class="text-5xl font-bold text-white">{{ storeInfo.ticketAmount }}</p>
         </div>
-      </section>
+        
+        <div class="flex items-center justify-center mb-8">
+          <button 
+            class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors duration-300"
+            @click="decreaseQuantity"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+            </svg>
+          </button>
+          <span class="mx-8 text-3xl font-semibold text-gray-800">{{ ticketQuantity }}</span>
+          <button 
+            class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors duration-300"
+            @click="increaseQuantity"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <button
+            class="w-full py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white font-semibold rounded-2xl shadow-md hover:from-blue-500 hover:to-blue-600 transition duration-300 transform hover:scale-105"
+            @click="openModal('usage')"
+          >
+            사용하기
+          </button>
+          <button
+            class="w-full py-4 bg-gradient-to-r from-rose-400 to-rose-500 text-white font-semibold rounded-2xl shadow-md hover:from-rose-500 hover:to-rose-600 transition duration-300 transform hover:scale-105"
+            @click="openModal('purchase')"
+          >
+            충전하기
+          </button>
+          <button
+            class="w-full py-4 bg-white text-gray-800 font-semibold rounded-2xl shadow-md border border-gray-200 hover:bg-gray-50 transition duration-300 transform hover:scale-105"
+            @click="goToMyTicketHistoryPage"
+          >
+            사용내역 확인
+          </button>
+        </div>
+      </main>
     </div>
+    
     <!-- 모달 창 -->
     <div
       v-if="isModalVisible"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click.self="closeModal"
     >
-      <MyTicketsDetailModal
-        :store-info="storeInfo"
-        :ticket-quantity="ticketQuantity"
-        :type="modalType"
-        @close-modal="closeModal"
-      />
+      <div class="bg-white rounded-3xl p-6 w-11/12 max-w-md transform transition-all duration-300" :class="{'scale-100 opacity-100': isModalVisible, 'scale-95 opacity-0': !isModalVisible}">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800 text-center">
+          {{ modalType === 'usage' ? '식권 사용' : '식권 충전' }}
+        </h2>
+        <!-- 모달 내용 -->
+        <MyTicketsDetailModal
+          :store-info="storeInfo"
+          :ticket-quantity="ticketQuantity"
+          :type="modalType"
+          @close-modal="closeModal"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -140,7 +145,7 @@ const closeModal = () => {
 };
 
 const goToMyTicketHistoryPage = () => {
-  router.push('/my/tickets/history');
+  router.push(`/my/tickets/stores/${storeId}/history`);
 };
 
 onBeforeMount( async () => {

@@ -19,7 +19,21 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >내 정보 수정</span
               >
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg></span>
+              <span>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="1.5" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                class="lucide lucide-chevron-right">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+              </span>
             </a>
           </li>
           <li>
@@ -30,7 +44,21 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >내 식권 관리</span
               >
-              <span>&gt;</span>
+              <span>
+                <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="1.5" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                class="lucide lucide-chevron-right">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+              </span>
             </a>
           </li>
           <li>
@@ -41,7 +69,21 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >식권 구매 · 사용내역</span
               >
-              <span>&gt;</span>
+              <span>
+                <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="1.5" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                class="lucide lucide-chevron-right">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+              </span>
             </a>
           </li>
           <li>
@@ -52,7 +94,21 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >내 북마크 관리</span
               >
-              <span>&gt;</span>
+              <span>
+                <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="1.5" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                class="lucide lucide-chevron-right">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+              </span>
             </a>
           </li>
           <li>
@@ -63,7 +119,28 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >내 리뷰 관리</span
               >
-              <span>&gt;</span>
+              <span>
+                <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="1.5" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                class="lucide lucide-chevron-right">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+              </span>
+            </a>
+          </li>
+          <li v-if="isAuthenticated">
+            <a
+              class="flex justify-end text-[#db3d39] font-light rounded-lg text-sm px-6 py-4"
+            >
+              로그아웃
             </a>
           </li>
         </ul>
@@ -90,12 +167,7 @@ const authstore = useAuthStore();
 const username = authstore.user?.username;
 
 const user = ref<User | null>(null);
-
-// const user = ref<User>({
-//   email: '',
-//   name: '',
-//   profilePicture: '',
-// });
+const isAuthenticated = computed(() => authstore.isAuthenticated);
 
 const navigateTo = (path: string) => {
   router.push(path);

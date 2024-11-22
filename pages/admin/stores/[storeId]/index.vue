@@ -222,7 +222,7 @@ const goToNoticeManagement = () => {
   router.push(`/admin/stores/${storeId}/notices`);
 };
 const goToStoreManagement = () => {
-  router.push(`/admin/stores/${storeId}/myInfo`);
+  router.push(`/admin/stores/${storeId}/storeInfo`);
 };
 const goToUserManagement = () => {
   router.push(`/admin/stores/${storeId}/myInfo`);
