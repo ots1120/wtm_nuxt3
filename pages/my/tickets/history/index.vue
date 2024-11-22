@@ -191,7 +191,7 @@ const handleTypeChanged = (newType: string) => {
 
 const route = useRoute();
 onMounted(() => {
-  route.meta.title = '가게 식권 내역';
+  route.meta.title = '전체 식권 내역';
   fetchItems();
 });
 </script>

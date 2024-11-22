@@ -26,14 +26,14 @@
           </div>
 
           <!-- 시간 및 리뷰 쓰기 버튼 -->
-          <div>
+          <div class="text-end">
             <div class="text-sm text-gray-400">{{ history.formattedTime }}</div>
             <div v-if="!history.hasReview && history.type === 'usage'">
               <a
                 class="cursor-pointer"
                 @click.prevent="navigateToWithState(history.id, history.storeId)"
               >
-                <span class="text-sm text-blue-800">글쓰기</span>
+                <span class="text-sm text-blue-800">리뷰쓰기</span>
               </a>
             </div>
           </div>
