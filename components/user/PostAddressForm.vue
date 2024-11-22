@@ -1,9 +1,6 @@
 <template>
   <div>
-    <label 
-      :class="titleClass"
-      >주소
-    </label>
+    <label :class="titleClass">주소 </label>
     <div class="flex space-x-2">
       <input
         v-model="postcode"
