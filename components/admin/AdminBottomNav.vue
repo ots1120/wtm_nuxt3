@@ -48,7 +48,7 @@
       <span class="text-xs font-medium text-gray-600">메뉴 관리</span>
     </NuxtLink>
     <NuxtLink
-      :to="`/admin/stores/${storeId}/myInfo`"
+      :to="`/admin/stores/${storeId}/storeInfo`"
       class="flex flex-col items-center"
     >
       <span class="p-2 mb-1">
