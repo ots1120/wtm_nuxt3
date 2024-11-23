@@ -430,6 +430,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated);
 // 런타임 설정 가져오기 (네이버 지도 API 키 등)
 const config = useRuntimeConfig();
 const clientId = config.public.naverMapClientId;
+const baseUrl = config.public.baseApiUrl;
 
 // 상태 변수들 정의
 const mapElement = ref(null); // 지도 엘리먼트 참조
@@ -487,7 +488,7 @@ const fetchStores = async () => {
     // 검색어에 따라 API 호출
     const [storesResponse, addressesResponse] = await Promise.all([
       fetch(
-        `http://localhost:8080/api/v1/stores${
+        `${baseUrl}/api/v1/stores${
           searchText.value
             ? `?query=${encodeURIComponent(searchText.value)}`
             : ''
@@ -501,7 +502,7 @@ const fetchStores = async () => {
           credentials: 'include',
         },
       ),
-      fetch('http://localhost:8080/api/v1/stores/address'),
+      fetch(`${baseUrl}/api/v1/stores/address`),
       {
         credentials: 'include',
       },
@@ -527,7 +528,7 @@ const fetchStores = async () => {
     // 식당 데이터와 주소 데이터 병합
     const mergedStores = storeData.map((store) => ({
       ...store,
-      profilePicture: store.img ? `http://localhost:8080${store.img}` : null,
+      profilePicture: store.img ? `${baseUrl}${store.img}` : null,
 
       latitude: addressMap[store.storeId]?.latitude || null,
       longitude: addressMap[store.storeId]?.longitude || null,
@@ -786,7 +787,7 @@ const initMap = (latitude, longitude) => {
 // 북마크 토글
 const toggleBookmark = async (store, index) => {
   try {
-    const url = `http://localhost:8080/api/v1/stores/${store.storeId}/bookmark`;
+    const url = `${baseUrl}/api/v1/stores/${store.storeId}/bookmark`;
     const method = store.isBookmarked ? 'DELETE' : 'POST';
 
     const response = await fetch(url, {

@@ -96,6 +96,8 @@
             :extra-address="user.userAddress.extraAddress"
             :show-modal="showModal"
             @update-address="updateUserAddress"
+            title-class="font-extrabold text-lg text-gray-700 block"
+            @update-address="updateUserAddress"
           />
         </div>
 
@@ -326,6 +328,35 @@ const fetchUserData = async () => {
         : null,
     };
     isDataLoaded.value = true;
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
+    // API 요청 (PUT 메서드)
+    await useFetch(`/api/v1/user/my/settings`, {
+      baseURL: baseUrl,
+      method: 'PUT',
+      body: formData,
+      credentials: 'include',
+    });
+    router.push('/my');
+    // 유저 정보 다시 가져오기
+    // const { data: updatedData, error: fetchError } = await useFetch<User>(
+    //   `/api/v1/user/my/settings?username=${username}`,
+    //   {
+    //     baseURL: baseUrl,
+    //     credentials: 'include',
+    //   },
+    // );
+
+    // if (fetchError.value) {
+    //   throw new Error('Failed to fetch updated user data');
+    // }
+
+    // if (updatedData.value) {
+    //   modal.value.visible = false;
+    //   userFormData(updatedData.value); // PUT 요청 이후 받은 데이터로 상태 업데이트
+    // }
   } catch (error) {
     console.error('데이터 요청 중 오류 발생:', error);
     isDataLoaded.value = false;
