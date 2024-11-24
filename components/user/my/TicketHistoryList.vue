@@ -7,7 +7,6 @@
         :key="history.id"
         class="bg-white shadow-sm rounded-lg p-4"
       >
-        {{ history }}
         <!-- 날짜 -->
         <div class="mb-2 text-sm text-gray-500">
           {{ history.formattedRegDate }}
