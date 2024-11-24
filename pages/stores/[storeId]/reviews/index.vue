@@ -34,9 +34,9 @@
             class="flex items-center space-x-2"
           >
             <!-- 평가 항목 이름 -->
-            <span class="w-20 text-gray-600">{{ scale.scaleName }}</span>
+            <span class="w-12 text-gray-600">{{ scale.scaleName }}</span>
             <!-- 프로그레스 바 배경 -->
-            <div class="w-32 h-3 bg-gray-200 rounded-full">
+            <div class="w-28 h-3 bg-gray-200 rounded-full">
               <!-- 프로그레스 바 채워진 부분 -->
               <div
                 :style="{ width: scale.averageScore * 20 + '%' }"

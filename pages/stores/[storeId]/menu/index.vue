@@ -135,7 +135,7 @@ const { data: menuData, error: menuError } = useFetch<MenuResponse>(
 // menuItems를 computed로 정의하여 반응형으로 만듭니다.
 const menuItems = computed(() => {
   if (menuError.value) {
-    console.error('Menu data fetching error:', menuError.value.message);
+    // console.error('Menu data fetching error:', menuError.value.message);
     return [];
   }
 

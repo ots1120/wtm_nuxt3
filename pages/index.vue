@@ -59,7 +59,7 @@
         </div>
 
         <!-- 콘텐츠 영역 -->
-        <div class="overflow-y-auto h-full">
+        <div class="overflow-y-auto" style="height: calc(100% - 32px)">
           <!-- 선택된 식당 상세 정보 -->
           <div v-if="selectedStore" class="p-4">
             <svg
@@ -216,11 +216,7 @@
           </div>
 
           <!-- 식당 목록 -->
-          <div
-            v-else
-            class="overflow-y-auto"
-            :style="{ maxHeight: 'calc(100vh - 100px)' }"
-          >
+          <div v-else class="" :style="{ maxHeight: 'calc(100vh - 100px)' }">
             <!-- 로딩 스피너 -->
             <div
               v-if="isLoading"
