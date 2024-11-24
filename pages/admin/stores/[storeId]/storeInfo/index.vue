@@ -307,6 +307,13 @@ const openModal = () => {
 };
 
 const confirmSave = async () => {
+  if (!store.value.openTime || !store.value.closeTime) {
+    alert('영업시간을 입력해주세요');
+    modal.value = {
+      visible: false,
+    };
+    return;
+  }
   try {
     const formatTime = (time: string) => {
       // 초 단위를 제거하고 HH:mm 형식으로 변환
@@ -328,6 +335,7 @@ const confirmSave = async () => {
         closeTime: formatTime(store.value.closeTime),
       }),
     );
+
     const profileImgInput = document.getElementById(
       'profileImg',
     ) as HTMLInputElement;
