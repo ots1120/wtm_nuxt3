@@ -78,6 +78,12 @@ const emit = defineEmits(['updateAddress']);
 
 // 값이 변경될 때마다 부모에게 알림
 const emitAddressData = () => {
+  console.log('PostAddressForm emit 호출:', {
+    postcode: postcode.value,
+    address: address.value,
+    detailAddress: detailAddress.value,
+    extraAddress: extraAddress.value,
+  });
   emit('updateAddress', {
     postcode: postcode.value,
     address: address.value,
@@ -88,7 +94,7 @@ const emitAddressData = () => {
 
 // 특정 값이 변경되면 emitAddressData 호출
 watch([postcode, address, detailAddress, extraAddress], () => {
-  emitAddressData;
+  emitAddressData();
 });
 
 // 클라이언트에서만 실행되는 코드
