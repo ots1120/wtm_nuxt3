@@ -1,5 +1,5 @@
 <template>
-  <div v-if="selectedStore">
+  <div v-if="selectedStore && selectedStore.name">
     <!-- selectedStore가 로드된 후에만 StoreDetailHome 컴포넌트를 렌더링 -->
     <StoreDetailHome :store="selectedStore" class="p-4" />
   </div>
@@ -16,7 +16,19 @@ import StoreDetailHome from '~/components/user/stores/detail/StoreDetailHome.vue
 const storeId = inject('storeId', '');
 
 // 페이지에서 사용하는 selectedStore 데이터 정의
-const selectedStore = ref(null);
+const selectedStore = ref({
+  name: '',
+  url: '',
+  address: {
+    address: '',
+    detailAddress: '',
+    extraAddress: '',
+  },
+  storeSns: { url: '' },
+  ticket: { price: null },
+  contact: '',
+  operatingHours: '',
+});
 
 // 페이지에 필요한 추가 데이터 가져오기
 async function fetchAdditionalData() {
@@ -41,9 +53,20 @@ async function fetchAdditionalData() {
 
     // 모든 데이터를 selectedStore에 담기
     selectedStore.value = {
-      ...data,
-      storeSns: data.storeSnsList ? data.storeSnsList[0] : null,
-      ticket: data.ticketList ? data.ticketList[0] : null,
+      name: data.name || '미등록',
+      url: data.url || '',
+      address: {
+        address: data.address?.address || '주소 미등록',
+        detailAddress: data.address?.detailAddress || '',
+        extraAddress: data.address?.extraAddress || '',
+      },
+      storeSns: data.storeSnsList?.[0] || { url: '' },
+      ticket: data.ticketList?.[0] || { price: null },
+      contact: data.contact || '연락처 정보 없음',
+      operatingHours:
+        data.operatingHours && data.operatingHours.trim() !== 'null - null'
+          ? data.operatingHours
+          : '운영 시간 정보 없음',
     };
   } catch (error) {
     console.error('추가 데이터 가져오기 중 오류 발생:', error);

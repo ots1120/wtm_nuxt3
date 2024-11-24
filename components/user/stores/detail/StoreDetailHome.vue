@@ -26,8 +26,8 @@
           class="text-gray-800 break-words whitespace-normal flex-1"
         >
           {{ store.address.address || '주소 정보 없음' }}
-          {{ store.address.detailAddress }}
-          {{ store.address.extraAddress }}
+          {{ store.address.detailAddress || '' }}
+          {{ store.address.extraAddress || '' }}
         </div>
         <button
           v-if="isAddressClamped"
@@ -54,8 +54,10 @@
     </div>
 
     <!-- SNS 링크 -->
+    <!-- SNS 링크 -->
     <div class="flex flex-col py-4 border-gray-200 relative">
       <div class="flex items-center gap-3">
+        <!-- SNS 아이콘 -->
         <svg
           class="w-6 h-6 text-gray-600 flex-shrink-0"
           viewBox="0 0 100 100"
@@ -74,46 +76,51 @@
             SNS
           </text>
         </svg>
-        <a
-          :href="store.storeSns.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-blue-600 flex items-center gap-1"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="url(#instagram-gradient)"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-instagram"
+
+        <!-- SNS 링크 조건부 렌더링 -->
+        <div v-if="store.storeSns?.url" class="flex items-center gap-1">
+          <a
+            :href="store.storeSns.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-600 flex items-center gap-1"
           >
-            <!-- 그라디언트 정의 -->
-            <defs>
-              <linearGradient
-                id="instagram-gradient"
-                x1="0"
-                y1="0"
-                x2="1"
-                y2="1"
-              >
-                <stop offset="0%" stop-color="#F58529" />
-                <!-- 오렌지 -->
-                <stop offset="50%" stop-color="#DD2A7B" />
-                <!-- 핑크 -->
-                <stop offset="100%" stop-color="#8134AF" />
-                <!-- 보라 -->
-              </linearGradient>
-            </defs>
-            <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-          </svg>
-        </a>
+            <!-- Instagram SVG 아이콘 -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="url(#instagram-gradient)"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-instagram"
+            >
+              <!-- 그라디언트 정의 -->
+              <defs>
+                <linearGradient
+                  id="instagram-gradient"
+                  x1="0"
+                  y1="0"
+                  x2="1"
+                  y2="1"
+                >
+                  <stop offset="0%" stop-color="#F58529" />
+                  <stop offset="50%" stop-color="#DD2A7B" />
+                  <stop offset="100%" stop-color="#8134AF" />
+                </linearGradient>
+              </defs>
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+            </svg>
+          </a>
+        </div>
+
+        <!-- SNS 정보 없음 표시 -->
+        <div v-else class="text-gray-800">SNS 정보 없음</div>
       </div>
     </div>
 
@@ -161,11 +168,7 @@
         <polyline points="12 6 12 12 16 14" />
       </svg>
       <span class="text-gray-800">
-        {{
-          store.operatingHours && store.operatingHours.trim() !== 'null - null'
-            ? store.operatingHours
-            : '운영 시간 정보 없음'
-        }}
+        {{ store.operatingHours || '운영 시간 정보 없음' }}
       </span>
     </div>
 
@@ -195,8 +198,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-
 const props = defineProps({
   store: {
     type: Object,
