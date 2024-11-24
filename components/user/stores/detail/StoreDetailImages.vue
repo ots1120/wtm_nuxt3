@@ -91,6 +91,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import defaultImage from '@/assets/photos/menu-default.jpg';
 
 const goBack = () => {
   navigateTo('/');
@@ -109,8 +110,6 @@ const props = defineProps({
 });
 
 const currentImageIndex = ref(0);
-
-const defaultImage = '/images/menu-default.jpg';
 
 const hasImages = computed(() => props.images.length > 0);
 
