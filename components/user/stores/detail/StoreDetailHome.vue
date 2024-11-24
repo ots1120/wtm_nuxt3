@@ -74,19 +74,11 @@
             SNS
           </text>
         </svg>
-        <div
-          ref="snsContent"
-          :class="{ 'line-clamp-1': !isSnsExpanded }"
-          class="text-blue-600 break-all whitespace-normal flex-1"
-        >
-          <a :href="store.storeSns.url" target="_blank">{{
-            store.storeSns.url
-          }}</a>
-        </div>
-        <button
-          v-if="isSnsClamped"
-          class="text-blue-600 hover:underline flex items-center"
-          @click="toggleSnsExpand"
+        <a
+          :href="store.storeSns.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-600 flex items-center gap-1"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -94,46 +86,61 @@
             height="20"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
+            stroke="url(#instagram-gradient)"
             stroke-width="1.5"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="lucide lucide-chevron-down"
-            :class="{ 'rotate-180': isSnsExpanded }"
+            class="lucide lucide-instagram"
           >
-            <path d="m6 9 6 6 6-6" />
+            <!-- 그라디언트 정의 -->
+            <defs>
+              <linearGradient
+                id="instagram-gradient"
+                x1="0"
+                y1="0"
+                x2="1"
+                y2="1"
+              >
+                <stop offset="0%" stop-color="#F58529" />
+                <!-- 오렌지 -->
+                <stop offset="50%" stop-color="#DD2A7B" />
+                <!-- 핑크 -->
+                <stop offset="100%" stop-color="#8134AF" />
+                <!-- 보라 -->
+              </linearGradient>
+            </defs>
+            <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
           </svg>
-        </button>
+        </a>
       </div>
     </div>
 
     <!-- 연락처 정보 -->
-    <div class="flex items-center gap-3 py-4 border-gray-200">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="lucide lucide-phone"
-      >
-        <path
-          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-        />
-      </svg>
-      <span class="text-gray-800">{{
-        store.contact || '연락처 정보 없음'
-      }}</span>
-      <button
-        class="ml-2 text-blue-600 font-medium focus:outline-none"
-        @click="copyPhoneNumber"
-      >
-        복사
-      </button>
+    <div class="flex flex-col gap-3 py-4">
+      <div class="flex items-center gap-3">
+        <svg
+          class="w-4 h-4 text-gray-700"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6.62 10.79a15.34 15.34 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.27 1.12.27 2.33.42 3.57.42.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-10.5 0-19-8.5-19-19 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.24.15 2.45.42 3.57.09.35 0 .74-.27 1.02l-2.2 2.2z"
+          />
+        </svg>
+        <span class="text-gray-800">{{
+          store.contact || '연락처 정보 없음'
+        }}</span>
+
+        <button class="text-blue-500 ml-2" @click="copyPhoneNumber">
+          복사
+        </button>
+        <span v-if="copySuccess" class="text-green-500 text-sm"
+          >전화번호가 복사되었습니다.</span
+        >
+      </div>
     </div>
 
     <!-- 운영 시간 정보 -->
@@ -197,18 +204,11 @@ const props = defineProps({
   },
 });
 
-// 상태 관리
+const copySuccess = ref(false);
 const isAddressExpanded = ref(false);
 const isAddressClamped = ref(false);
 const addressContent = ref(null);
 
-const isSnsExpanded = ref(false);
-const isSnsClamped = ref(false);
-const snsContent = ref(null);
-
-const showModal = ref(false);
-
-// 잘림 여부 확인
 onMounted(() => {
   if (addressContent.value) {
     const contentHeight = addressContent.value.scrollHeight;
@@ -217,22 +217,28 @@ onMounted(() => {
     );
     if (contentHeight > lineHeight * 1) isAddressClamped.value = true;
   }
-
-  if (snsContent.value) {
-    const contentHeight = snsContent.value.scrollHeight;
-    const lineHeight = parseFloat(
-      getComputedStyle(snsContent.value).lineHeight,
-    );
-    if (contentHeight > lineHeight * 1) isSnsClamped.value = true;
-  }
 });
 
-// 토글 기능
 function toggleAddressExpand() {
   isAddressExpanded.value = !isAddressExpanded.value;
 }
-function toggleSnsExpand() {
-  isSnsExpanded.value = !isSnsExpanded.value;
+
+function copyPhoneNumber() {
+  if (!props.store.contact || typeof props.store.contact !== 'string') {
+    console.error('전화번호가 유효하지 않습니다.');
+    return;
+  }
+
+  navigator.clipboard
+    .writeText(props.store.contact)
+    .then(() => {
+      console.log('전화번호 복사 성공');
+      copySuccess.value = true;
+      setTimeout(() => (copySuccess.value = false), 2000);
+    })
+    .catch((err) => {
+      console.error('복사에 실패했습니다:', err);
+    });
 }
 </script>
 
