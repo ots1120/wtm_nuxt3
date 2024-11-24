@@ -373,6 +373,7 @@ const openSaveModal = () => {
 const confirmSaveModal = async () => {
   isSaveModalVisible.value = false; // 모달 닫기
   await saveAllData(); // 실제 저장 함수 호출
+  alert('저장이 완료되었습니다.');
 };
 
 // 저장 모달 취소 함수
