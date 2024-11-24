@@ -86,9 +86,6 @@
 
         <!-- 주소 -->
         <div class="pt-4 border-b">
-          <label for="" class="font-extrabold text-lg text-gray-700 block"
-            >주소</label
-          >
           <PostAddressForm
             :postcode="user.userAddress.postcode"
             :address="user.userAddress.address"
@@ -96,6 +93,7 @@
             :extra-address="user.userAddress.extraAddress"
             :show-modal="showModal"
             title-class="font-extrabold text-lg text-gray-700 block"
+            @update-address="updateUserAddress"
           />
         </div>
 
@@ -238,7 +236,6 @@ const updateUserAddress = (addressData: {
   detailAddress: string;
   extraAddress: string;
 }) => {
-  console.log('addresDAta:', addressData);
   user.value.userAddress = {
     postcode: addressData.postcode || '',
     address: addressData.address || '',
@@ -320,7 +317,6 @@ const fetchUserData = async () => {
         : null,
     };
     isDataLoaded.value = true;
-    router.push('/my');
   } catch (error) {
     console.error('데이터 요청 중 오류 발생:', error);
     isDataLoaded.value = false;
