@@ -281,6 +281,7 @@
       @confirm="redirectToLogin"
     />
     <WriteButton
+      v-if="isAuthenticated"
       :push-route="`/my/tickets/stores/${storeId}/history`"
       class="btn-write"
     />

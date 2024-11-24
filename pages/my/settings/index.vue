@@ -5,7 +5,7 @@
         <!-- 프로필 사진 -->
         <div class="items-center justify-center text-center border-b pb-4">
           <div
-            class="relative w-32 h-32 bg-gray-300 rounded-full mx-auto mt-4 mb-3 flex items-center justify-center"
+            class="relative w-32 h-32 rounded-full mx-auto mt-4 mb-3 flex items-center justify-center"
           >
             <img
               v-if="user.profilePicture"
@@ -13,20 +13,16 @@
               alt="프로필 사진"
               class="w-32 h-32 object-cover rounded-full"
             />
+            <!-- 기본 SVG 이미지를 표시 -->
             <svg
               v-else
-              width="120px"
-              height="120px"
-              viewBox="0 0 64 64"
               xmlns="http://www.w3.org/2000/svg"
-              stroke-width="3"
-              stroke="#000000"
-              fill="none"
-              class="block stroke-white rounded-full"
+              class="h-32 w-32 text-gray-400"
+              viewBox="0 0 16 16"
             >
-              <circle cx="32" cy="18.14" r="11.14" />
               <path
-                d="M54.55,56.85A22.55,22.55,0,0,0,32,34.3h0A22.55,22.55,0,0,0,9.45,56.85Z"
+                fill="#BDBDBD"
+                d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
               />
             </svg>
           </div>
@@ -100,7 +96,7 @@
             :extra-address="user.userAddress.extraAddress"
             :show-modal="showModal"
             title-class="font-extrabold text-lg text-gray-700 block"
-            @update-address="updateAddress"
+            @update-address="updateUserAddress"
           />
         </div>
 
@@ -122,8 +118,8 @@
         <button
           type="submit"
           class="w-full bg-blue-500 text-white py-2 rounded-lg text-lg font-medium mt-4"
-          onclick="submitForm"
           :disabled="!isPasswordValid"
+          @click="openModal"
         >
           완료
         </button>
@@ -200,7 +196,7 @@ const openModal = () => {
 
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
-
+const isDataLoaded = ref(false);
 // Modal 관리 로직
 const modal = ref<{
   visible: boolean;
@@ -213,21 +209,6 @@ const cancelSave = (): void => {
   modal.value = {
     visible: false,
   };
-};
-
-// 유저 정보 업데이트 함수
-const userFormData = (data: any) => {
-  user.value.name = data.name;
-  user.value.userAddress.postcode = ''; // 초기화
-  user.value.userAddress.address = '';
-  user.value.userAddress.detailAddress = ''; // 초기화
-  user.value.userAddress.extraAddress = ''; // 초기화
-  user.value.email = data.email;
-  user.value.password = data.password;
-  user.value.phone = data.phone;
-  user.value.profilePicture = data.profilePicture
-    ? `${baseUrl}${data.profilePicture}`
-    : null;
 };
 
 // AuthStore와 라우터 활용
@@ -243,23 +224,28 @@ const handleImageChange = (event: Event): void => {
   profileImage.value = file;
 
   if (file) {
-    // URL.createObjectURL을 사용해 이미지 미리보기 URL 생성
-    user.value.profilePicture = URL.createObjectURL(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      user.value.profilePicture = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 };
 
 // 주소 업데이트 핸들러
-const updateAddress = (addressData: {
+const updateUserAddress = (addressData: {
   postcode: string;
   address: string;
   detailAddress: string;
   extraAddress: string;
 }) => {
-  console.log(addressData);
-  user.value.userAddress.postcode = addressData.postcode || '';
-  user.value.userAddress.address = addressData.address || '';
-  user.value.userAddress.detailAddress = addressData.detailAddress || '';
-  user.value.userAddress.extraAddress = addressData.extraAddress || '';
+  console.log('addresDAta:', addressData);
+  user.value.userAddress = {
+    postcode: addressData.postcode || '',
+    address: addressData.address || '',
+    detailAddress: addressData.detailAddress || '',
+    extraAddress: addressData.extraAddress || '',
+  };
 };
 
 // 폼 제출 핸들러
@@ -268,34 +254,73 @@ const confirmSave = async (): Promise<void> => {
   if (!isPasswordValid.value) {
     alert('비밀번호를 입력해주세요.');
     modal.value.visible = false;
-
     return; // 검증 실패 시 제출 중단
   }
   try {
+    const dto = {
+      email: user.value.email,
+      name: user.value.name,
+      password: user.value.password,
+      phone: user.value.phone,
+      userAddress: {
+        postcode: user.value.userAddress.postcode,
+        address: user.value.userAddress.address,
+        detailAddress: user.value.userAddress.detailAddress,
+        extraAddress: user.value.userAddress.extraAddress,
+      },
+    };
     const formData = new FormData();
-
-    formData.append('email', user.value.email);
-    formData.append('name', user.value.name);
-    formData.append('password', user.value.password);
-    formData.append('phone', user.value.phone);
-
-    // userAddress 데이터를 분리해서 추가
-    formData.append('userAddress.postcode', user.value.userAddress.postcode);
-    formData.append('userAddress.address', user.value.userAddress.address);
-    formData.append(
-      'userAddress.detailAddress',
-      user.value.userAddress.detailAddress,
-    );
-    formData.append(
-      'userAddress.extraAddress',
-      user.value.userAddress.extraAddress,
-    );
+    formData.append('dto', JSON.stringify(dto));
 
     // 프로필 이미지 추가
     if (profileImage.value) {
-      formData.append('profilePicture', profileImage.value); // 파일 추가
+      formData.append('profilePicture', profileImage.value);
     }
 
+    const response = await fetch(`${baseUrl}/api/v1/user/my/settings`, {
+      method: 'PUT',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      console.log('데이터가 성공적으로 저장되었습니다.');
+      modal.value.visible = false;
+      router.push('/my');
+    } else {
+      console.error('저장 중 오류 발생:', await response.text());
+    }
+  } catch (err) {
+    console.error('폼 제출 중 예외 발생:', err);
+  }
+};
+
+const fetchUserData = async () => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/v1/user/my/settings?username=${username}`,
+      {
+        credentials: 'include',
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const fetchData: User = await response.json();
+    user.value = {
+      ...fetchData,
+      userAddress: fetchData.userAddress || {
+        // userAddress가 없는 경우 기본값 설정
+        postcode: '',
+        address: '',
+        detailAddress: '',
+        extraAddress: '',
+      },
+      profilePicture: fetchData.profilePicture
+        ? `${baseUrl}${fetchData.profilePicture}`
+        : null,
+    };
+    isDataLoaded.value = true;
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
@@ -326,26 +351,15 @@ const confirmSave = async (): Promise<void> => {
     //   userFormData(updatedData.value); // PUT 요청 이후 받은 데이터로 상태 업데이트
     // }
   } catch (error) {
-    console.error('프로필 업데이트에 실패했습니다:', error);
+    console.error('데이터 요청 중 오류 발생:', error);
+    isDataLoaded.value = false;
   }
 };
 
 // 페이지 로드 시 유저 정보 불러오기
 onBeforeMount(async () => {
   route.meta.title = '내 정보 수정'; // 페이지 타이틀 설정
-  const { data, error } = await useFetch(
-    `/api/v1/user/my/settings?username=${username}`,
-    {
-      baseURL: baseUrl,
-      credentials: 'include',
-    },
-  );
-
-  if (data.value) {
-    userFormData(data.value); // GET 요청 결과로 상태 초기화
-  } else if (error.value) {
-    console.error('유저정보를 불러오는 중 실패하였습니다', error.value);
-  }
+  fetchUserData();
 });
 </script>
 

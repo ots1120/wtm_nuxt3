@@ -1,18 +1,18 @@
 <template>
   <div class="max-w-lg mx-auto bg-white min-h-screen">
-  <div class="px-4">
-    <div v-if="tickets.length > 0">
-      <MyTicketList
-        v-for="(ticket, index) in tickets"
-        :key="index"
-        class="p-4"
-        :ticket="ticket"
-        @toggle-bookmark="handleBookmarkToggle(ticket)"
-      />
-    </div>
-    <p v-else class="text-center py-12 text-gray-500">
-      소유한 식권이 없습니다.
-    </p>
+    <div class="px-4">
+      <div v-if="tickets.length > 0">
+        <MyTicketList
+          v-for="(ticket, index) in tickets"
+          :key="index"
+          class="p-4"
+          :ticket="ticket"
+          @toggle-bookmark="handleBookmarkToggle(ticket)"
+        />
+      </div>
+      <p v-else class="text-center py-12 text-gray-500">
+        소유한 식권이 없습니다.
+      </p>
     </div>
     <!-- Bookmark Modal -->
     <BookmarkModal
@@ -68,14 +68,11 @@ const handleBookmarkToggle = async (ticket: Ticket) => {
 // 북마크 추가
 const addBookmark = async (storeId: number) => {
   try {
-    const { data, error } = await useFetch(
-      `/api/v1/user/my/bookmarks`,
-      {
-        baseURL: baseUrl,
-        method: 'POST',
-        body: JSON.stringify({ storeId, username })
-      },
-    );
+    const { data, error } = await useFetch(`/api/v1/user/my/bookmarks`, {
+      baseURL: baseUrl,
+      method: 'POST',
+      body: JSON.stringify({ storeId, username }),
+    });
 
     if (error.value) {
       throw new Error('Failed to add the bookmark');
@@ -125,7 +122,7 @@ const confirmDelete = async (storeId: number) => {
     const { data: updatedData, error: fetchError } = await useFetch<Ticket[]>(
       `/api/v1/user/my/tickets?username=${username}`,
       {
-        baseURL: baseUrl
+        baseURL: baseUrl,
       },
     );
 
@@ -154,7 +151,7 @@ const fetchUpdatedTickets = async () => {
     `/api/v1/user/my/tickets?username=${username}`,
     {
       baseURL: baseUrl,
-    }
+    },
   );
 
   if (fetchError.value) {
@@ -172,21 +169,21 @@ const fetchUpdatedTickets = async () => {
 };
 
 const route = useRoute();
-onBeforeMount( async () => {
+onBeforeMount(async () => {
   route.meta.title = '내 식권';
-    const { data, error } = await useFetch<Ticket[]>(
+  const { data, error } = await useFetch<Ticket[]>(
     `/api/v1/user/my/tickets?username=${username}`,
     {
-      baseURL: baseUrl
-    }
+      baseURL: baseUrl,
+    },
   );
 
   if (data.value) {
     tickets.value = data.value.map((ticket) => ({
       ...ticket,
       storeImgUrl: ticket.storeImgUrl
-      ? `${baseUrl}${ticket.storeImgUrl}`
-      : null,
+        ? `${baseUrl}${ticket.storeImgUrl}`
+        : null,
     }));
   } else if (error.value) {
     console.error('식권 정보를 불러오는 데 실패했습니다', error.value);
