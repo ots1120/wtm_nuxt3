@@ -8,18 +8,27 @@
         class="bg-white shadow-sm rounded-lg p-4"
       >
         <!-- 날짜 -->
-        <div class="mb-2 text-sm text-gray-500">{{ history.formattedRegDate }}</div>
+        <div class="mb-2 text-sm text-gray-500">
+          {{ history.formattedRegDate }}
+        </div>
 
         <!-- 상세 정보 -->
         <div class="flex items-center">
           <!-- 아이콘 -->
           <div class="flex items-center space-x-2">
-            <img src="@/assets/icons/fork_knife.svg" alt="icon" class="h-4 w-4" />
+            <img
+              src="@/assets/icons/fork_knife.svg"
+              alt="icon"
+              class="h-4 w-4"
+            />
           </div>
 
           <!-- 가격 및 상점명 -->
           <div class="ml-2 flex-grow">
-            <div class="text-lg font-semibold" :class="formattedPriceClass(history)">
+            <div
+              class="text-lg font-semibold"
+              :class="formattedPriceClass(history)"
+            >
               {{ formattedPrice(history) }}원
             </div>
             <div class="text-sm text-gray-500">{{ history.storeName }}</div>
@@ -31,7 +40,9 @@
             <div v-if="!history.hasReview && history.type === 'usage'">
               <a
                 class="cursor-pointer"
-                @click.prevent="navigateToWithState(history.id, history.storeId)"
+                @click.prevent="
+                  navigateToWithState(history.id, history.storeId)
+                "
               >
                 <span class="text-sm text-blue-800">리뷰쓰기</span>
               </a>
@@ -47,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 
 interface TicketHistory {
   storeId: number;
@@ -69,23 +80,25 @@ const props = defineProps<{
   selectedType: string; // 부모의 selectedType 전달받음
 }>();
 
-const emit = defineEmits(["loadMoreItems", "resetLoadItems"]);
+const emit = defineEmits(['loadMoreItems', 'resetLoadItems']);
 
 // 가격 표시 및 클래스 설정
 const formattedPrice = (history: TicketHistory) => {
-  return history.type === "purchase" ? `+${history.price}` : `-${history.price}`;
+  return history.type === 'purchase'
+    ? `+${history.price}`
+    : `-${history.price}`;
 };
 
 const formattedPriceClass = (history: TicketHistory) => {
-  return history.type === "purchase" ? "text-blue-500" : "text-red-500";
+  return history.type === 'purchase' ? 'text-blue-500' : 'text-red-500';
 };
 
 // 네비게이션 상태 설정
 const { setState } = useNavigationState();
 const router = useRouter();
 const navigateToWithState = (ticketHistoryUsageId: number, storeId: number) => {
-  setState("ticketHistoryUsageId", ticketHistoryUsageId);
-  setState("storeId", storeId);
+  setState('ticketHistoryUsageId', ticketHistoryUsageId);
+  setState('storeId', storeId);
   router.push({ path: `/stores/${storeId}/reviews/new` });
 };
 
@@ -102,10 +115,10 @@ const setupObserver = () => {
   intersectionObserver = new IntersectionObserver(
     ([entry]) => {
       if (entry?.isIntersecting && props.hasMoreItems) {
-        emit("loadMoreItems");
+        emit('loadMoreItems');
       }
     },
-    { root: containerRef.value, rootMargin: "0px", threshold: 0.1 }
+    { root: containerRef.value, rootMargin: '0px', threshold: 0.1 },
   );
 
   if (observerTarget.value) {
@@ -129,7 +142,7 @@ watch(
   () => {
     nextTick(() => setupObserver());
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
