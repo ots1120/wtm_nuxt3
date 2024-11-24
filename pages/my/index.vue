@@ -144,6 +144,7 @@
           <li v-if="isAuthenticated">
             <a
               class="flex justify-end text-[#db3d39] font-light rounded-lg text-sm px-6 py-4"
+              @click="logout"
             >
               로그아웃
             </a>
@@ -158,12 +159,15 @@
 import { ref, onBeforeMount } from 'vue';
 import { useRouter, useFetch } from 'nuxt/app';
 import UserInfo from '@/components/user/my/UserInfo.vue';
+import { useAuthStore } from '~/stores/auth';
 
 interface User {
   name: string;
   email: string;
   profilePicture: string | null;
 }
+
+const authStore = useAuthStore();
 
 const router = useRouter();
 const route = useRoute();
@@ -203,6 +207,17 @@ onBeforeMount(async () => {
     console.error('유저 정보를 불러오는 데 실패했습니다1', error.value);
   }
 });
+
+const logout = async () => {
+  try {
+    await authStore.signOut();
+    console.log('로그아웃 성공');
+    // 로그아웃 후 로그인 페이지로 이동
+    window.location.href = '/';
+  } catch (error) {
+    console.error('로그아웃 실패:', error);
+  }
+};
 </script>
 
 <style scoped></style>
