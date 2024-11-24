@@ -280,7 +280,11 @@
       @cancel="closeLoginModal"
       @confirm="redirectToLogin"
     />
-    <WriteButton :push-route="`/my/tickets/stores/${storeId}/history`" class="btn-write" />
+    <WriteButton
+      v-if="isAuthenticated"
+      :push-route="`/my/tickets/stores/${storeId}/history`"
+      class="btn-write"
+    />
   </div>
 </template>
 
