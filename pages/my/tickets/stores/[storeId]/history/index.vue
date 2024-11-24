@@ -138,6 +138,8 @@ const fetchItems = async () => {
     }
     const fetchedData = await response.json();
 
+    console.log(fetchedData);
+
     if (fetchedData?.combinedHistory?.length) {
       ticketData.value = {
         purchasePrice: fetchedData.totalPurchasedPrice,
