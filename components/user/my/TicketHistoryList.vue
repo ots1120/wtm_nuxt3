@@ -100,6 +100,7 @@ const navigateToWithState = (ticketHistoryUsageId: number, storeId: number) => {
   setState('ticketHistoryUsageId', ticketHistoryUsageId);
   setState('storeId', storeId);
   router.push({ path: `/stores/${storeId}/reviews/new` });
+  console.log(storeId);
 };
 
 // 무한 스크롤 관찰자 설정

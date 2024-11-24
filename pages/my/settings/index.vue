@@ -15,15 +15,15 @@
             />
             <!-- 기본 SVG 이미지를 표시 -->
             <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-32 w-32 text-gray-400"
-                viewBox="0 0 16 16"
-              >
-                <path
-                  fill="#BDBDBD"
-                  d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
-                />
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-32 w-32 text-gray-400"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill="#BDBDBD"
+                d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
+              />
             </svg>
           </div>
           <div class="mb-3">
@@ -95,7 +95,6 @@
             :detail-address="user.userAddress.detailAddress"
             :extra-address="user.userAddress.extraAddress"
             :show-modal="showModal"
-            @update-address="updateUserAddress"
             title-class="font-extrabold text-lg text-gray-700 block"
           />
         </div>
@@ -118,8 +117,8 @@
         <button
           type="submit"
           class="w-full bg-blue-500 text-white py-2 rounded-lg text-lg font-medium mt-4"
-          @click="openModal"
           :disabled="!isPasswordValid"
+          @click="openModal"
         >
           완료
         </button>
@@ -270,27 +269,23 @@ const confirmSave = async (): Promise<void> => {
       },
     };
     const formData = new FormData();
-    formData.append('dto',JSON.stringify(dto));
+    formData.append('dto', JSON.stringify(dto));
 
     // 프로필 이미지 추가
     if (profileImage.value) {
       formData.append('profilePicture', profileImage.value);
     }
 
-    const response = await fetch(
-      `${baseUrl}/api/v1/user/my/settings`,
-      {
-        method: 'PUT',
-        body: formData,
-        credentials: 'include',
-      },
-    );
+    const response = await fetch(`${baseUrl}/api/v1/user/my/settings`, {
+      method: 'PUT',
+      body: formData,
+      credentials: 'include',
+    });
 
     if (response.ok) {
       console.log('데이터가 성공적으로 저장되었습니다.');
       modal.value.visible = false;
       router.push('/my');
-      
     } else {
       console.error('저장 중 오류 발생:', await response.text());
     }

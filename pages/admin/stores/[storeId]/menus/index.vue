@@ -14,6 +14,7 @@
           :enable-time-picker="false"
           :inline="true"
           :format="'yyyy-MM-dd'"
+          :month-change-on-scroll="false"
           class="w-full"
         />
       </div>
