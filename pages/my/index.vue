@@ -144,9 +144,9 @@
         </ul>
       </section>
     </div>
-    <div v-if="isAuthenticated">
+    <div v-if="isAuthenticated" class="flex w-full mt-10">
       <button
-        class="flex justify-end text-[#db3d39] font-light rounded-lg text-sm px-6 py-4"
+        class="flex w-full justify-center items-center text-[#db3d39] font-light rounded-lg text-sm px-6 py-4"
         @click="logout"
       >
         로그아웃
