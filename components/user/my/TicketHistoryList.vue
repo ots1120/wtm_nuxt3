@@ -84,9 +84,9 @@ const emit = defineEmits(['loadMoreItems', 'resetLoadItems']);
 
 // 가격 표시 및 클래스 설정
 const formattedPrice = (history: TicketHistory) => {
-  return history.type === 'purchase'
-    ? `+${history.price}`
-    : `-${history.price}`;
+  const priceWithComma = history.price.toLocaleString(); // 1000단위 쉼표 추가
+  const prefix = history.type === 'purchase' ? '+' : '-'; // 구매와 사용 구분
+  return `${prefix}${priceWithComma}`;
 };
 
 const formattedPriceClass = (history: TicketHistory) => {
