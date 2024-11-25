@@ -120,6 +120,14 @@
         >
           완료
         </button>
+        <div class="flex w-full mt-10">
+          <button
+            class="flex w-full justify-center items-center text-[#db3d39] font-light rounded-lg text-sm px-6 py-4"
+            @click="logout"
+          >
+            로그아웃
+          </button>
+        </div>
       </form>
     </section>
     <BasicModal
@@ -209,10 +217,9 @@ const cancelSave = (): void => {
 };
 
 // AuthStore와 라우터 활용
-const authstore = useAuthStore();
-const username = authstore.user?.username;
+const authStore = useAuthStore();
+const username = authStore.user?.username;
 const route = useRoute();
-const router = useRouter(); // 라우터
 
 // 프로필 이미지 변경 핸들러
 const handleImageChange = (event: Event): void => {
@@ -323,10 +330,21 @@ const fetchUserData = async () => {
   }
 };
 
+const logout = async () => {
+  try {
+    await authStore.signOut();
+    console.log('로그아웃 성공');
+    // 로그아웃 후 로그인 페이지로 이동
+    window.location.href = '/';
+  } catch (error) {
+    console.error('로그아웃 실패:', error);
+  }
+};
+
 // 페이지 로드 시 유저 정보 불러오기
 onBeforeMount(async () => {
   route.meta.title = '내 정보 수정'; // 페이지 타이틀 설정
-  fetchUserData();
+  await fetchUserData();
 });
 </script>
 

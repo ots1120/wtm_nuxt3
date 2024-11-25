@@ -141,16 +141,16 @@
               </span>
             </a>
           </li>
-          <li v-if="isAuthenticated">
-            <a
-              class="flex justify-end text-[#db3d39] font-light rounded-lg text-sm px-6 py-4"
-              @click="logout"
-            >
-              로그아웃
-            </a>
-          </li>
         </ul>
       </section>
+    </div>
+    <div v-if="isAuthenticated">
+      <button
+        class="flex justify-end text-[#db3d39] font-light rounded-lg text-sm px-6 py-4"
+        @click="logout"
+      >
+        로그아웃
+      </button>
     </div>
   </div>
 </template>
