@@ -2,7 +2,7 @@
   <div class="container px-4">
     <div class="max-w-lg mx-auto">
       <div>
-        <!-- TicketSummary 컴포넌트 -->
+        <!-- TicketSummary 컴포넌트에 typeChanged 이벤트 핸들링 추가 -->
         <TicketSummary
           :purchase-price="ticketData.purchasePrice"
           :used-price="ticketData.usedPrice"
@@ -11,8 +11,7 @@
           :selected-year="selectedYear"
           @date-changed="handleDateChanged"
         />
-
-        <!-- 타입 선택 버튼 그룹 -->
+        <!-- 타입 선택 버튼 그룹: index.vue에서 직접 관리 -->
         <div class="flex justify-start p-4">
           <button
             v-for="option in typeOptions"
@@ -27,36 +26,7 @@
             {{ option.label }}
           </button>
         </div>
-
-        <!-- 로딩 중일 때 스피너 표시 -->
-        <div
-          v-if="isLoading"
-          class="flex justify-center items-center mt-6 h-24"
-        >
-          <svg
-            class="animate-spin h-8 w-8 text-blue-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8z"
-            />
-          </svg>
-        </div>
-
-        <!-- 데이터가 있을 때 목록 표시 -->
-        <div v-else-if="myHistory.length > 0" class="mt-2">
+        <div v-if="myHistory.length > 0" class="mt-2">
           <TicketHistoryList
             :my-history="myHistory"
             :selected-month="selectedMonth"
@@ -68,13 +38,13 @@
           />
         </div>
 
-        <!-- 데이터가 없을 때 메시지 표시 -->
         <div v-else ref="containerRef" class="h-[70vh] overflow-hidden">
           <div
             ref="scrollContainer"
             class="h-full overflow-y-auto pr-4 space-y-4"
           >
             <div class="flex flex-col items-center mt-6">
+              <!-- 텍스트와 아이콘 꾸미기 -->
               <div class="text-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -144,10 +114,10 @@ const username = authstore.user?.username;
 const myHistory = ref<TicketHistory[]>([]);
 const selectedMonth = ref<number>(new Date().getMonth() + 1);
 const selectedYear = ref<number>(new Date().getFullYear());
-const selectedType = ref('all');
+const selectedType = ref('all'); // selectedType 상태 관리
 const page = ref(0);
 const hasMoreItems = ref(true);
-const isLoading = ref(false); // 로딩 상태 추가
+const isLoading = ref(false);
 const route = useRoute();
 const storeId = route.params.storeId;
 
@@ -155,10 +125,10 @@ const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
 const fetchItems = async () => {
-  console.log('Fetching items...');
-  console.log(`Type: ${selectedType.value}, Page: ${page.value}`);
+  console.log('Fetching items...'); // 디버깅용 로그
+  console.log(`Type: ${selectedType.value}, Page: ${page.value}`); // 현재 type과 페이지 정보 확인
   if (!hasMoreItems.value || isLoading.value) return;
-  isLoading.value = true; // 로딩 시작
+  isLoading.value = true;
   try {
     const response = await fetch(
       `${baseUrl}/api/v1/user/my/tickets/stores/history?username=${username}&storeId=${storeId}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`,
@@ -191,7 +161,7 @@ const fetchItems = async () => {
   } catch (error) {
     console.error('데이터 로드 오류:', error);
   } finally {
-    isLoading.value = false; // 로딩 종료
+    isLoading.value = false;
   }
 };
 
@@ -200,7 +170,7 @@ const loadMoreItems = () => {
 };
 
 const resetLoadItems = () => {
-  console.log('Resetting items...');
+  console.log('Resetting items...'); // 디버깅용 로그
   page.value = 0;
   myHistory.value = [];
   hasMoreItems.value = true;
@@ -220,7 +190,7 @@ const handleDateChanged = ({
 };
 
 const handleTypeChanged = (newType: string) => {
-  console.log(`Type changed to: ${newType}`);
+  console.log(`Type changed to: ${newType}`); // 디버깅용 로그
   if (selectedType.value !== newType) {
     selectedType.value = newType;
     resetLoadItems();

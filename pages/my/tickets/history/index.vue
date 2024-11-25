@@ -2,7 +2,7 @@
   <div class="container px-4">
     <div class="max-w-lg mx-auto">
       <div>
-        <!-- TicketSummary 컴포넌트 -->
+        <!-- TicketSummary 컴포넌트에 typeChanged 이벤트 핸들링 추가 -->
         <TicketSummary
           :purchase-price="ticketData.purchasePrice"
           :used-price="ticketData.usedPrice"
@@ -11,7 +11,7 @@
           :selected-year="selectedYear"
           @date-changed="handleDateChanged"
         />
-        <!-- 타입 선택 버튼 그룹 -->
+        <!-- 타입 선택 버튼 그룹: index.vue에서 직접 관리 -->
         <div class="flex justify-start p-4">
           <button
             v-for="option in typeOptions"
@@ -26,36 +26,7 @@
             {{ option.label }}
           </button>
         </div>
-
-        <!-- 로딩 스피너 -->
-        <div
-          v-if="isLoading"
-          class="flex justify-center items-center mt-6 h-24"
-        >
-          <svg
-            class="animate-spin h-8 w-8 text-blue-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8z"
-            />
-          </svg>
-        </div>
-
-        <!-- 목록 데이터 -->
-        <div v-else-if="myHistory.length > 0" class="mt-2">
+        <div v-if="myHistory.length > 0" class="mt-2">
           <TicketHistoryList
             :my-history="myHistory"
             :selected-month="selectedMonth"
@@ -67,13 +38,13 @@
           />
         </div>
 
-        <!-- 데이터 없음 메시지 -->
         <div v-else ref="containerRef" class="h-[70vh] overflow-hidden">
           <div
             ref="scrollContainer"
             class="h-full overflow-y-auto pr-4 space-y-4"
           >
             <div class="flex flex-col items-center mt-6">
+              <!-- 텍스트와 아이콘 꾸미기 -->
               <div class="text-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -103,6 +74,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import TicketSummary from '~/components/user/my/TicketSummary.vue';
@@ -145,17 +117,14 @@ const selectedYear = ref<number>(new Date().getFullYear());
 const selectedType = ref('all'); // selectedType 상태 관리
 const page = ref(0);
 const hasMoreItems = ref(true);
-const isLoading = ref(false); // 로딩 상태 추가
+const isLoading = ref(false);
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseApiUrl;
 
-/**
- * 데이터 로드 함수
- */
 const fetchItems = async () => {
   console.log('Fetching items...'); // 디버깅용 로그
-  if (!hasMoreItems.value || isLoading.value) return; // 이미 로딩 중이면 중단
-  isLoading.value = true; // 로딩 시작
+  if (!hasMoreItems.value || isLoading.value) return;
+  isLoading.value = true;
   try {
     const response = await fetch(
       `${baseUrl}/api/v1/user/my/tickets/history?username=${username}&month=${selectedMonth.value}&year=${selectedYear.value}&type=${selectedType.value}&page=${page.value}&size=7`,
@@ -166,54 +135,42 @@ const fetchItems = async () => {
     const fetchedData = await response.json();
 
     if (fetchedData?.combinedHistory?.length) {
-      // 요약 정보 업데이트
       ticketData.value = {
         purchasePrice: fetchedData.totalPurchasedPrice,
         usedPrice: fetchedData.totalUsedPrice,
         remainingCount: fetchedData.totalAmount,
       };
 
-      // 첫 페이지일 경우 데이터 교체, 아닐 경우 추가
       if (page.value === 0) {
         myHistory.value = fetchedData.combinedHistory;
       } else {
         myHistory.value = [...myHistory.value, ...fetchedData.combinedHistory];
       }
 
-      // 다음 페이지 유무 판단
       page.value++;
       hasMoreItems.value = page.value <= fetchedData.totalPages;
     } else {
-      hasMoreItems.value = false; // 더 이상 로드할 데이터 없음
+      hasMoreItems.value = false;
     }
   } catch (error) {
     console.error('데이터 로드 오류:', error);
   } finally {
-    isLoading.value = false; // 로딩 종료
+    isLoading.value = false;
   }
 };
 
-/**
- * "더보기" 버튼 클릭 시
- */
 const loadMoreItems = () => {
   fetchItems();
 };
 
-/**
- * 날짜 변경 시 데이터 초기화 후 재로드
- */
 const resetLoadItems = () => {
   console.log('Resetting items...'); // 디버깅용 로그
   page.value = 0;
   myHistory.value = [];
   hasMoreItems.value = true;
-  fetchItems(); // 초기화 후 데이터 다시 로드
+  fetchItems();
 };
 
-/**
- * 날짜 변경 이벤트 핸들러
- */
 const handleDateChanged = ({
   month,
   year,
@@ -226,21 +183,15 @@ const handleDateChanged = ({
   resetLoadItems();
 };
 
-/**
- * 타입 변경 이벤트 핸들러
- */
 const handleTypeChanged = (newType: string) => {
   console.log(`Type changed to: ${newType}`); // 디버깅용 로그
-  selectedType.value = newType; // 선택한 타입 변경
+  selectedType.value = newType; // 자식 컴포넌트로부터 받은 타입 값 설정
   resetLoadItems(); // 타입 변경 시 데이터 리셋 후 새로 로드
 };
 
-/**
- * 페이지가 마운트될 때 데이터 로드
- */
 const route = useRoute();
 onMounted(() => {
   route.meta.title = '전체 식권 내역';
-  fetchItems(); // 초기 데이터 로드
+  fetchItems();
 });
 </script>
