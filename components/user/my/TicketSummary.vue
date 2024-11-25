@@ -66,15 +66,15 @@
       <div class="space-y-2 w-40 text-right">
         <div class="flex justify-between">
           <span class="text-gray-600">구매</span>
-          <span class="text-blue-500">{{ props.purchasePrice }} 원</span>
+          <span class="text-blue-500">{{ formattedPriceComma(props.purchasePrice) }} 원</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-600">사용</span>
-          <span class="text-red-500">{{ props.usedPrice }} 원</span>
+          <span class="text-red-500">{{ formattedPriceComma(props.usedPrice) }} 원</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-600">잔여수량</span>
-          <span>{{ props.remainingCount }} 개</span>
+          <span>{{ formattedPriceComma(props.remainingCount) }} 개</span>
         </div>
       </div>
     </div>
@@ -97,6 +97,11 @@ const props = defineProps<TicketData>();
 const emit = defineEmits<{
   (e: "dateChanged", payload: { month: number; year: number }): void;
 }>();
+
+// 1000 단위로 쉼표 추가
+const formattedPriceComma = (price: number) => {
+  return price.toLocaleString();
+};
 
 const selectedYearRef = ref(props.selectedYear);
 const selectedMonthRef = ref(props.selectedMonth);
