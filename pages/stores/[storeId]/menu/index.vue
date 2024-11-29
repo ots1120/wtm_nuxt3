@@ -21,7 +21,7 @@
 
             <!-- 카테고리 라벨 -->
             <span
-              class="ml-4 px-2 py-1 text-sm font-medium text-white bg-blue-500 rounded-full"
+              class="ml-4 px-2 py-1 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
             >
               {{ menuItem.categoryName }}
             </span>
@@ -38,8 +38,8 @@
         <p class="text-gray-500 mb-4">아직 메뉴 정보가 없어요 😢</p>
         <form action="#" method="post" class="w-full">
           <button
-            class="bg-[#db3d39] text-white font-semibold py-2 px-4 rounded-lg w-full transition hover:bg-[#c22420]"
-            @click.prevent="goToMenuRegPage"
+            class="bg-gradient-to-r from-rose-400 to-rose-600 text-white font-semibold py-2 px-4 rounded-lg w-full transition hover:bg-[#c22420]"
+            @click.prevent="RegAction"
           >
             메뉴 등록하기
           </button>
@@ -62,6 +62,9 @@ import { useRouter, useRoute } from 'vue-router';
 import { useFetch } from '#app'; // 필요에 따라 경로를 조정하세요.
 import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
 import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 const authStore = useAuthStore();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
@@ -86,6 +89,7 @@ if (!storeId) {
 }
 
 // 메뉴 등록 페이지로 이동하는 함수
+
 const router = useRouter();
 function goToMenuRegPage() {
   router.push(`/stores/${storeId}/menu/new`);
@@ -122,13 +126,16 @@ const RegAction = () => {
 
 // useFetch를 setup 함수의 최상위 레벨에서 사용합니다.
 const { data: menuData, error: menuError } = useFetch<MenuResponse>(
-  `http://localhost:8080/api/v1/stores/${storeId}/menus/today`,
+  `${baseUrl}/api/v1/stores/${storeId}/menus/today`,
+  {
+    credentials: 'include',
+  },
 );
 
 // menuItems를 computed로 정의하여 반응형으로 만듭니다.
 const menuItems = computed(() => {
   if (menuError.value) {
-    console.error('Menu data fetching error:', menuError.value.message);
+    // console.error('Menu data fetching error:', menuError.value.message);
     return [];
   }
 

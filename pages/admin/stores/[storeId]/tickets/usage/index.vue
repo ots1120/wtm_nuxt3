@@ -34,7 +34,7 @@
         <p class="text-gray-700 font-semibold">스캔된 정보 (Recharge):</p>
         <p class="text-gray-600">사용자 ID: {{ decodedData.userId }}</p>
         <p class="text-gray-600">
-          사용 수량: {{ decodedData.ticketQuantity }}원
+          사용 수량: {{ decodedData.ticketQuantity }}개
         </p>
       </div>
       <!-- 승인 상태 표시 -->
@@ -157,6 +157,7 @@ const handleQRCodeDecode = async (decodedText: string) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     });
 
     if (!response.ok) throw new Error('API 요청 실패');

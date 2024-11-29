@@ -180,7 +180,7 @@ import { useRuntimeConfig } from '#app';
 import PostAddressForm from '~/components/user/PostAddressForm.vue';
 
 definePageMeta({
-  title: '회원가입'
+  title: '회원가입',
 });
 
 const config = useRuntimeConfig();

@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
   typescript: { typeCheck: true },
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   // tailwindcss: {
   //   viewer: { endpoint: '/_tailwind', exportViewer: true },
   // },

@@ -34,13 +34,13 @@
             class="flex items-center space-x-2"
           >
             <!-- 평가 항목 이름 -->
-            <span class="w-20 text-gray-600">{{ scale.scaleName }}</span>
+            <span class="w-12 text-gray-600">{{ scale.scaleName }}</span>
             <!-- 프로그레스 바 배경 -->
-            <div class="w-32 h-3 bg-gray-200 rounded-full">
+            <div class="w-28 h-3 bg-gray-200 rounded-full">
               <!-- 프로그레스 바 채워진 부분 -->
               <div
                 :style="{ width: scale.averageScore * 20 + '%' }"
-                class="h-full bg-blue-500 rounded-full"
+                class="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
               ></div>
             </div>
             <!-- 평균 점수 표시 -->
@@ -55,7 +55,6 @@
     <!-- 리뷰 개수와 전체보기 버튼 -->
     <div class="flex justify-between border-b border-t p-2">
       <span class="text-sm font-bold">리뷰 {{ reviewCount }}건</span>
-      <a href="#" class="text-sm">전체보기</a>
     </div>
 
     <!-- 정렬 버튼 섹션 -->
@@ -64,7 +63,8 @@
       <button
         class="text-sm px-2 py-1 rounded"
         :class="{
-          'bg-blue-500 text-white': sortBy === 'date',
+          'bg-gradient-to-r from-blue-500 to-blue-600 text-white':
+            sortBy === 'date',
           'bg-gray-200': sortBy !== 'date',
         }"
         @click="sortReviews('date')"
@@ -75,7 +75,8 @@
       <button
         class="text-sm px-2 py-1 rounded"
         :class="{
-          'bg-blue-500 text-white': sortBy === 'rating',
+          'bg-gradient-to-r from-blue-500 to-blue-600 text-white':
+            sortBy === 'rating',
           'bg-gray-200': sortBy !== 'rating',
         }"
         @click="sortReviews('rating')"
@@ -89,7 +90,7 @@
       <div
         v-for="(review, index) in reviews"
         :key="index"
-        class="bg-white rounded-2xl shadow-sm p-6 transition-all duration-300 ease-in-out hover:shadow-md"
+        class="bg-white p-4 border-b-2"
       >
         <!-- Review images carousel -->
         <div
@@ -135,10 +136,23 @@
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center space-x-4">
             <img
+              v-if="review.userProfilePicture"
               :src="review.userProfilePicture"
               :alt="review.userName"
               class="w-12 h-12 rounded-full object-cover"
             />
+            <!-- 기본 SVG 이미지를 표시 -->
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-10"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill="#BDBDBD"
+                d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
+              />
+            </svg>
             <div>
               <h3 class="font-semibold text-gray-900">{{ review.userName }}</h3>
               <div class="flex items-center mt-1">
@@ -173,7 +187,7 @@
           v-if="review.reviewComments && review.reviewComments.length"
           class="mt-4 bg-gray-50 rounded-xl p-4"
         >
-          <h4 class="text-sm font-semibold text-gray-500 mb-2">댓글</h4>
+          <h4 class="text-sm font-semibold text-gray-500 mb-2">사장님 답글</h4>
           <div
             v-for="(reply, replyIndex) in review.reviewComments"
             :key="replyIndex"
@@ -182,10 +196,23 @@
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-2">
                 <img
+                  v-if="reply.adminProfilePicture"
                   :src="reply.adminProfilePicture"
                   :alt="reply.adminName"
                   class="w-8 h-8 rounded-full object-cover"
                 />
+                <!-- 기본 SVG 이미지를 표시 -->
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8 text-gray-400"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill="#BDBDBD"
+                    d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
+                  />
+                </svg>
                 <span class="font-medium text-gray-900">{{
                   reply.adminName
                 }}</span>
@@ -200,10 +227,11 @@
 
         <!-- 도움돼요 버튼 -->
         <button
-          class="flex items-center space-x-2 border border-gray-300 px-3 py-2 rounded-full"
+          class="flex items-center space-x-2 border border-gray-300 mt-3 px-3 py-2 rounded-full"
           :class="{
-            'bg-blue-500 text-white': review.liked, // liked가 true일 경우 색상 변경
-            'text-gray-500': !review.liked, // liked가 false일 경우 기본 색상
+            'bg-gradient-to-r from-rose-500 to-rose-600 text-white':
+              review.liked,
+            'text-gray-500': !review.liked,
           }"
           @click="toggleHelpful(index, review)"
         >
@@ -246,27 +274,30 @@
       </div>
     </div>
 
-    <!-- 리뷰 쓰기 버튼 -->
-    <div v-if="isAuthenticated" class="fixed bottom-40 right-20 z-50">
-      <WriteButton :push-route="`/my/tickets/history`" />
-    </div>
-
     <!-- 로그인 요청 모달 -->
     <LoginPromptModal
       v-if="loginModalVisible"
       @cancel="closeLoginModal"
       @confirm="redirectToLogin"
     />
+    <WriteButton
+      v-if="isAuthenticated"
+      :push-route="`/my/tickets/stores/${storeId}/history`"
+      class="btn-write"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useFetch } from '#app';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
+import { useAuthStore } from '~/stores/auth';
+import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
 import WriteButton from '~/components/admin/ui/WriteButton.vue';
-import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue'; // 모달 컴포넌트 임포트
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 // 라우터 설정
 const router = useRouter();
@@ -278,7 +309,7 @@ const storeId = route.params.storeId;
 // Auth Store 사용
 const authStore = useAuthStore();
 const username = computed(() => authStore.user?.username);
-const isAuthenticated = computed(() => authStore.isAuthenticated); // 인증 상태 확인
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 // 정렬 기준 상태: 최신순('date') 또는 평점순('rating')
 const sortBy = ref('date');
@@ -300,10 +331,10 @@ const showLeftButton = ref([]);
 const showRightButton = ref([]);
 
 // 무한 스크롤을 위한 상태 변수
-const page = ref(0); // 페이지 번호
-const size = ref(10); // 한 번에 가져올 항목 수
-const hasNext = ref(true); // 다음 페이지가 있는지 여부
-const isLoading = ref(false); // 로딩 상태 관리
+const page = ref(0);
+const size = ref(10);
+const hasNext = ref(true);
+const isLoading = ref(false);
 
 // Intersection Observer를 위한 ref
 const infiniteScrollTrigger = ref(null);
@@ -328,15 +359,25 @@ const sortReviews = (criteria) => {
 
 // 리뷰 개수 가져오기
 const { data: reviewCountData, error: reviewCountError } = useFetch(
-  `http://localhost:8080/api/v1/stores/${storeId}/review-count`,
+  `${baseUrl}/api/v1/stores/${storeId}/review-count`,
+  {
+    credentials: 'include',
+  },
 );
-if (reviewCountData.value) {
-  reviewCount.value = reviewCountData.value.reviewCount;
-}
+
+// 추가된 watch 블록
+watch(reviewCountData, (newData) => {
+  if (newData) {
+    reviewCount.value = newData.reviewCount;
+  }
+});
 
 // 리뷰 통계 가져오기
 const { data: reviewStatsData, error: reviewStatsError } = useFetch(
-  `http://localhost:8080/api/v1/stores/${storeId}/review-stats`,
+  `${baseUrl}/api/v1/stores/${storeId}/review-stats`,
+  {
+    credentials: 'include',
+  },
 );
 
 // 리뷰 통계 데이터가 변경될 때마다 상태 업데이트
@@ -359,7 +400,7 @@ const reviewScaleAverages = computed(
 );
 
 // 이미지 URL을 구성하는 헬퍼 함수
-const constructImageUrl = (path) => `http://localhost:8080${path}`;
+const constructImageUrl = (path) => `${baseUrl}${path}`;
 
 // 리뷰 데이터 가져오기 함수
 const fetchReviews = async () => {
@@ -367,32 +408,31 @@ const fetchReviews = async () => {
   isLoading.value = true;
 
   try {
-    const url = `http://localhost:8080/api/v1/stores/${storeId}/reviews?sortOption=${sortBy.value}&page=${page.value}&size=${size.value}`;
+    const url = `${baseUrl}/api/v1/stores/${storeId}/reviews?sortOption=${sortBy.value}&page=${page.value}&size=${size.value}`;
     const response = await $fetch(url, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json', // JSON 데이터 요청 시 설정
-        'X-Username': username.value, // Pinia에서 가져온 username을 헤더에 추가
+        'Content-Type': 'application/json',
+        'X-Username': username.value,
       },
+      credentials: 'include',
     });
 
     if (response && response.content) {
       const newReviews = response.content.map((review) => ({
         ...review,
-        // 리뷰 이미지 URL 구성
         reviewImages: review.reviewImageUrls.map((img) => ({
           url: constructImageUrl(img),
         })),
-        // 사용자 프로필 이미지 URL
-        userProfilePicture: constructImageUrl(review.userProfilePicture),
-        // 리뷰 댓글 처리
+        userProfilePicture: review.userProfilePicture
+          ? constructImageUrl(review.userProfilePicture)
+          : null,
         reviewComments: review.reviewComments.map((comment) => ({
           ...comment,
           adminProfilePicture: comment.adminProfilePicture
             ? constructImageUrl(comment.adminProfilePicture)
             : null,
         })),
-        // 도움돼요 카운트 초기화
         helpfulCount: review.helpfulCount || 0,
       }));
 
@@ -463,54 +503,45 @@ const scrollRight = (index) => {
   }
 };
 
-// 별점의 채워진 정도를 계산하는 함수
-const getStarFillPercentage = (reviewScore, starIndex) => {
-  const fullStars = Math.floor(reviewScore);
-  const decimal = reviewScore % 1;
-
-  if (starIndex <= fullStars) return 100;
-  else if (starIndex === fullStars + 1) return decimal * 100;
-  return 0;
-};
-
 // "도움돼요" 버튼 상태를 토글하는 함수
 const toggleHelpful = async (index, review) => {
   if (!isAuthenticated.value) {
     // 인증되지 않은 사용자는 모달을 표시하고, 선택된 리뷰 인덱스를 저장
     selectedReviewIndexForHelpful.value = index;
     loginModalVisible.value = true;
-    console.log(loginModalVisible.value);
     return;
   }
   try {
     if (review.liked) {
       // liked가 true인 경우 DELETE API 호출
       await $fetch(
-        `http://localhost:8080/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
+        `${baseUrl}/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
         {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'X-Username': username.value, // username 데이터를 헤더로 전달
+            'X-Username': username.value,
           },
+          credentials: 'include',
         },
       );
       review.liked = false;
-      review.helpfulCount--; // 도움돼요 카운트 감소
+      review.helpfulCount--;
     } else {
       // liked가 false인 경우 POST API 호출
       await $fetch(
-        `http://localhost:8080/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
+        `${baseUrl}/api/v1/stores/${storeId}/reviews/${review.reviewId}/reviewLike`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Username': username.value, // username 데이터를 헤더로 전달
+            'X-Username': username.value,
           },
+          credentials: 'include',
         },
       );
       review.liked = true;
-      review.helpfulCount++; // 도움돼요 카운트 증가
+      review.helpfulCount++;
     }
   } catch (error) {
     console.error('도움돼요 상태 변경 중 오류 발생:', error);
@@ -568,18 +599,34 @@ const closeLoginModal = () => {
 // 로그인 페이지로 리디렉션 함수
 const redirectToLogin = () => {
   if (process.client) {
-    const currentPath = route.fullPath; // 현재 경로 가져오기
-    console.log('Current Path:', currentPath); // 디버깅 로그
-    localStorage.setItem('redirectPath', currentPath); // 경로 저장
+    const currentPath = route.fullPath;
+    localStorage.setItem('redirectPath', currentPath);
   }
-  router.push('/signIn'); // 라우터에 'login' 경로가 설정되어 있어야 합니다.
+  router.push('/signIn');
 };
+
+onMounted(() => {
+  const quickBar = document.querySelector('.quick-bar');
+  if (quickBar == null) return;
+  const btnWrite = document.querySelector('.btn-write');
+  if (btnWrite == null) return;
+  quickBar.appendChild(btnWrite);
+});
+
+onUnmounted(() => {
+  const quickBar = document.querySelector('.quick-bar');
+  if (quickBar == null) return;
+  const btnWrite = document.querySelector('.btn-write');
+  if (btnWrite == null) return;
+  quickBar.removeChild(btnWrite);
+});
 
 // 레이아웃 설정
 definePageMeta({
   layout: 'storedetail',
 });
 </script>
+
 <style scoped>
 .snap-x {
   scroll-snap-type: x mandatory;
@@ -589,14 +636,12 @@ definePageMeta({
   scroll-snap-align: center;
 }
 
+/* 수평 스크롤바 안보이게 설정하려면 */
 /* Hide scrollbar for Chrome, Safari and Opera */
 .overflow-x-auto::-webkit-scrollbar {
-  display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .overflow-x-auto {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
 }
 </style>

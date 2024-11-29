@@ -110,6 +110,8 @@ import BookmarkModal from '~/components/user/modal/BookmarkModal.vue';
 import LoginPromptModal from '~/components/user/modal/LoginPromptModal.vue';
 import { useAuthStore } from '~/stores/auth'; // Pinia 스토어 임포트
 
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 // 라우터 및 라우트 인스턴스
 const route = useRoute();
 const router = useRouter();
@@ -136,7 +138,7 @@ const storeId = Number(route.params.storeId);
 const fetchBookmarkStatus = async () => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/bookmark`,
+      `${baseUrl}/api/v1/stores/${storeId}/bookmark`,
       {
         method: 'GET',
         headers: {
@@ -183,7 +185,7 @@ async function navigateToPath() {
 
     // 백엔드 API 호출
     const response = await fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/directions?userLatitude=${latitude}&userLongitude=${longitude}`,
+      `${baseUrl}/api/v1/stores/${storeId}/directions?userLatitude=${latitude}&userLongitude=${longitude}`,
     );
 
     if (!response.ok) {
@@ -203,7 +205,7 @@ async function navigateToPath() {
 const addBookmark = async (storeId: number) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/bookmark`,
+      `${baseUrl}/api/v1/stores/${storeId}/bookmark`,
       {
         method: 'POST',
         headers: {
@@ -228,7 +230,7 @@ const addBookmark = async (storeId: number) => {
 const deleteBookmark = async (storeId: number) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/bookmark`,
+      `${baseUrl}/api/v1/stores/${storeId}/bookmark`,
       {
         method: 'DELETE',
         headers: {

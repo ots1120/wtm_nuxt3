@@ -25,8 +25,6 @@
                       :for="`${key}-${star}-stars`"
                       class="cursor-pointer text-gray-300 transition"
                       :class="{ 'text-yellow-400': star <= ratings[key] }"
-                      @mouseenter="setHover(key, star)"
-                      @mouseleave="clearHover(key)"
                     >
                       &#9733;
                     </label>
@@ -156,7 +154,7 @@
           <!-- Submit Button -->
           <button
             type="submit"
-            class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+            class="w-full bg-[#db3d39] text-white py-2 px-4 rounded-lg hover:bg-[#c22420] transition-colors"
           >
             작성 완료
           </button>
@@ -167,10 +165,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onBeforeMount } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useRoute, useRouter } from '#app';
 import { useNavigationState } from '~/composables/useNavigationState';
 import { useAuthStore } from '~/stores/auth';
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 const route = useRoute();
 const router = useRouter();
@@ -209,14 +210,6 @@ const errors = reactive({
   reviewText: '',
 });
 
-const setHover = (key, star) => {
-  ratings.value[key] = star;
-};
-
-const clearHover = (key) => {
-  // This function is now empty as we're not using hover state anymore
-};
-
 const onFileChange = (event) => {
   const files = event.target.files;
   const maxSize = 5 * 1024 * 1024;
@@ -235,7 +228,6 @@ const onFileChange = (event) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       imageFiles.value.push({ file, preview: e.target.result });
-      errors.images = '';
     };
     reader.readAsDataURL(file);
   }
@@ -305,13 +297,14 @@ const submitReview = async () => {
 
   try {
     const response = await $fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/ticketHistoryUsage/${ticketHistoryUsageId}/reviews`,
+      `${baseUrl}/api/v1/stores/${storeId}/ticketHistoryUsage/${ticketHistoryUsageId}/reviews`,
       {
         method: 'POST',
         body: formData,
         headers: {
           'X-Username': username.value,
         },
+        credentials: 'include',
       },
     );
     console.log('리뷰가 성공적으로 등록되었습니다.', response);

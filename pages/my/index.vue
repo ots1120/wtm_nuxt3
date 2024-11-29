@@ -19,7 +19,22 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >내 정보 수정</span
               >
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg></span>
+              <span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </span>
             </a>
           </li>
           <li>
@@ -30,7 +45,22 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >내 식권 관리</span
               >
-              <span>&gt;</span>
+              <span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </span>
             </a>
           </li>
           <li>
@@ -41,7 +71,22 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >식권 구매 · 사용내역</span
               >
-              <span>&gt;</span>
+              <span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </span>
             </a>
           </li>
           <li>
@@ -52,7 +97,22 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >내 북마크 관리</span
               >
-              <span>&gt;</span>
+              <span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </span>
             </a>
           </li>
           <li>
@@ -63,11 +123,34 @@
               <span class="text-gray-900 group-hover:text-gray-600"
                 >내 리뷰 관리</span
               >
-              <span>&gt;</span>
+              <span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-right"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </span>
             </a>
           </li>
         </ul>
       </section>
+    </div>
+    <div v-if="isAuthenticated" class="flex w-full mt-10">
+      <button
+        class="flex w-full justify-center items-center text-[#db3d39] font-light rounded-lg text-sm px-6 py-4"
+        @click="logout"
+      >
+        로그아웃
+      </button>
     </div>
   </div>
 </template>
@@ -76,12 +159,15 @@
 import { ref, onBeforeMount } from 'vue';
 import { useRouter, useFetch } from 'nuxt/app';
 import UserInfo from '@/components/user/my/UserInfo.vue';
+import { useAuthStore } from '~/stores/auth';
 
 interface User {
   name: string;
   email: string;
   profilePicture: string | null;
 }
+
+const authStore = useAuthStore();
 
 const router = useRouter();
 const route = useRoute();
@@ -90,12 +176,10 @@ const authstore = useAuthStore();
 const username = authstore.user?.username;
 
 const user = ref<User | null>(null);
+const isAuthenticated = computed(() => authstore.isAuthenticated);
 
-// const user = ref<User>({
-//   email: '',
-//   name: '',
-//   profilePicture: '',
-// });
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
 
 const navigateTo = (path: string) => {
   router.push(path);
@@ -105,7 +189,10 @@ onBeforeMount(async () => {
   route.meta.title = '내 정보';
   // useFetch에서 User 타입을 지정
   const { data, error } = await useFetch<User>(
-    `http://localhost:8080/api/v1/user/my?username=${username}`,
+    `/api/v1/user/my?username=${username}`,
+    {
+      baseURL: baseUrl,
+    },
   );
 
   if (data.value) {
@@ -113,13 +200,24 @@ onBeforeMount(async () => {
       email: data.value.email,
       name: data.value.name,
       profilePicture: data.value.profilePicture
-      ? `http://localhost:8080${data.value.profilePicture}`
-      : null, // null일 경우 null 유지
+        ? `${baseUrl}${data.value.profilePicture}`
+        : null, // null일 경우 null 유지
     };
   } else if (error.value) {
     console.error('유저 정보를 불러오는 데 실패했습니다1', error.value);
   }
 });
+
+const logout = async () => {
+  try {
+    await authStore.signOut();
+    console.log('로그아웃 성공');
+    // 로그아웃 후 로그인 페이지로 이동
+    window.location.href = '/';
+  } catch (error) {
+    console.error('로그아웃 실패:', error);
+  }
+};
 </script>
 
 <style scoped></style>

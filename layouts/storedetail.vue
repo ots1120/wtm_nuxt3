@@ -8,7 +8,7 @@
       <StoreDetailImages :images="images" :restaurant-name="restaurantName" />
 
       <!-- 식당 정보 섹션 -->
-      <div class="mt-4">
+      <div class="mt-4 ml-4">
         <StoreDetailInfo
           v-if="reviewStats.storeName"
           :review-stats="reviewStats"
@@ -36,7 +36,7 @@
       class="fixed bottom-0 w-full bg-white border-t border-gray-200 rounded-t-2xl shadow-lg"
     >
       <UserBottomNav
-        class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
+        class="quick-bar fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-20"
       />
     </div>
   </div>
@@ -49,6 +49,15 @@ import StoreDetailImages from '~/components/user/stores/detail/StoreDetailImages
 import StoreDetailInfo from '~/components/user/stores/detail/StoreDetailInfo.vue';
 import StoreDetailActionButtons from '~/components/user/stores/detail/StoreDetailActionButtons.vue';
 import StoreDetailTabs from '~/components/user/stores/detail/StoreDetailTabs.vue';
+import WriteButton from '~/components/admin/ui/WriteButton.vue';
+import { useAuthStore } from '~/stores/auth'; // authStore 불러오기
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+
+// Auth Store 사용
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated); // 인증 상태 확인
 
 const route = useRoute();
 const storeId = route.params.storeId ? String(route.params.storeId) : '';
@@ -71,7 +80,7 @@ provide('actionButtons', actionButtons);
 async function fetchData(storeId) {
   try {
     const reviewSummaryResponse = await fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/review-summary`,
+      `${baseUrl}/api/v1/stores/${storeId}/review-summary`,
     );
     const reviewSummaryData = await reviewSummaryResponse.json();
 
@@ -83,11 +92,11 @@ async function fetchData(storeId) {
     };
 
     const imagesResponse = await fetch(
-      `http://localhost:8080/api/v1/stores/${storeId}/menus/today-images`,
+      `${baseUrl}/api/v1/stores/${storeId}/menus/today-images`,
     );
     const imagesData = await imagesResponse.json();
 
-    images.value = imagesData.map((img) => `http://localhost:8080${img.img}`);
+    images.value = imagesData.map((img) => `${baseUrl}${img.img}`);
   } catch (error) {
     console.error('데이터 가져오기 중 오류 발생:', error);
   }

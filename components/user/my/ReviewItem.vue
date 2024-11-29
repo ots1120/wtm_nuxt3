@@ -1,9 +1,9 @@
 <template>
   <li>
-    <div class="mt-5 mr-11 ml-11 mb-3 block border-b-2 border-b-slate-300">
-      <a href="#">
+    <div class="flex border-b-2">
+        
         <div class="mb-4">
-          <figure class="mb-4 mt-2">
+
             <img
               v-if="props.review.reviewImgUrl"
               :src="props.review.reviewImgUrl"
@@ -35,7 +35,6 @@
                 />
               </g>
             </svg>
-          </figure>
         </div>
         <div class="ml-2">
           <div class="justify-between flex w-full">
@@ -107,7 +106,6 @@
             <p>{{ props.review.content }}</p>
           </div>
         </div>
-      </a>
       <div class="block text-right mt-1 mb-6">
         <button class="text-sky-400" @click="toggleModal">삭제</button>
       </div>

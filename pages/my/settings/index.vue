@@ -1,11 +1,11 @@
 <template>
   <div class="min-h-screen">
     <section class="flex overflow-y-auto justify-center px-4 pb-10">
-      <form @submit.prevent="onSubmitForm" enctype="multipart/form-data">
+      <form enctype="multipart/form-data" @submit.prevent="openModal">
         <!-- 프로필 사진 -->
         <div class="items-center justify-center text-center border-b pb-4">
           <div
-            class="relative w-32 h-32 bg-gray-300 rounded-full mx-auto mt-4 mb-3 flex items-center justify-center"
+            class="relative w-32 h-32 rounded-full mx-auto mt-4 mb-3 flex items-center justify-center"
           >
             <img
               v-if="user.profilePicture"
@@ -13,20 +13,16 @@
               alt="프로필 사진"
               class="w-32 h-32 object-cover rounded-full"
             />
+            <!-- 기본 SVG 이미지를 표시 -->
             <svg
               v-else
-              width="120px"
-              height="120px"
-              viewBox="0 0 64 64"
               xmlns="http://www.w3.org/2000/svg"
-              stroke-width="3"
-              stroke="#000000"
-              fill="none"
-              class="block stroke-white rounded-full"
+              class="h-32 w-32 text-gray-400"
+              viewBox="0 0 16 16"
             >
-              <circle cx="32" cy="18.14" r="11.14" />
               <path
-                d="M54.55,56.85A22.55,22.55,0,0,0,32,34.3h0A22.55,22.55,0,0,0,9.45,56.85Z"
+                fill="#BDBDBD"
+                d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"
               />
             </svg>
           </div>
@@ -35,8 +31,8 @@
               >프로필 사진 수정</label
             >
             <input
-              type="file"
               id="profilePicture"
+              type="file"
               name="profilePicture"
               class="hidden"
               @change="handleImageChange"
@@ -50,9 +46,9 @@
             >닉네임</label
           >
           <input
-            type="text"
             id="name"
             v-model="user.name"
+            type="text"
             class="w-full p-3 mt-2 border rounded-lg"
             placeholder="닉네임"
           />
@@ -64,9 +60,9 @@
             >이메일</label
           >
           <input
-            type="email"
             id="email"
             v-model="user.email"
+            type="email"
             class="w-full p-3 mt-2 border rounded-lg"
             placeholder="example@ex.com"
           />
@@ -80,9 +76,9 @@
             >비밀번호</label
           >
           <input
-            type="password"
             id="password"
             v-model="user.password"
+            type="password"
             class="w-full p-3 mt-2 border rounded-lg"
             placeholder="비밀번호(9~16자리)"
           />
@@ -93,10 +89,11 @@
           <PostAddressForm
             :postcode="user.userAddress.postcode"
             :address="user.userAddress.address"
-            :detailAddress="user.userAddress.detailAddress"
-            :extraAddress="user.userAddress.extraAddress"
-            :showModal="showModal"
-            @updateAddress="updateAddress"
+            :detail-address="user.userAddress.detailAddress"
+            :extra-address="user.userAddress.extraAddress"
+            :show-modal="showModal"
+            title-class="font-extrabold text-lg text-gray-700 block"
+            @update-address="updateUserAddress"
           />
         </div>
 
@@ -106,9 +103,9 @@
             >휴대폰번호</label
           >
           <input
-            type="tel"
             id="phone"
             v-model="user.phone"
+            type="tel"
             class="w-full p-3 mt-2 border rounded-lg"
             placeholder="010-1234-1234"
           />
@@ -118,21 +115,34 @@
         <button
           type="submit"
           class="w-full bg-blue-500 text-white py-2 rounded-lg text-lg font-medium mt-4"
+          :disabled="!isPasswordValid"
+          @click="openModal"
         >
           완료
         </button>
       </form>
     </section>
+    <BasicModal
+      v-if="modal.visible"
+      :visible="modal.visible"
+      :message-title="'정보 수정'"
+      :message-body="'내 정보를 수정하시겠습니까?'"
+      :cancel-message="'취소'"
+      :confirm-message="'저장'"
+      @confirm="confirmSave"
+      @cancel="cancelSave"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
-import { useRoute } from "vue-router";
-import PostAddressForm from "~/components/user/PostAddressForm.vue";
-import { useAuthStore } from "~/stores/auth"; // AuthStore 경로에 맞게 수정 필요
+import { ref, onBeforeMount } from 'vue';
+import { useRoute } from 'vue-router';
+import PostAddressForm from '~/components/user/PostAddressForm.vue';
+import { useAuthStore } from '~/stores/auth'; // AuthStore 경로에 맞게 수정 필요
+import BasicModal from '~/components/modal/BasicModal.vue';
 
-interface Address{
+interface Address {
   postcode: string;
   address: string;
   detailAddress: string;
@@ -153,8 +163,8 @@ const user = ref<User>({
   email: '',
   name: '',
   password: '',
-  userAddress:{
-    postcode:'',
+  userAddress: {
+    postcode: '',
     address: '',
     detailAddress: '',
     extraAddress: '',
@@ -163,31 +173,46 @@ const user = ref<User>({
   profilePicture: null,
 });
 
+// 비밀번호 유효성 상태
+const isPasswordValid = ref(true);
+
+// 비밀번호 검증 로직
+const validatePassword = () => {
+  isPasswordValid.value = !!user.value.password; // 비밀번호가 입력되어 있는지 확인
+};
+
 // 주소 상태 관리
 const showModal = ref(false);
 
 // 프로필 이미지 상태
 const profileImage = ref<File | null>(null);
 
-// 유저 정보 업데이트 함수
-const userFormData = (data: any) => {
-  user.value.name = data.name;
-  user.value.userAddress.postcode = ''; // 초기화
-  user.value.userAddress.address = '';
-  user.value.userAddress.detailAddress = ''; // 초기화
-  user.value.userAddress.extraAddress = ''; // 초기화
-  user.value.email = data.email;
-  user.value.password = data.password;
-  user.value.phone = data.phone;
-  user.value.profilePicture = data.profilePicture
-    ? `http://localhost:8080${data.profilePicture}`
-    : null;
+const openModal = () => {
+  modal.value.visible = true;
+};
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseApiUrl;
+const isDataLoaded = ref(false);
+// Modal 관리 로직
+const modal = ref<{
+  visible: boolean;
+}>({
+  visible: false,
+});
+
+const cancelSave = (): void => {
+  // Simply hide the modal and reset the state
+  modal.value = {
+    visible: false,
+  };
 };
 
 // AuthStore와 라우터 활용
 const authstore = useAuthStore();
 const username = authstore.user?.username;
 const route = useRoute();
+const router = useRouter(); // 라우터
 
 // 프로필 이미지 변경 핸들러
 const handleImageChange = (event: Event): void => {
@@ -196,94 +221,112 @@ const handleImageChange = (event: Event): void => {
   profileImage.value = file;
 
   if (file) {
-    // URL.createObjectURL을 사용해 이미지 미리보기 URL 생성
-    user.value.profilePicture = URL.createObjectURL(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      user.value.profilePicture = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 };
 
 // 주소 업데이트 핸들러
-const updateAddress = (addressData: {
+const updateUserAddress = (addressData: {
   postcode: string;
   address: string;
   detailAddress: string;
   extraAddress: string;
 }) => {
-  console.log(addressData);
-  user.value.userAddress.postcode = addressData.postcode || '';
-  user.value.userAddress.address = addressData.address || '';
-  user.value.userAddress.detailAddress = addressData.detailAddress || '';
-  user.value.userAddress.extraAddress = addressData.extraAddress || '';
+  user.value.userAddress = {
+    postcode: addressData.postcode || '',
+    address: addressData.address || '',
+    detailAddress: addressData.detailAddress || '',
+    extraAddress: addressData.extraAddress || '',
+  };
 };
 
 // 폼 제출 핸들러
-const onSubmitForm = async (): Promise<void> => {
+const confirmSave = async (): Promise<void> => {
+  validatePassword(); // 비밀번호 검증
+  if (!isPasswordValid.value) {
+    alert('비밀번호를 입력해주세요.');
+    modal.value.visible = false;
+    return; // 검증 실패 시 제출 중단
+  }
   try {
+    const dto = {
+      email: user.value.email,
+      name: user.value.name,
+      password: user.value.password,
+      phone: user.value.phone,
+      userAddress: {
+        postcode: user.value.userAddress.postcode,
+        address: user.value.userAddress.address,
+        detailAddress: user.value.userAddress.detailAddress,
+        extraAddress: user.value.userAddress.extraAddress,
+      },
+    };
     const formData = new FormData();
-
-    // // user 객체 데이터를 FormData에 추가
-    // Object.entries(user.value).forEach(([key, value]) => {
-    //   if (key === "profilePicture" && profileImage.value) {
-    //     formData.append(key, profileImage.value); // File 객체로 추가
-    //   } else if (key !== "profilePicture") {
-    //     formData.append(key, value as string);
-    //   }
-    // });
-    // user 객체의 데이터를 FormData에 추가
-    formData.append("email", user.value.email);
-    formData.append("name", user.value.name);
-    formData.append("password", user.value.password);
-    formData.append("phone", user.value.phone);
-
-    // userAddress 데이터를 분리해서 추가
-    formData.append("userAddress.postcode", user.value.userAddress.postcode);
-    formData.append("userAddress.address", user.value.userAddress.address);
-    formData.append("userAddress.detailAddress", user.value.userAddress.detailAddress);
-    formData.append("userAddress.extraAddress", user.value.userAddress.extraAddress);
+    formData.append('dto', JSON.stringify(dto));
 
     // 프로필 이미지 추가
     if (profileImage.value) {
-      formData.append("profilePicture", profileImage.value); // 파일 추가
+      formData.append('profilePicture', profileImage.value);
     }
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-
-    // API 요청 (PUT 메서드)
-    await useFetch(`http://localhost:8080/api/v1/user/my/settings`, {
-      method: "PUT",
+    const response = await fetch(`${baseUrl}/api/v1/user/my/settings`, {
+      method: 'PUT',
       body: formData,
+      credentials: 'include',
     });
 
-    // 유저 정보 다시 가져오기
-    const { data: updatedData, error: fetchError } = await useFetch<User>(
-      `http://localhost:8080/api/v1/user/my/settings?username=${username}`
+    if (response.ok) {
+      console.log('데이터가 성공적으로 저장되었습니다.');
+      modal.value.visible = false;
+      router.push('/my');
+    } else {
+      console.error('저장 중 오류 발생:', await response.text());
+    }
+  } catch (err) {
+    console.error('폼 제출 중 예외 발생:', err);
+  }
+};
+
+const fetchUserData = async () => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/v1/user/my/settings?username=${username}`,
+      {
+        credentials: 'include',
+      },
     );
-
-    if (fetchError.value) {
-      throw new Error("Failed to fetch updated user data");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-
-    if (updatedData.value) {
-      userFormData(updatedData.value); // PUT 요청 이후 받은 데이터로 상태 업데이트
-    }
+    const fetchData: User = await response.json();
+    user.value = {
+      ...fetchData,
+      userAddress: fetchData.userAddress || {
+        // userAddress가 없는 경우 기본값 설정
+        postcode: '',
+        address: '',
+        detailAddress: '',
+        extraAddress: '',
+      },
+      profilePicture: fetchData.profilePicture
+        ? `${baseUrl}${fetchData.profilePicture}`
+        : null,
+    };
+    isDataLoaded.value = true;
   } catch (error) {
-    console.error("프로필 업데이트에 실패했습니다:", error);
+    console.error('데이터 요청 중 오류 발생:', error);
+    isDataLoaded.value = false;
   }
 };
 
 // 페이지 로드 시 유저 정보 불러오기
 onBeforeMount(async () => {
-  route.meta.title = "내 정보 수정"; // 페이지 타이틀 설정
-  const { data, error } = await useFetch(
-    `http://localhost:8080/api/v1/user/my/settings?username=${username}`
-  );
-
-  if (data.value) {
-    userFormData(data.value); // GET 요청 결과로 상태 초기화
-  } else if (error.value) {
-    console.error("유저정보를 불러오는 중 실패하였습니다", error.value);
-  }
+  route.meta.title = '내 정보 수정'; // 페이지 타이틀 설정
+  fetchUserData();
 });
 </script>
 
